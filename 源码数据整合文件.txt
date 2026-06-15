@@ -1,0 +1,2036 @@
+================================================================================
+【项目树形结构】
+================================================================================
+📁 Minesweeper
+│   📁 .git
+│   │   📁 hooks
+│   │   ├── 📄 applypatch-msg.sample
+│   │   ├── 📄 commit-msg.sample
+│   │   ├── 📄 fsmonitor-watchman.sample
+│   │   ├── 📄 post-update.sample
+│   │   ├── 📄 pre-applypatch.sample
+│   │   ├── 📄 pre-commit.sample
+│   │   ├── 📄 pre-merge-commit.sample
+│   │   ├── 📄 pre-push.sample
+│   │   ├── 📄 pre-rebase.sample
+│   │   ├── 📄 pre-receive.sample
+│   │   ├── 📄 prepare-commit-msg.sample
+│   │   ├── 📄 push-to-checkout.sample
+│   │   ├── 📄 sendemail-validate.sample
+│   │   └── 📄 update.sample
+│   │   📁 info
+│   │   └── 📄 exclude
+│   │   📁 logs
+│   │   │   📁 refs
+│   │   │   │   📁 heads
+│   │   │   │   └── 📄 master
+│   │   │       📁 remotes
+│   │   │           📁 origin
+│   │   │           ├── 📄 HEAD
+│   │   │           └── 📄 master
+│   │   └── 📄 HEAD
+│   │   📁 objects
+│   │   │   📁 12
+│   │   │   └── ⛔ 919395b9203ee9550a5f0323c0cb55e4c20d09
+│   │   │   📁 19
+│   │   │   └── ⛔ c22c8ffeee5e35580856141bbd7a027915ccd5
+│   │   │   📁 22
+│   │   │   └── ⛔ d5823af686f6eda4b7b23a66187d17a4c42ad2
+│   │   │   📁 39
+│   │   │   ├── ⛔ ec18d1463e05940c529c2efe1887c4f1a91cc5
+│   │   │   └── ⛔ f86c1212f5f1c5db86cd3b2dd30fbdc5da1627
+│   │   │   📁 40
+│   │   │   └── ⛔ 056d4326982782e4267d63897eca8d2683c316
+│   │   │   📁 43
+│   │   │   └── ⛔ 6faf4c2e14c6d71c16b3ee48b1f67899f058e5
+│   │   │   📁 50
+│   │   │   └── ⛔ de5d54308be6359e263ba49e8e38314e26c306
+│   │   │   📁 55
+│   │   │   └── ⛔ 912349242098ce36d419b78899a221e9bfd73c
+│   │   │   📁 64
+│   │   │   └── ⛔ 81b35ea1bda2f4ff826e55e32b87ffe18caa99
+│   │   │   📁 71
+│   │   │   ├── ⛔ 01e9793342df9322ff43031b797477f60ebaa9
+│   │   │   └── ⛔ ea375315cb9030a7c63fd159bcb17f3c1fa95b
+│   │   │   📁 78
+│   │   │   └── ⛔ 74474e64b20332dd2253e6f224cab8e91def78
+│   │   │   📁 7a
+│   │   │   └── ⛔ 17b36e3fa1de47ceaa12c6a35c5d3842e74eea
+│   │   │   📁 7d
+│   │   │   └── ⛔ e9a3d23f79384f84d9f289b7604e3eb4e4f33d
+│   │   │   📁 88
+│   │   │   └── ⛔ 616f9aa375599c4667be7c167c95724596f1f6
+│   │   │   📁 8d
+│   │   │   └── ⛔ 417a44da15d93b418c5acf77383dec9005291e
+│   │   │   📁 91
+│   │   │   └── ⛔ 71f308da9a558a585432f5d026806f68b61606
+│   │   │   📁 b8
+│   │   │   └── ⛔ 44bbe3beefa7d6d6b001ecfa165cd3995f7df6
+│   │   │   📁 c4
+│   │   │   └── ⛔ 83f47289f6448538a2ab55d5792fa3a19d5659
+│   │   │   📁 c5
+│   │   │   └── ⛔ 2bdb5394971f5900f494b3ef761e30591c673c
+│   │   │   📁 ca
+│   │   │   └── ⛔ d7c3d81a2b74de9fc630aa16f36a7780f1ad03
+│   │   │   📁 d5
+│   │   │   └── ⛔ 9e888e22a55992281c5410fe4b032f4345d745
+│   │   │   📁 e3
+│   │   │   └── ⛔ 0d028278d9ee90fea83bf104ae2d45eff051ae
+│   │   │   📁 f1
+│   │   │   └── ⛔ 4cdf1805bd169c0bcc7fe087921a4060b33dab
+│   │   │   📁 f5
+│   │   │   └── ⛔ 5a608a7f8f093bd1de28ba1477356428b938ed
+│   │   │   📁 f9
+│   │   │   └── ⛔ 1c612b5e6b7a36ab8b49dad430049535ed9df3
+│   │   │   📁 fa
+│   │   │   ├── ⛔ 60b35d8362f539b891dd503a646b09acc0fe78
+│   │   │   └── ⛔ e2253c8bf5eb011cb18001a31bcd810438623a
+│   │   │   📁 info
+│   │       📁 pack
+│   │       ├── ⛔ pack-75c6a1afdd786de6d66a0b8501639f42076d90da.idx
+│   │       ├── ⛔ pack-75c6a1afdd786de6d66a0b8501639f42076d90da.pack
+│   │       └── ⛔ pack-75c6a1afdd786de6d66a0b8501639f42076d90da.rev
+│   │   📁 refs
+│   │   │   📁 heads
+│   │   │   └── 📄 master
+│   │   │   📁 remotes
+│   │   │       📁 origin
+│   │   │       ├── 📄 HEAD
+│   │   │       └── 📄 master
+│   │       📁 tags
+│   ├── 📄 COMMIT_EDITMSG
+│   ├── 📄 config
+│   ├── 📄 description
+│   ├── 📄 HEAD
+│   ├── ⛔ index
+│   └── 📄 packed-refs
+│   📁 static
+│       📁 picture
+│       ├── ⛔ 11-1.jpg
+│       ├── ⛔ 11-2.jpg
+│       ├── ⛔ 11-21.jpg
+│       ├── ⛔ 11-3.jpg
+│       ├── ⛔ 11.jpg
+│       ├── ⛔ 11b1.jpg
+│       ├── ⛔ 11b12.jpg
+│       ├── ⛔ 11b13.jpg
+│       ├── ⛔ 11b3.jpg
+│       ├── ⛔ 11b4.jpg
+│       ├── ⛔ 11b5.jpg
+│       ├── ⛔ 11b8.jpg
+│       ├── ⛔ 12.jpg
+│       ├── ⛔ 121.jpg
+│       ├── ⛔ 121b1.jpg
+│       ├── ⛔ 121b2.jpg
+│       ├── ⛔ 121b3.jpg
+│       ├── ⛔ 121b4.jpg
+│       ├── ⛔ 1221.jpg
+│       ├── ⛔ 1221b1.jpg
+│       ├── ⛔ 1221b2.jpg
+│       ├── ⛔ 1221b3.jpg
+│       ├── ⛔ 2-1.jpg
+│       ├── ⛔ 2-2.jpg
+│       ├── ⛔ 3.jpg
+│       └── ⛔ minus.jpg
+├── 📄 about.html
+├── 📄 dingshituli.html
+├── 📄 gfs1.js
+├── 📄 index.html
+├── 📄 jichudingshi.html
+└── 📄 new.6.27.js
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/description
+项目内路径：/.git/description
+文件名：description
+文件大小：73 字节
+================================================================================
+文件内容：
+Unnamed repository; edit this file 'description' to name the repository.
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/commit-msg.sample
+项目内路径：/.git/hooks/commit-msg.sample
+文件名：commit-msg.sample
+文件大小：2003 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+#
+# An example hook script to check the commit log message.
+# Called by "git commit" with one argument, the name of the file
+# that has the commit message.  The hook should exit with non-zero
+# status after issuing an appropriate message if it wants to stop the
+# commit.  The hook is allowed to edit the commit message file.
+#
+# To enable this hook, rename this file to "commit-msg".
+
+# Uncomment the below to add a Signed-off-by line to the message.
+# Doing this in a hook is a bad idea in general, but the prepare-commit-msg
+# hook is more suited to it.
+#
+# SOB=$(git var GIT_AUTHOR_IDENT | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
+# grep -qs "^$SOB" "$1" || echo "$SOB" >> "$1"
+
+# This example catches duplicate Signed-off-by lines and messages that
+# would confuse 'git am'.
+
+ret=0
+
+test "" = "$(grep '^Signed-off-by: ' "$1" |
+	 sort | uniq -c | sed -e '/^[ 	]*1[ 	]/d')" || {
+	echo >&2 Duplicate Signed-off-by lines.
+	ret=1
+}
+
+comment_re="$(
+	{
+		git config --get-regexp "^core\.comment(char|string)\$" ||
+			echo '#'
+	} | sed -n -e '
+		${
+			s/^[^ ]* //
+			s|[][*./\]|\\&|g
+			s/^auto$/[#;@!$%^&|:]/
+			p
+		}'
+)"
+scissors_line="^${comment_re} -\{8,\} >8 -\{8,\}\$"
+comment_line="^${comment_re}.*"
+blank_line='^[ 	]*$'
+# Disallow lines starting with "diff -" or "Index: " in the body of the
+# message. Stop looking if we see a scissors line.
+line="$(sed -n -e "
+	# Skip comments and blank lines at the start of the file.
+	/${scissors_line}/q
+	/${comment_line}/d
+	/${blank_line}/d
+	# The first paragraph will become the subject header so
+	# does not need to be checked.
+	: subject
+	n
+	/${scissors_line}/q
+	/${blank_line}/!b subject
+	# Check the body of the message for problematic
+	# prefixes.
+	: body
+	n
+	/${scissors_line}/q
+	/${comment_line}/b body
+	/^diff -/{p;q;}
+	/^Index: /{p;q;}
+	b body
+	" "$1")"
+if test -n "$line"
+then
+	echo >&2 "Message contains a diff that will confuse 'git am'."
+	echo >&2 "To fix this indent the diff."
+	ret=1
+fi
+
+exit $ret
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/fsmonitor-watchman.sample
+项目内路径：/.git/hooks/fsmonitor-watchman.sample
+文件名：fsmonitor-watchman.sample
+文件大小：4638 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/perl
+
+use strict;
+use warnings;
+use IPC::Open2;
+
+# An example hook script to integrate Watchman
+# (https://facebook.github.io/watchman/) with git to speed up detecting
+# new and modified files.
+#
+# The hook is passed a version (currently 2) and last update token
+# formatted as a string and outputs to stdout a new update token and
+# all files that have been modified since the update token. Paths must
+# be relative to the root of the working tree and separated by a single NUL.
+#
+# To enable this hook, rename this file to "query-watchman" and set
+# 'git config core.fsmonitor .git/hooks/query-watchman'
+#
+my ($version, $last_update_token) = @ARGV;
+
+# Uncomment for debugging
+# print STDERR "$0 $version $last_update_token\n";
+
+# Check the hook interface version
+if ($version ne 2) {
+	die "Unsupported query-fsmonitor hook version '$version'.\n" .
+	    "Falling back to scanning...\n";
+}
+
+my $git_work_tree = get_working_dir();
+
+my $json_pkg;
+eval {
+	require JSON::XS;
+	$json_pkg = "JSON::XS";
+	1;
+} or do {
+	require JSON::PP;
+	$json_pkg = "JSON::PP";
+};
+
+launch_watchman();
+
+sub launch_watchman {
+	my $o = watchman_query();
+	if (is_work_tree_watched($o)) {
+		output_result($o->{clock}, @{$o->{files}});
+	}
+}
+
+sub output_result {
+	my ($clockid, @files) = @_;
+
+	# Uncomment for debugging watchman output
+	# open (my $fh, ">", ".git/watchman-output.out");
+	# binmode $fh, ":utf8";
+	# print $fh "$clockid\n@files\n";
+	# close $fh;
+
+	binmode STDOUT, ":utf8";
+	print $clockid;
+	print "\0";
+	local $, = "\0";
+	print @files;
+}
+
+sub watchman_clock {
+	my $response = qx/watchman clock "$git_work_tree"/;
+	die "Failed to get clock id on '$git_work_tree'.\n" .
+		"Falling back to scanning...\n" if $? != 0;
+
+	return $json_pkg->new->utf8->decode($response);
+}
+
+sub watchman_query {
+	my $pid = open2(\*CHLD_OUT, \*CHLD_IN, 'watchman -j --no-pretty')
+	or die "open2() failed: $!\n" .
+	"Falling back to scanning...\n";
+
+	# In the query expression below we're asking for names of files that
+	# changed since $last_update_token but not from the .git folder.
+	#
+	# To accomplish this, we're using the "since" generator to use the
+	# recency index to select candidate nodes and "fields" to limit the
+	# output to file names only. Then we're using the "expression" term to
+	# further constrain the results.
+	my $last_update_line = "";
+	if (substr($last_update_token, 0, 1) eq "c") {
+		$last_update_token = "\"$last_update_token\"";
+		$last_update_line = qq[\n"since": $last_update_token,];
+	}
+	my $query = <<"	END";
+		["query", "$git_work_tree", {$last_update_line
+			"fields": ["name"],
+			"expression": ["not", ["dirname", ".git"]]
+		}]
+	END
+
+	# Uncomment for debugging the watchman query
+	# open (my $fh, ">", ".git/watchman-query.json");
+	# print $fh $query;
+	# close $fh;
+
+	print CHLD_IN $query;
+	close CHLD_IN;
+	my $response = do {local $/; <CHLD_OUT>};
+
+	# Uncomment for debugging the watch response
+	# open ($fh, ">", ".git/watchman-response.json");
+	# print $fh $response;
+	# close $fh;
+
+	die "Watchman: command returned no output.\n" .
+	"Falling back to scanning...\n" if $response eq "";
+	die "Watchman: command returned invalid output: $response\n" .
+	"Falling back to scanning...\n" unless $response =~ /^\{/;
+
+	return $json_pkg->new->utf8->decode($response);
+}
+
+sub is_work_tree_watched {
+	my ($output) = @_;
+	my $error = $output->{error};
+	if ($error and $error =~ m/unable to resolve root .* directory (.*) is not watched/) {
+		my $response = qx/watchman watch "$git_work_tree"/;
+		die "Failed to make watchman watch '$git_work_tree'.\n" .
+		    "Falling back to scanning...\n" if $? != 0;
+		$output = $json_pkg->new->utf8->decode($response);
+		$error = $output->{error};
+		die "Watchman: $error.\n" .
+		"Falling back to scanning...\n" if $error;
+
+		# Uncomment for debugging watchman output
+		# open (my $fh, ">", ".git/watchman-output.out");
+		# close $fh;
+
+		# Watchman will always return all files on the first query so
+		# return the fast "everything is dirty" flag to git and do the
+		# Watchman query just to get it over with now so we won't pay
+		# the cost in git to look up each individual file.
+		my $o = watchman_clock();
+		$error = $o->{error};
+
+		die "Watchman: $error.\n" .
+		"Falling back to scanning...\n" if $error;
+
+		output_result($o->{clock}, ("/"));
+		return 0;
+	}
+
+	die "Watchman: $error.\n" .
+	"Falling back to scanning...\n" if $error;
+
+	return 1;
+}
+
+sub get_working_dir {
+	my $working_dir;
+	if ($^O =~ 'msys' || $^O =~ 'cygwin') {
+		$working_dir = Win32::GetCwd();
+		$working_dir =~ tr/\\/\//;
+	} else {
+		require Cwd;
+		$working_dir = Cwd::cwd();
+	}
+
+	return $working_dir;
+}
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/post-update.sample
+项目内路径：/.git/hooks/post-update.sample
+文件名：post-update.sample
+文件大小：220 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+#
+# An example hook script to prepare a packed repository for use over
+# dumb transports.
+#
+# To enable this hook, rename this file to "post-update".
+
+exec git update-server-info
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/pre-applypatch.sample
+项目内路径：/.git/hooks/pre-applypatch.sample
+文件名：pre-applypatch.sample
+文件大小：455 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+#
+# An example hook script to verify what is about to be committed
+# by applypatch from an e-mail message.
+#
+# The hook should exit with non-zero status after issuing an
+# appropriate message if it wants to stop the commit.
+#
+# To enable this hook, rename this file to "pre-applypatch".
+
+. git-sh-setup
+precommit="$(git rev-parse --git-path hooks/pre-commit)"
+test -x "$precommit" && exec "$precommit" ${1+"$@"}
+:
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/pre-commit.sample
+项目内路径：/.git/hooks/pre-commit.sample
+文件名：pre-commit.sample
+文件大小：1680 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+#
+# An example hook script to verify what is about to be committed.
+# Called by "git commit" with no arguments.  The hook should
+# exit with non-zero status after issuing an appropriate message if
+# it wants to stop the commit.
+#
+# To enable this hook, rename this file to "pre-commit".
+
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+	against=HEAD
+else
+	# Initial commit: diff against an empty tree object
+	against=$(git hash-object -t tree /dev/null)
+fi
+
+# If you want to allow non-ASCII filenames set this variable to true.
+allownonascii=$(git config --type=bool hooks.allownonascii)
+
+# Redirect output to stderr.
+exec 1>&2
+
+# Cross platform projects tend to avoid non-ASCII filenames; prevent
+# them from being added to the repository. We exploit the fact that the
+# printable range starts at the space character and ends with tilde.
+if [ "$allownonascii" != "true" ] &&
+	# Note that the use of brackets around a tr range is ok here, (it's
+	# even required, for portability to Solaris 10's /usr/bin/tr), since
+	# the square bracket bytes happen to fall in the designated range.
+	test $(git diff-index --cached --name-only --diff-filter=A -z $against |
+	  LC_ALL=C tr -d '[ -~]\0' | wc -c) != 0
+then
+	cat <<\EOF
+Error: Attempt to add a non-ASCII file name.
+
+This can cause problems if you want to work with people on other platforms.
+
+To be portable it is advisable to rename the file.
+
+If you know what you are doing you can disable this check using:
+
+  git config hooks.allownonascii true
+EOF
+	exit 1
+fi
+
+# If there are whitespace errors, print the offending file names and fail.
+exec git diff-index --check --cached $against --
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/pre-merge-commit.sample
+项目内路径：/.git/hooks/pre-merge-commit.sample
+文件名：pre-merge-commit.sample
+文件大小：447 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+#
+# An example hook script to verify what is about to be committed.
+# Called by "git merge" with no arguments.  The hook should
+# exit with non-zero status after issuing an appropriate message to
+# stderr if it wants to stop the merge commit.
+#
+# To enable this hook, rename this file to "pre-merge-commit".
+
+. git-sh-setup
+test -x "$GIT_DIR/hooks/pre-commit" &&
+        exec "$GIT_DIR/hooks/pre-commit"
+:
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/pre-push.sample
+项目内路径：/.git/hooks/pre-push.sample
+文件名：pre-push.sample
+文件大小：1405 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+
+# An example hook script to verify what is about to be pushed.  Called by "git
+# push" after it has checked the remote status, but before anything has been
+# pushed.  If this script exits with a non-zero status nothing will be pushed.
+#
+# This hook is called with the following parameters:
+#
+# $1 -- Name of the remote to which the push is being done
+# $2 -- URL to which the push is being done
+#
+# If pushing without using a named remote those arguments will be equal.
+#
+# Information about the commits which are being pushed is supplied as lines to
+# the standard input in the form:
+#
+#   <local ref> <local oid> <remote ref> <remote oid>
+#
+# This sample shows how to prevent push of commits where the log message starts
+# with "WIP" (work in progress).
+
+remote="$1"
+url="$2"
+
+zero=$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')
+
+while read local_ref local_oid remote_ref remote_oid
+do
+	if test "$local_oid" = "$zero"
+	then
+		# Handle delete
+		:
+	else
+		if test "$remote_oid" = "$zero"
+		then
+			# New branch, examine all commits
+			range="$local_oid"
+		else
+			# Update to existing branch, examine new commits
+			range="$remote_oid..$local_oid"
+		fi
+
+		# Check for WIP commit
+		commit=$(git rev-list -n 1 --grep '^WIP' "$range")
+		if test -n "$commit"
+		then
+			echo >&2 "Found WIP commit in $local_ref, not pushing"
+			exit 1
+		fi
+	fi
+done
+
+exit 0
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/pre-rebase.sample
+项目内路径：/.git/hooks/pre-rebase.sample
+文件名：pre-rebase.sample
+文件大小：4956 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+#
+# Copyright (c) 2006, 2008 Junio C Hamano
+#
+# The "pre-rebase" hook is run just before "git rebase" starts doing
+# its job, and can prevent the command from running by exiting with
+# non-zero status.
+#
+# The hook is called with the following parameters:
+#
+# $1 -- the upstream the series was forked from.
+# $2 -- the branch being rebased (or empty when rebasing the current branch).
+#
+# This sample shows how to prevent topic branches that are already
+# merged to 'next' branch from getting rebased, because allowing it
+# would result in rebasing already published history.
+
+publish=next
+basebranch="$1"
+if test "$#" = 2
+then
+	topic="refs/heads/$2"
+else
+	topic=`git symbolic-ref HEAD` ||
+	exit 0 ;# we do not interrupt rebasing detached HEAD
+fi
+
+case "$topic" in
+refs/heads/??/*)
+	;;
+*)
+	exit 0 ;# we do not interrupt others.
+	;;
+esac
+
+# Now we are dealing with a topic branch being rebased
+# on top of master.  Is it OK to rebase it?
+
+# Does the topic really exist?
+git show-ref -q "$topic" || {
+	echo >&2 "No such branch $topic"
+	exit 1
+}
+
+# Is topic fully merged to master?
+not_in_master=`git rev-list --pretty=oneline ^master "$topic"`
+if test -z "$not_in_master"
+then
+	echo >&2 "$topic is fully merged to master; better remove it."
+	exit 1 ;# we could allow it, but there is no point.
+fi
+
+# Is topic ever merged to next?  If so you should not be rebasing it.
+only_next_1=`git rev-list ^master "^$topic" ${publish} | sort`
+only_next_2=`git rev-list ^master           ${publish} | sort`
+if test "$only_next_1" = "$only_next_2"
+then
+	not_in_topic=`git rev-list "^$topic" master`
+	if test -z "$not_in_topic"
+	then
+		echo >&2 "$topic is already up to date with master"
+		exit 1 ;# we could allow it, but there is no point.
+	else
+		exit 0
+	fi
+else
+	not_in_next=`git rev-list --pretty=oneline ^${publish} "$topic"`
+	/data/data/com.termux/files/usr/bin/perl -e '
+		my $topic = $ARGV[0];
+		my $msg = "* $topic has commits already merged to public branch:\n";
+		my (%not_in_next) = map {
+			/^([0-9a-f]+) /;
+			($1 => 1);
+		} split(/\n/, $ARGV[1]);
+		for my $elem (map {
+				/^([0-9a-f]+) (.*)$/;
+				[$1 => $2];
+			} split(/\n/, $ARGV[2])) {
+			if (!exists $not_in_next{$elem->[0]}) {
+				if ($msg) {
+					print STDERR $msg;
+					undef $msg;
+				}
+				print STDERR " $elem->[1]\n";
+			}
+		}
+	' "$topic" "$not_in_next" "$not_in_master"
+	exit 1
+fi
+
+<<\DOC_END
+
+This sample hook safeguards topic branches that have been
+published from being rewound.
+
+The workflow assumed here is:
+
+ * Once a topic branch forks from "master", "master" is never
+   merged into it again (either directly or indirectly).
+
+ * Once a topic branch is fully cooked and merged into "master",
+   it is deleted.  If you need to build on top of it to correct
+   earlier mistakes, a new topic branch is created by forking at
+   the tip of the "master".  This is not strictly necessary, but
+   it makes it easier to keep your history simple.
+
+ * Whenever you need to test or publish your changes to topic
+   branches, merge them into "next" branch.
+
+The script, being an example, hardcodes the publish branch name
+to be "next", but it is trivial to make it configurable via
+$GIT_DIR/config mechanism.
+
+With this workflow, you would want to know:
+
+(1) ... if a topic branch has ever been merged to "next".  Young
+    topic branches can have stupid mistakes you would rather
+    clean up before publishing, and things that have not been
+    merged into other branches can be easily rebased without
+    affecting other people.  But once it is published, you would
+    not want to rewind it.
+
+(2) ... if a topic branch has been fully merged to "master".
+    Then you can delete it.  More importantly, you should not
+    build on top of it -- other people may already want to
+    change things related to the topic as patches against your
+    "master", so if you need further changes, it is better to
+    fork the topic (perhaps with the same name) afresh from the
+    tip of "master".
+
+Let's look at this example:
+
+		   o---o---o---o---o---o---o---o---o---o "next"
+		  /       /           /           /
+		 /   a---a---b A     /           /
+		/   /               /           /
+	       /   /   c---c---c---c B         /
+	      /   /   /             \         /
+	     /   /   /   b---b C     \       /
+	    /   /   /   /             \     /
+    ---o---o---o---o---o---o---o---o---o---o---o "master"
+
+
+A, B and C are topic branches.
+
+ * A has one fix since it was merged up to "next".
+
+ * B has finished.  It has been fully merged up to "master" and "next",
+   and is ready to be deleted.
+
+ * C has not merged to "next" at all.
+
+We would want to allow C to be rebased, refuse A, and encourage
+B to be deleted.
+
+To compute (1):
+
+	git rev-list ^master ^topic next
+	git rev-list ^master        next
+
+	if these match, topic has not merged in next at all.
+
+To compute (2):
+
+	git rev-list master..topic
+
+	if this is empty, it is fully merged to "master".
+
+DOC_END
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/pre-receive.sample
+项目内路径：/.git/hooks/pre-receive.sample
+文件名：pre-receive.sample
+文件大小：575 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+#
+# An example hook script to make use of push options.
+# The example simply echoes all push options that start with 'echoback='
+# and rejects all pushes when the "reject" push option is used.
+#
+# To enable this hook, rename this file to "pre-receive".
+
+if test -n "$GIT_PUSH_OPTION_COUNT"
+then
+	i=0
+	while test "$i" -lt "$GIT_PUSH_OPTION_COUNT"
+	do
+		eval "value=\$GIT_PUSH_OPTION_$i"
+		case "$value" in
+		echoback=*)
+			echo "echo from the pre-receive-hook: ${value#*=}" >&2
+			;;
+		reject)
+			exit 1
+		esac
+		i=$((i + 1))
+	done
+fi
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/prepare-commit-msg.sample
+项目内路径：/.git/hooks/prepare-commit-msg.sample
+文件名：prepare-commit-msg.sample
+文件大小：1604 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+#
+# An example hook script to prepare the commit log message.
+# Called by "git commit" with the name of the file that has the
+# commit message, followed by the description of the commit
+# message's source.  The hook's purpose is to edit the commit
+# message file.  If the hook fails with a non-zero status,
+# the commit is aborted.
+#
+# To enable this hook, rename this file to "prepare-commit-msg".
+
+# This hook includes three examples. The first one removes the
+# "# Please enter the commit message..." help message.
+#
+# The second includes the output of "git diff --name-status -r"
+# into the message, just before the "git status" output.  It is
+# commented because it doesn't cope with --amend or with squashed
+# commits.
+#
+# The third example adds a Signed-off-by line to the message, that can
+# still be edited.  This is rarely a good idea.
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+SHA1=$3
+
+/data/data/com.termux/files/usr/bin/perl -i.bak -ne 'print unless(m/^. Please enter the commit message/..m/^#$/)' "$COMMIT_MSG_FILE"
+
+# case "$COMMIT_SOURCE,$SHA1" in
+#  ,|template,)
+#    /data/data/com.termux/files/usr/bin/perl -i.bak -pe '
+#       print "\n" . `git diff --cached --name-status -r`
+# 	 if /^#/ && $first++ == 0' "$COMMIT_MSG_FILE" ;;
+#  *) ;;
+# esac
+
+# SOB=$(git var GIT_COMMITTER_IDENT | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
+# git interpret-trailers --in-place --trailer "$SOB" "$COMMIT_MSG_FILE"
+# if test -z "$COMMIT_SOURCE"
+# then
+#   /data/data/com.termux/files/usr/bin/perl -i.bak -pe 'print "\n" if !$first_line++' "$COMMIT_MSG_FILE"
+# fi
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/push-to-checkout.sample
+项目内路径：/.git/hooks/push-to-checkout.sample
+文件名：push-to-checkout.sample
+文件大小：2814 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+
+# An example hook script to update a checked-out tree on a git push.
+#
+# This hook is invoked by git-receive-pack(1) when it reacts to git
+# push and updates reference(s) in its repository, and when the push
+# tries to update the branch that is currently checked out and the
+# receive.denyCurrentBranch configuration variable is set to
+# updateInstead.
+#
+# By default, such a push is refused if the working tree and the index
+# of the remote repository has any difference from the currently
+# checked out commit; when both the working tree and the index match
+# the current commit, they are updated to match the newly pushed tip
+# of the branch. This hook is to be used to override the default
+# behaviour; however the code below reimplements the default behaviour
+# as a starting point for convenient modification.
+#
+# The hook receives the commit with which the tip of the current
+# branch is going to be updated:
+commit=$1
+
+# It can exit with a non-zero status to refuse the push (when it does
+# so, it must not modify the index or the working tree).
+die () {
+	echo >&2 "$*"
+	exit 1
+}
+
+# Or it can make any necessary changes to the working tree and to the
+# index to bring them to the desired state when the tip of the current
+# branch is updated to the new commit, and exit with a zero status.
+#
+# For example, the hook can simply run git read-tree -u -m HEAD "$1"
+# in order to emulate git fetch that is run in the reverse direction
+# with git push, as the two-tree form of git read-tree -u -m is
+# essentially the same as git switch or git checkout that switches
+# branches while keeping the local changes in the working tree that do
+# not interfere with the difference between the branches.
+
+# The below is a more-or-less exact translation to shell of the C code
+# for the default behaviour for git's push-to-checkout hook defined in
+# the push_to_deploy() function in builtin/receive-pack.c.
+#
+# Note that the hook will be executed from the repository directory,
+# not from the working tree, so if you want to perform operations on
+# the working tree, you will have to adapt your code accordingly, e.g.
+# by adding "cd .." or using relative paths.
+
+if ! git update-index -q --ignore-submodules --refresh
+then
+	die "Up-to-date check failed"
+fi
+
+if ! git diff-files --quiet --ignore-submodules --
+then
+	die "Working directory has unstaged changes"
+fi
+
+# This is a rough translation of:
+#
+#   head_has_history() ? "HEAD" : EMPTY_TREE_SHA1_HEX
+if git cat-file -e HEAD 2>/dev/null
+then
+	head=HEAD
+else
+	head=$(git hash-object -t tree --stdin </dev/null)
+fi
+
+if ! git diff-index --quiet --cached --ignore-submodules $head --
+then
+	die "Working directory has staged changes"
+fi
+
+if ! git read-tree -u -m "$commit"
+then
+	die "Could not update working tree to new HEAD"
+fi
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/sendemail-validate.sample
+项目内路径：/.git/hooks/sendemail-validate.sample
+文件名：sendemail-validate.sample
+文件大小：2339 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+
+# An example hook script to validate a patch (and/or patch series) before
+# sending it via email.
+#
+# The hook should exit with non-zero status after issuing an appropriate
+# message if it wants to prevent the email(s) from being sent.
+#
+# To enable this hook, rename this file to "sendemail-validate".
+#
+# By default, it will only check that the patch(es) can be applied on top of
+# the default upstream branch without conflicts in a secondary worktree. After
+# validation (successful or not) of the last patch of a series, the worktree
+# will be deleted.
+#
+# The following config variables can be set to change the default remote and
+# remote ref that are used to apply the patches against:
+#
+#   sendemail.validateRemote (default: origin)
+#   sendemail.validateRemoteRef (default: HEAD)
+#
+# Replace the TODO placeholders with appropriate checks according to your
+# needs.
+
+validate_cover_letter () {
+	file="$1"
+	# TODO: Replace with appropriate checks (e.g. spell checking).
+	true
+}
+
+validate_patch () {
+	file="$1"
+	# Ensure that the patch applies without conflicts.
+	git am -3 "$file" || return
+	# TODO: Replace with appropriate checks for this patch
+	# (e.g. checkpatch.pl).
+	true
+}
+
+validate_series () {
+	# TODO: Replace with appropriate checks for the whole series
+	# (e.g. quick build, coding style checks, etc.).
+	true
+}
+
+# main -------------------------------------------------------------------------
+
+if test "$GIT_SENDEMAIL_FILE_COUNTER" = 1
+then
+	remote=$(git config --default origin --get sendemail.validateRemote) &&
+	ref=$(git config --default HEAD --get sendemail.validateRemoteRef) &&
+	worktree=$(mktemp --tmpdir -d sendemail-validate.XXXXXXX) &&
+	git worktree add -fd --checkout "$worktree" "refs/remotes/$remote/$ref" &&
+	git config --replace-all sendemail.validateWorktree "$worktree"
+else
+	worktree=$(git config --get sendemail.validateWorktree)
+fi || {
+	echo "sendemail-validate: error: failed to prepare worktree" >&2
+	exit 1
+}
+
+unset GIT_DIR GIT_WORK_TREE
+cd "$worktree" &&
+
+if grep -q "^diff --git " "$1"
+then
+	validate_patch "$1"
+else
+	validate_cover_letter "$1"
+fi &&
+
+if test "$GIT_SENDEMAIL_FILE_COUNTER" = "$GIT_SENDEMAIL_FILE_TOTAL"
+then
+	git config --unset-all sendemail.validateWorktree &&
+	trap 'git worktree remove -ff "$worktree"' EXIT &&
+	validate_series
+fi
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/update.sample
+项目内路径：/.git/hooks/update.sample
+文件名：update.sample
+文件大小：3681 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+#
+# An example hook script to block unannotated tags from entering.
+# Called by "git receive-pack" with arguments: refname sha1-old sha1-new
+#
+# To enable this hook, rename this file to "update".
+#
+# Config
+# ------
+# hooks.allowunannotated
+#   This boolean sets whether unannotated tags will be allowed into the
+#   repository.  By default they won't be.
+# hooks.allowdeletetag
+#   This boolean sets whether deleting tags will be allowed in the
+#   repository.  By default they won't be.
+# hooks.allowmodifytag
+#   This boolean sets whether a tag may be modified after creation. By default
+#   it won't be.
+# hooks.allowdeletebranch
+#   This boolean sets whether deleting branches will be allowed in the
+#   repository.  By default they won't be.
+# hooks.denycreatebranch
+#   This boolean sets whether remotely creating branches will be denied
+#   in the repository.  By default this is allowed.
+#
+
+# --- Command line
+refname="$1"
+oldrev="$2"
+newrev="$3"
+
+# --- Safety check
+if [ -z "$GIT_DIR" ]; then
+	echo "Don't run this script from the command line." >&2
+	echo " (if you want, you could supply GIT_DIR then run" >&2
+	echo "  $0 <ref> <oldrev> <newrev>)" >&2
+	exit 1
+fi
+
+if [ -z "$refname" -o -z "$oldrev" -o -z "$newrev" ]; then
+	echo "usage: $0 <ref> <oldrev> <newrev>" >&2
+	exit 1
+fi
+
+# --- Config
+allowunannotated=$(git config --type=bool hooks.allowunannotated)
+allowdeletebranch=$(git config --type=bool hooks.allowdeletebranch)
+denycreatebranch=$(git config --type=bool hooks.denycreatebranch)
+allowdeletetag=$(git config --type=bool hooks.allowdeletetag)
+allowmodifytag=$(git config --type=bool hooks.allowmodifytag)
+
+# check for no description
+projectdesc=$(sed -e '1q' "$GIT_DIR/description")
+case "$projectdesc" in
+"Unnamed repository"* | "")
+	echo "*** Project description file hasn't been set" >&2
+	exit 1
+	;;
+esac
+
+# --- Check types
+# if $newrev is 0000...0000, it's a commit to delete a ref.
+zero=$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')
+if [ "$newrev" = "$zero" ]; then
+	newrev_type=delete
+else
+	newrev_type=$(git cat-file -t $newrev)
+fi
+
+case "$refname","$newrev_type" in
+	refs/tags/*,commit)
+		# un-annotated tag
+		short_refname=${refname##refs/tags/}
+		if [ "$allowunannotated" != "true" ]; then
+			echo "*** The un-annotated tag, $short_refname, is not allowed in this repository" >&2
+			echo "*** Use 'git tag [ -a | -s ]' for tags you want to propagate." >&2
+			exit 1
+		fi
+		;;
+	refs/tags/*,delete)
+		# delete tag
+		if [ "$allowdeletetag" != "true" ]; then
+			echo "*** Deleting a tag is not allowed in this repository" >&2
+			exit 1
+		fi
+		;;
+	refs/tags/*,tag)
+		# annotated tag
+		if [ "$allowmodifytag" != "true" ] && git rev-parse $refname > /dev/null 2>&1
+		then
+			echo "*** Tag '$refname' already exists." >&2
+			echo "*** Modifying a tag is not allowed in this repository." >&2
+			exit 1
+		fi
+		;;
+	refs/heads/*,commit)
+		# branch
+		if [ "$oldrev" = "$zero" -a "$denycreatebranch" = "true" ]; then
+			echo "*** Creating a branch is not allowed in this repository" >&2
+			exit 1
+		fi
+		;;
+	refs/heads/*,delete)
+		# delete branch
+		if [ "$allowdeletebranch" != "true" ]; then
+			echo "*** Deleting a branch is not allowed in this repository" >&2
+			exit 1
+		fi
+		;;
+	refs/remotes/*,commit)
+		# tracking branch
+		;;
+	refs/remotes/*,delete)
+		# delete tracking branch
+		if [ "$allowdeletebranch" != "true" ]; then
+			echo "*** Deleting a tracking branch is not allowed in this repository" >&2
+			exit 1
+		fi
+		;;
+	*)
+		# Anything else (is there anything else?)
+		echo "*** Update hook: unknown type of update to ref $refname of type $newrev_type" >&2
+		exit 1
+		;;
+esac
+
+# --- Finished
+exit 0
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/hooks/applypatch-msg.sample
+项目内路径：/.git/hooks/applypatch-msg.sample
+文件名：applypatch-msg.sample
+文件大小：509 字节
+================================================================================
+文件内容：
+#!/data/data/com.termux/files/usr/bin/sh
+#
+# An example hook script to check the commit log message taken by
+# applypatch from an e-mail message.
+#
+# The hook should exit with non-zero status after issuing an
+# appropriate message if it wants to stop the commit.  The hook is
+# allowed to edit the commit message file.
+#
+# To enable this hook, rename this file to "applypatch-msg".
+
+. git-sh-setup
+commitmsg="$(git rev-parse --git-path hooks/commit-msg)"
+test -x "$commitmsg" && exec "$commitmsg" ${1+"$@"}
+:
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/info/exclude
+项目内路径：/.git/info/exclude
+文件名：exclude
+文件大小：240 字节
+================================================================================
+文件内容：
+# git ls-files --others --exclude-from=.git/info/exclude
+# Lines that start with '#' are comments.
+# For a project mostly in C, the following would be a good set of
+# exclude patterns (uncomment them if you want to use them):
+# *.[oa]
+# *~
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/config
+项目内路径：/.git/config
+文件名：config
+文件大小：311 字节
+================================================================================
+文件内容：
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+[remote "origin"]
+	url = https://github.com/xiaomuahua666/Minesweeper.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/HEAD
+项目内路径：/.git/HEAD
+文件名：HEAD
+文件大小：23 字节
+================================================================================
+文件内容：
+ref: refs/heads/master
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/refs/heads/master
+项目内路径：/.git/refs/heads/master
+文件名：master
+文件大小：41 字节
+================================================================================
+文件内容：
+9171f308da9a558a585432f5d026806f68b61606
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/refs/remotes/origin/HEAD
+项目内路径：/.git/refs/remotes/origin/HEAD
+文件名：HEAD
+文件大小：32 字节
+================================================================================
+文件内容：
+ref: refs/remotes/origin/master
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/refs/remotes/origin/master
+项目内路径：/.git/refs/remotes/origin/master
+文件名：master
+文件大小：41 字节
+================================================================================
+文件内容：
+9171f308da9a558a585432f5d026806f68b61606
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/logs/refs/remotes/origin/HEAD
+项目内路径：/.git/logs/refs/remotes/origin/HEAD
+文件名：HEAD
+文件大小：225 字节
+================================================================================
+文件内容：
+0000000000000000000000000000000000000000 671ff317dcf787c9b6abdea817d934b5d8a8b3b3 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781523156 +0800	clone: from https://github.com/xiaomuahua666/Minesweeper.git
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/logs/refs/remotes/origin/master
+项目内路径：/.git/logs/refs/remotes/origin/master
+文件名：master
+文件大小：1432 字节
+================================================================================
+文件内容：
+671ff317dcf787c9b6abdea817d934b5d8a8b3b3 19c22c8ffeee5e35580856141bbd7a027915ccd5 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781523660 +0800	update by push
+19c22c8ffeee5e35580856141bbd7a027915ccd5 39f86c1212f5f1c5db86cd3b2dd30fbdc5da1627 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781523846 +0800	update by push
+39f86c1212f5f1c5db86cd3b2dd30fbdc5da1627 6481b35ea1bda2f4ff826e55e32b87ffe18caa99 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781524073 +0800	update by push
+6481b35ea1bda2f4ff826e55e32b87ffe18caa99 fae2253c8bf5eb011cb18001a31bcd810438623a xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781524340 +0800	update by push
+fae2253c8bf5eb011cb18001a31bcd810438623a c52bdb5394971f5900f494b3ef761e30591c673c xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781524545 +0800	update by push
+c52bdb5394971f5900f494b3ef761e30591c673c 12919395b9203ee9550a5f0323c0cb55e4c20d09 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781525166 +0800	update by push
+12919395b9203ee9550a5f0323c0cb55e4c20d09 55912349242098ce36d419b78899a221e9bfd73c xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781525355 +0800	update by push
+55912349242098ce36d419b78899a221e9bfd73c 9171f308da9a558a585432f5d026806f68b61606 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781526515 +0800	update by push
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/logs/refs/heads/master
+项目内路径：/.git/logs/refs/heads/master
+文件名：master
+文件大小：1895 字节
+================================================================================
+文件内容：
+0000000000000000000000000000000000000000 671ff317dcf787c9b6abdea817d934b5d8a8b3b3 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781523156 +0800	clone: from https://github.com/xiaomuahua666/Minesweeper.git
+671ff317dcf787c9b6abdea817d934b5d8a8b3b3 19c22c8ffeee5e35580856141bbd7a027915ccd5 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781523658 +0800	commit: fix: update project (+155 -39 lines)
+19c22c8ffeee5e35580856141bbd7a027915ccd5 39f86c1212f5f1c5db86cd3b2dd30fbdc5da1627 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781523843 +0800	commit: fix: update project (+51 -73 lines)
+39f86c1212f5f1c5db86cd3b2dd30fbdc5da1627 6481b35ea1bda2f4ff826e55e32b87ffe18caa99 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781524071 +0800	commit: fix: update project (+150 -166 lines)
+6481b35ea1bda2f4ff826e55e32b87ffe18caa99 fae2253c8bf5eb011cb18001a31bcd810438623a xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781524338 +0800	commit: fix: update project (+91 -107 lines)
+fae2253c8bf5eb011cb18001a31bcd810438623a c52bdb5394971f5900f494b3ef761e30591c673c xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781524543 +0800	commit: fix: update project (+189 -1129 lines)
+c52bdb5394971f5900f494b3ef761e30591c673c 12919395b9203ee9550a5f0323c0cb55e4c20d09 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781525164 +0800	commit: fix: update project (+10 -139 lines)
+12919395b9203ee9550a5f0323c0cb55e4c20d09 55912349242098ce36d419b78899a221e9bfd73c xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781525352 +0800	commit: fix: update project (+4 -2 lines)
+55912349242098ce36d419b78899a221e9bfd73c 9171f308da9a558a585432f5d026806f68b61606 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781526512 +0800	commit: fix: update project (+400 -4 lines)
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/logs/HEAD
+项目内路径：/.git/logs/HEAD
+文件名：HEAD
+文件大小：1895 字节
+================================================================================
+文件内容：
+0000000000000000000000000000000000000000 671ff317dcf787c9b6abdea817d934b5d8a8b3b3 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781523156 +0800	clone: from https://github.com/xiaomuahua666/Minesweeper.git
+671ff317dcf787c9b6abdea817d934b5d8a8b3b3 19c22c8ffeee5e35580856141bbd7a027915ccd5 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781523658 +0800	commit: fix: update project (+155 -39 lines)
+19c22c8ffeee5e35580856141bbd7a027915ccd5 39f86c1212f5f1c5db86cd3b2dd30fbdc5da1627 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781523843 +0800	commit: fix: update project (+51 -73 lines)
+39f86c1212f5f1c5db86cd3b2dd30fbdc5da1627 6481b35ea1bda2f4ff826e55e32b87ffe18caa99 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781524071 +0800	commit: fix: update project (+150 -166 lines)
+6481b35ea1bda2f4ff826e55e32b87ffe18caa99 fae2253c8bf5eb011cb18001a31bcd810438623a xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781524338 +0800	commit: fix: update project (+91 -107 lines)
+fae2253c8bf5eb011cb18001a31bcd810438623a c52bdb5394971f5900f494b3ef761e30591c673c xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781524543 +0800	commit: fix: update project (+189 -1129 lines)
+c52bdb5394971f5900f494b3ef761e30591c673c 12919395b9203ee9550a5f0323c0cb55e4c20d09 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781525164 +0800	commit: fix: update project (+10 -139 lines)
+12919395b9203ee9550a5f0323c0cb55e4c20d09 55912349242098ce36d419b78899a221e9bfd73c xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781525352 +0800	commit: fix: update project (+4 -2 lines)
+55912349242098ce36d419b78899a221e9bfd73c 9171f308da9a558a585432f5d026806f68b61606 xiaomuahua666 <109423710+xiaomuahua666@users.noreply.github.com> 1781526512 +0800	commit: fix: update project (+400 -4 lines)
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/COMMIT_EDITMSG
+项目内路径：/.git/COMMIT_EDITMSG
+文件名：COMMIT_EDITMSG
+文件大小：36 字节
+================================================================================
+文件内容：
+fix: update project (+400 -4 lines)
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/.git/packed-refs
+项目内路径：/.git/packed-refs
+文件名：packed-refs
+文件大小：220 字节
+================================================================================
+文件内容：
+# pack-refs with: peeled fully-peeled sorted 
+671ff317dcf787c9b6abdea817d934b5d8a8b3b3 refs/remotes/origin/master
+60591433eb20745972bf85b1502f6389db06f109 refs/remotes/origin/vercel/set-up-vercel-web-analytics-in-nip809
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/gfs1.js
+项目内路径：/gfs1.js
+文件名：gfs1.js
+文件大小：5449 字节
+================================================================================
+文件内容：
+var pgf=new Image();pgf.src="data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAAHAP8ALAAAAAANABcAAAIzlI8psc33mDSvOQptrhVxjX3K113YmF2Rp7KtVp7mliakDRvALk87MHv8eiFLZzJRKA0FADs=";
+var fgf=[];fgf[0]="data:img/gif;base64,R0lGODlhFQAVAJEAAAAAAP//AL29vQAAACH5BAAHAP8ALAAAAAAVABUAAAJAlI+py50AoUMwWCsduBy33XXAAoaiUlZY+nBq8MKUSY9HSbtzft4X/vu1MCLhcBXRoXgyBlD5AWYmgsiUis0yCgA7";fgf[1]="data:img/gif;base64,R0lGODlhFQAVAJEAAAAAAP//AMDAwICAACH5BAAHAP8ALAAAAAAVABUAAAJHlI+py50AoUMwWCsduBy33XXAAoaiAkZqFYwUprZx+27xTR/swMoD/DKZXIaSkEMsXoytJQo58zyPOdIxSWJmJoIV9wueFAAAOw==";fgf[2]="data:img/gif;base64,R0lGODlhFQAVAJEAAAAAAP//AMDAwAAAACH5BAAHAP8ALAAAAAAVABUAAAJDlI+py50AoUMwWCsduBy33XXAAm5gYHrPdWLs6p6parShSN36eNg6LbBFKhxejyV6wXwo4PGH+vyMDCKLqhlOttxuAQA7";
+var sgf=[];for(var i=0;i<4;i++){sgf[i]=new Image();}sgf[0].src="data:img/gif;base64,R0lGODlhGQAZAJEAAP///8DAwICAgAAAACH5BAQUAP8ALAAAAAAZABkAAAJKhI+pFrH/GpwnCFGb3nxfzHQi92XjWYbnmAIrepkvGauzV7s3Deq71vrhekJgrtgIIpVFptD5g+6kN+osZflot9xPsgvufsPkSwEAOw==";sgf[1].src="data:img/gif;base64,R0lGODlhGQAZAKIAAP///8DAwICAgP8AAAAAAAAAAAAAAAAAACH5BAAHAP8ALAAAAAAZABkAAANsCLrcriG8OSO9KwiRo//gt3FQaIJjZw7DmZYh25ovEMtzWH+47G6qno8GhAWEOVTRBur9SMxbUrQ8BQiEpyqE1RpBXSLUGtZVI9i0Wu3ZodfwbMR9ja/bZ6s3qjeTNCOBgoMjc4SHhIaIixsJADs=";sgf[2].src="data:img/gif;base64,R0lGODlhGQAZAJEAAP///4CAgP8AAAAAACH5BAQUAP8ALAAAAAAZABkAAAJgjI+py70Co5wUmhrHwPFyzVlBCIYeBGqqik6nkK4s7I6TjFOvCvR42bGhND3AbyPZEX2/GuwILV2iUZGEOgtesUhthuu8VcNbqE74fOZoSTQFiHm9u3G3OCSQ4yv6/aQAADs=";sgf[3].src="data:img/gif;base64,R0lGODlhGQAZAJEAAP///76+voKCggAAACH5BAAHAP8ALAAAAAAZABkAAAJglI+py70Bo5wUmhrHwPFyzVlCCIYeBGqqik5nkK4s7I6TjFOvCvR42bGhND3AbyPZEX2/GuwILV2iUZGEOgtesUhthuu8VcNbqE74fOZoSTQFiHm9u3G3OBSQ4yv6/aQAADs=";
+var dgf=[];for(var i=0;i<10;i++){dgf[i]=new Image();}dgf[0].src="data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI5lI8Jy3wgmoMRymoc0vqt/G1hB1JkZVKKaQSC60YI/NZPW8dpApZrqvKhfkIPkIi5jFANWUkS5CUKADs=";dgf[1].src="data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI3lI8psc33mDQAmilAdUnv1mkXeHhWuGGlOCpsxGXIpII0dYbjs358v0PlgDGiDfQKPj6cmkJRAAA7";dgf[2].src="data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI8lI8Jy3whmgMvNmsgRC4nSwmaslRkOHKl962QVIYgfFAwta3JBu6i0UHwgp6cztQT/jCSZWTmGN5kn08BADs=";dgf[3].src="data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI5lI8Jy3whmgMvNmsgRC4nSwmaslRkOHKl962QVIYgXMGUvJFebnRi6/qpcECU8OB7XYK2CNIm+3wKADs=";dgf[4].src="data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI8lI8psc0HDJsmCmDptdhCXIFIF3rlOYpkyplftXWgJ9cHU8+3skkNu0usNB/PA+gQin4a0YPyMEF/PF4BADs=";dgf[5].src="data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI5lI8Jy3wgmgtmxSZotYhql2gX1GUbWZ6heSWGCEkWLHNmHR0iwnmKvVOZgiAWr2cU3jBIHKpmc7kKADs=";dgf[6].src="data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI5lI8Jy3wgmgtmxSZotYhql2gX1GUbWZ6heSWGCEkWLHPRiJE2woFPvxupeEDU0HeM5XQ4B6oWdCEKADs=";dgf[7].src="data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI5lI8Jy3whmgMvNmsgRC4nSwmaslRkOHKl963buIUejLziHZnkfOpHl/qtcCoU0dDBpVy8WO0W/EgLADs=";dgf[8].src="data:img/gif;base64,R0lGODlhDQAXAIAAAP8AAAAAACH5BAQUAP8ALAAAAAANABcAAAI0jI8Jy3wQmoMRymoc0vqt/G1hB1JkZVKKiTaRJ4VvbIGJja6pWvbirvPBbJdRawKL3ZaGAgA7";dgf[9].src="data:img/gif;base64,R0lGODlhDQAXAJEAAP8AAIAAAAAAAAAAACH5BAQUAP8ALAAAAAANABcAAAI6lI8Jy3wgmoMRymoc0vqt/G1hB1JkZVKKiTaRJ4VC0E4HnWDzLqp4b6D9SrecRrjy1XS0mAUWy0kNBQA7";
+var bgf=[];for(var i=0;i<9;i++){bgf[i]=new Image();}bgf[0].src="data:img/gif;base64,R0lGODlhGQAZAKIAAM7OzsbGxr6+vra2trKysqampoKCggAAACH5BAAHAP8ALAAAAAAZABkAAANHaLrc3mWQSau9xAwQuv9gGBhEIJxoqq4CabLw6sY0Otf0jcP6Lpc+HjD4exFTvWNrqDwlj09iNDj1VXdXXLa2zTGb3VgYlgAAOw==";bgf[1].src="data:img/gif;base64,R0lGODlhGQAZAJEAAMDAwICAgAAA/wAAACH5BAQUAP8ALAAAAAAZABkAAAJMjI+py70Ao5wUmorxzTxuLIRC9lFiSAbZOWqqybZVCcWoC8fpeu5gj/uJfBUWMXebvYpAJdJGoQFsTc8yQh1OpJ3otesEH8XbLzlSAAA7";bgf[2].src="data:img/gif;base64,R0lGODlhGQAZALMAAMDAwKu5q6i4qKW3pZy0nJaylpCwkIquioCAgACAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAHAP8ALAAAAAAZABkAAAReEMlJq704X8C7/yAnhSQ5lmh3cknrvi64wvT7zXV9I50N+ipeihXzrFACoEhYMtB2pSSsIGN6CrRBIHQEEGjb0pEmGOJch+Gyl3samW13kB0vztViKx665+r7a4AfEQA7";bgf[3].src="data:img/gif;base64,R0lGODlhGQAZAJEAAMDAwICAgP8AAAAAACH5BAQUAP8ALAAAAAAZABkAAAJOjI+py70Ao5wUmorxzTxuIITiOFIfiZbSmabT16le0EWyRdeg+OZTGzL5JECBsFI86m4AGIfpzEB9RVLPVuWtqFnjVZeJgmdjzbBMRk8KADs=";bgf[4].src="data:img/gif;base64,R0lGODlhGQAZAJEAAMDAwICAgAAAmQAAgCH5BAAHAP8ALAAAAAAZABkAAAJdjI+py70Ao5wUmorxzTzuOgjAQJLUN5FiaU5oVK7sGVAxxA50Gor47KrBVJLc7hfilY6jnHMp+TynwYjgisXmfB4hx1jtgKPezLjbaULJ6bOlnK684mG6HG5H5ykFADs=";bgf[5].src="data:img/gif;base64,R0lGODlhGQAZAJEAAMDAwICAgIAAAAAAACH5BAQUAP8ALAAAAAAZABkAAAJOjI+py70Ao5wUmorxzTxuIITiSE4fiY5mEKXu2oodDKmzx9bybeWgW6L9gDZcjLgz3oo9HhPw6TxPyGRTVxUIs1ohjxL9SsLia3nsO0MKADs=";bgf[6].src="data:img/gif;base64,R0lGODlhGQAZAJEAAMDAwICAgACAgAAAACH5BAQUAP8ALAAAAAAZABkAAAJTjI+py70Ao5wUmorxzTxuKITiKFIfiZbTmaJmEI3dCoPqbNWAjOdxS3r9gDyPjhiUsEKVos/GpDgBS0Hz9twhsdTjNmqUfIU9ja5MQ1c+6nBbUgAAOw==";bgf[7].src="data:img/gif;base64,R0lGODlhGQAZAJEAAL6+voKCggAAAAAAACH5BAAHAP8ALAAAAAAZABkAAAJMjI+py70Ao5wUmorxzTxuIITiSE4fiY5mEKXu2rUiHIOz9HElznY771NRcpQfrWI8TpJK2S1DtD2hPWeoRhTGojVgV1P9NsWWMBlSAAA7";bgf[8].src="data:img/gif;base64,R0lGODlhGQAZAIAAAMDAwICAgCH5BAQUAP8ALAAAAAAZABkAAAJKjI+py70Ao5wUmorxzTxu63xeMIYi8JnHlK4UwpLgOctjaUuwnqtvb/rxQsJaZXcz/k4tGsqVfPp4OCK1yih2OM7t1avJgWNjTAEAOw==";
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/new.6.27.js
+项目内路径：/new.6.27.js
+文件名：new.6.27.js
+文件大小：9545 字节
+================================================================================
+文件内容：
+function $(r){return document.getElementById(r)}function V(r,f,a){var e=new XMLHttpRequest;e.open(f!=null?"POST":"GET",r,true);e.onreadystatechange=function(){if(e.readyState==4&&(e.status==200||e.status==304)){a(e.responseText)}};e.send(f)}var g=[];var h,m,i;var p=[-1,-1,-1,0,0,1,1,1,0];var d=[-1,0,1,-1,1,-1,0,1,0];var o;function X(r,f){G.drawImage(bgf[0],r*25,f*25);setTimeout(function(){if(g[f][r][0]==0)G.drawImage(sgf[0],r*25,f*25)},120)}function n(r,f){var a=0,e=0;var i,n;var t;var o,v;for(t=0;t<8;t++){n=f+d[t];i=r+p[t];if(n>=0&&n<m&&i>=0&&i<h){o=g[n][i];v=o[0];if(v==2){a++}else if(v==0){if(o[1]==1)e=1}}}var u=g[f][r];var c=a>=u[2];for(t=0;t<8;t++){n=f+d[t];i=r+p[t];if(n>=0&&n<m&&i>=0&&i<h){var o=g[n][i];if(o[0]==0){if(c){if(e){if(o[1]==1){G.drawImage(sgf[2],i*25,n*25);o[0]=1}}else{l(i,n)}}else{X(i,n)}}}}if(c&&e)j()}function j(){or();$("face").src=fgf[2];o=3;var r,f;var a;for(f=0;f<m;f++){for(r=0;r<h;r++){a=g[f][r];if(a[0]==0){if(a[1]==1){G.drawImage(sgf[3],r*25,f*25)}}else if(a[0]==2){if(a[1]==0){W[S++]=setInterval(function(r,f){var a=0;return function(){G.drawImage(a==0?bgf[g[f][r][2]]:sgf[1],r*25,f*25);a=!a}}(r,f),800)}}}}}var t;function A(){t=[];var r,f,a;var e=0,i=0;for(f=0;f<m;f++){for(r=0;r<h;r++){a=g[f][r];if(a[0]==2&&a[1]!=1)return 1;if(a[0]==0&&a[3]==0){if(a[1]==1){e++}else{i++}t.push([r,f])}}}if(e!=i)return 2;return 0}function C(r,f){var a=0;var e,i;for(var n=0;n<8;n++){i=f+d[n];e=r+p[n];if(i>=0&&i<m&&e>=0&&e<h){if(g[i][e][1]==1){a++}}}return a}function F(){var r,f,a;for(f=0;f<t.length;f++){r=t[f];a=g[r[1]][r[0]];a[1]=a[1]==0?1:0}}function J(){if(A()!=0)return 1;F();var r,f,a;var e;for(f=0;f<m;f++){for(r=0;r<h;r++){a=g[f][r];e=a[2];if(a[0]==1&&e!=0){if(C(r,f)!=e){F();return 2}}}}for(f=0;f<m;f++){for(r=0;r<h;r++){a=g[f][r];if(a[0]!=1){a[2]=C(r,f)}}}return 0}function K(r,f){var a,e;var i,n;var t;var o,v;var u,c;var l,s;for(s=0;s<9;s++){c=f+d[s];u=r+p[s];if(c>=0&&c<m&&u>=0&&u<h){a=g[c][u];v=a[2];if(a[0]==1&&v>0){o=0;for(l=0;l<8;l++){i=c+d[l];n=u+p[l];if(i>=0&&i<m&&n>=0&&n<h){e=g[i][n];t=e[0];if(t==0){o++}else if(t==2){if(e[1]==1)v--;else o++}}}if(o>0&&v==o){for(l=0;l<8;l++){i=c+d[l];n=u+p[l];if(i>=0&&i<m&&n>=0&&n<h){e=g[i][n];t=e[0];if(t!=1)e[3]=1;if(t==0){if(x==1){q(n,i)}}}}}}}}}function l(r,f){var a=g[f][r];if(a[1]==1){if(o==1)J();if(a[1]==1){G.drawImage(sgf[2],r*25,f*25);a[0]=1;j();return 1}}a[0]=1;G.drawImage(bgf[a[2]],r*25,f*25);R--;if(R==0)N();else if(a[2]==0){var e,i,n;for(e=0;e<8;e++){i=f+d[e];n=r+p[e];if(i>=0&&i<m&&n>=0&&n<h){if(g[i][n][0]==0)l(n,i)}}}K(r,f);return 0}var e;function N(){if(!x&&k)e=2;else e=x;o=2;or();var r,f,a;for(f=0;f<m;f++){for(r=0;r<h;r++){a=g[f][r];if(a[0]==0){if(a[1]!=1){hr(1,r,f)}else{q(r,f)}}}}if(E!=0)hr(2,r,f);H(i);$("face").src=fgf[1];Q()}var v;function Q(){if(v>3&&a<20)return;var f=lr();var r="B"+f+"c3/"+v+""+a+""+e;if(v>3)r+=""+h+""+m+""+i;V(app,r,function(r){if(f==""&&r.length>1){$("uid").innerHTML=r;localStorage.setItem("uid",r)}})}function U(r){var i=$(r);var n=i.getContext("2d");var t=3;return function(r){if(r<10)r="00"+r;else if(r<100)r="0"+r;else r=r.toString();var f=r.length;if(f!=t){i.width=f*13;t=f}var a=0;for(var e=0;e<f;e++){n.drawImage(dgf[parseInt(r.charAt(e))],a,0);a+=13}}}function r(r){var f=$("es");var a=f.getContext("2d");r=r.toString();var e=r.length;if(e==1){r="0"+r;e=2}f.width=(e+1)*13;var i=0;for(var n=0;n<e-1;n++){a.drawImage(dgf[parseInt(r.charAt(n))],i,0);i+=13}a.drawImage(pgf,i,0);i+=13;a.drawImage(dgf[parseInt(r.charAt(n))],i,0)}function u(r,f){var a;var e,i;var n=R;for(a=8;a>=0&&n>0;a--){e=f+d[a];i=r+p[a];if(e>=0&&e<m&&i>=0&&i<h){var t=s[e*h+i];if(g[e][i][1]==1){var o=Math.floor(Math.random()*n);M(t,-1);M(o,1);n--;I(o,n)}else{n--;I(t,n)}}}ur()}var c=[];var s=[];function f(){var r,f;var a;var e;for(f=0;f<m;f++){g[f]=[];for(r=0;r<h;r++)g[f][r]=[0,0,0,0]}for(e=0;e<O;e++){c[e]=e;s[e]=e}R=O;for(a=0;a<i;a++){e=Math.floor(Math.random()*R);R--;I(e,R)}for(e=R;e<O;e++){M(e,1)}E=i;R=O-i}function I(r,f){var a=c[r];var e=c[f];c[r]=e;c[f]=a;s[a]=f;s[e]=r}function M(r,f){var a,e;var i=c[r];a=Math.floor(i/h);e=i%h;g[a][e][1]+=f;for(z=0;z<8;z++){cy=a+d[z];cx=e+p[z];if(cy>=0&&cy<m&&cx>=0&&cx<h){g[cy][cx][2]+=f}}}var W=[];var S=0;function _45(){if(y>0){clearInterval(y);y=0}for(var r=0;r<S;r++){clearInterval(W[r])}S=0;$("es").width=39;f();tr();b=-1;T=-1;k=1;o=0}var k;var Y,Z;var b;var T;function _(r){if(D||o>1)return;var f=B.getBoundingClientRect();var a=Math.floor((r.clientX-f.left)/25);var e=Math.floor((r.clientY-f.top)/25);if(a<0||a==h||e<0||e==m)return;b=a;T=e;var i=g[e][a][0];if(r.button==2){if(Z!=1){if(i==1){n(a,e)}else{q(a,e)}}}else{if(Y!=1){if(i==0){if(o==0)u(a,e);l(a,e)}else if(i==1){n(a,e)}else{q(a,e)}}}}function rr(r){if(D||o>1)return;var f=B.getBoundingClientRect();var a=Math.floor((r.clientX-f.left)/25);var e=Math.floor((r.clientY-f.top)/25);if(a<0||a==h||e<0||e==m)return;var i=g[e][a][0];if(r.button==2){if(Z!=0){if(i==1){n(a,e)}else{q(a,e)}}}else{if(Y!=0){if(i==0){if(o==0)u(a,e);l(a,e)}else if(i==1){n(a,e)}else{q(a,e)}}}}function fr(r){if(o>1)return;D=1;var f=B.getBoundingClientRect();var a=Math.floor((r.touches[0].clientX-f.left)/25);var e=Math.floor((r.touches[0].clientY-f.top)/25);if(a<0||a==h||e<0||e==m)return;if(g[e][a][0]==1){n(a,e)}else{ar=setTimeout(function(){return er(a,e)},320)}}var ar;function er(r,f){if(cr==1&&w==0)return;if(o==0){u(r,f);l(r,f);return}D=3;if(w==0){if(g[f][r][0]==2){q(r,f)}if(g[f][r][0]==0)l(r,f)}else{q(r,f)}}var ir=0;function nr(r){if(D==1){var f=B.getBoundingClientRect();var a=Math.floor((r.changedTouches[0].clientX-f.left)/25);var e=Math.floor((r.changedTouches[0].clientY-f.top)/25);if(a<0||a==h||e<0||e==m)return;var i=g[e][a][0];if(o==0){u(a,e);l(a,e)}else{if(w==0){if(i!=1){var n=Date.now();var t;if(a==b&&e==T){t=n-ir}else{b=a;T=e;ir=Date.now();t=1e3}if(cr==1&&t<400&&i==0){l(a,e)}else{q(a,e)}ir=n}}else{if(i==0){l(a,e)}else if(i==2){q(a,e)}}}D=4;clearTimeout(ar)}if(r.preventDefault){r.preventDefault()}else{window.event.returnValue=false}}var x;function tr(){or();y=0;D=0;x=parseInt($("af").checked?1:0);var r=h*25;$("p42").style.width=r+4+"px";B.width=r;B.height=m*25;$("face").src=fgf[0];for(var f=0;f<h;f++){for(var a=0;a<m;a++){G.drawImage(sgf[0],f*25,a*25)}}H(E);L(0)}function or(){if(y>0){clearInterval(y);y=0;a=Date.now()-a;if(o==2){a=Math.ceil(a/100);r(a)}else{L(parseInt(a/1e3))}}else{a=0}}var y=0;var a;var vr;function ur(){a=Date.now();vr=0;o=1;y=setInterval(function(){L(++vr)},1e3)}var w;var cr;var D;var E;var R;function q(r,f){k=0;var a=g[f][r];if(a[0]==0){if(E>0){if(a[1]==0){J()}G.drawImage(sgf[1],r*25,f*25);a[0]=2;H(--E)}}else if(a[0]==2){G.drawImage(sgf[0],r*25,f*25);a[0]=0;H(++E)}}var B;var G;var H;var L;function start(){sr=$("ss").href+"#";pr("night",ny0,gr);gr();pr("af",af0,_45);P("mp1",0,r=>{Y=r});P("mp2",0,r=>{Z=r});P("tpn",0,r=>{w=r;dr(r)});P("opn",0,r=>{cr=r});var r=localStorage.getItem("df5");if(r==null){$("hm").value=15;$("vm").value=15;$("mm").value=20}else{var f=r.split(";");$("hm").value=f[0];$("vm").value=f[1];$("mm").value=f[2]}document.oncontextmenu=function(){return false};document.onselectstart=function(){return false};B=$("paf");G=B.getContext("2d");H=U("rm");L=U("es");B.onmousedown=_;B.onmouseup=rr;B.ontouchstart=fr;B.ontouchmove=function(){D=2;clearTimeout(ar)};B.ontouchend=nr;_123(localStorage.getItem("ch7"));$("nick").value=localStorage.getItem("nick");$("uid").innerHTML=lr()}function lr(){var r=localStorage.getItem("nick");if(r==null||r=="")r=localStorage.getItem("uid");if(r==null)r="";return r}var O;function _123(r){var f,a;o=0;f=document.body.clientWidth;a=document.body.clientHeight;v=parseInt(r)||2;$("custom").style.display=v==5?"":"none";if(v==1){h=9;m=9;i=10;O=81}else if(v==2){h=16;m=16;i=40;O=256}else if(v==3){i=99;if(f>a){h=30;m=16}else{h=16;m=30}O=480}else if(v==4){h=parseInt((f-18)/25);m=parseInt((a-54)/25);O=h*m;if(O>=480)i=O*.20625;else i=O*O/5760+O/8;i=parseInt(i)}else if(v==5){h=parseInt($("hm").value);m=parseInt($("vm").value);O=h*m;i=parseInt($("mm").value);if(i>O)i=O}else{return}_45();localStorage.setItem("ch7",v);$("ss").href=sr+v;mr(v)}var sr;function udf(){_123(5);localStorage.setItem("df5",$("hm").value+";"+$("vm").value+";"+$("mm").value);$("custom").style.display="none"}function nick(){var nick=$("nick").value.trim();if(nick.charCodeAt(0)<65){alert(w1);return}localStorage.setItem("nick",nick);$("uid").innerHTML=lr();setr()}function gr(){var r=document.body.style;var f=document.getElementsByTagName("a");if($("night").checked){r.backgroundColor="black";r.color="silver";for(var a=0;a<f.length;a++){f[a].style.color="silver"}}else{r.backgroundColor="#f7f7f0";r.color="";for(var a=0;a<f.length;a++){f[a].style.color=""}}}function hr(r,f,a){var e=VER+":"+r;V("bug.php",e,function(r){})}function mr(r){for(var f=1;f<=5;f++){var a=$("c"+f);if(f==r){a.className="choiced"}else{a.className=""}}}function pr(r,f,a){var e=$(r);e.checked=parseInt(localStorage.getItem(r)||f);e.addEventListener("change",function(){a();localStorage.setItem(r,this.checked?1:0)})}function P(f,r,a){var e=parseInt(localStorage.getItem(f)||r);a(e);document.getElementsByName(f).forEach(r=>{if(r.value==e){r.checked=true}r.addEventListener("change",function(){a(parseInt(this.value));if(this.checked)localStorage.setItem(f,this.value)})})}function dr(r){if(r==0){$("topen").style.display="block";$("thint").style.display="none"}else{$("thint").style.display="block";$("topen").style.display="none"}}function fold(r,f){var a=0;return function(){if(a==0){$(f).style.display="block";$(r).innerText=shou;a=1}else{$(f).style.display="none";$(r).innerText=shez;a=0}}}
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/index.html
+项目内路径：/index.html
+文件名：index.html
+文件大小：5638 字节
+================================================================================
+文件内容：
+<html>  
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta name="renderer" content="webkit"> 
+<meta name="viewport" content="initial-scale=1,maximum-scale=1, user-scalable=0">
+<meta name="keywords" content="扫雷, minesweeper">
+<meta name="description" content="经典扫雷游戏离线版，电脑手机均可游玩。">
+<title>扫雷游戏 离线版</title>
+<style>
+body{margin:0px;background-color:#f7f7f0}
+div{margin:auto;text-align:center;}
+input{height:1.5rem;width:3.8rem;}
+#face{
+	border:2px solid #808080;
+	border-left-color: #fff;
+	border-top-color: #fff;
+}
+#face:active{
+	border:2px solid #808080;
+	border-bottom:1px solid #808080; 
+	border-right:1px solid #808080; 
+}
+table{
+border-collapse:collapse;
+}
+.pad{
+border:2px solid #808080;
+border-right-color: #fff;
+border-bottom-color: #fff;
+}
+input[type=checkbox]{vertical-align:middle;height:1.19rem;width:1.5rem;}
+.choiced{
+text-decoration:none;
+font-weight:bold;
+color:#444;
+}
+#footer-bar{
+	border-top: 1px solid #cccccc;
+	padding-top: 1rem;
+	margin-top: 4rem;
+	width: 90%;
+	word-break: keep-all;
+}
+#footer-bar a{
+	margin: 0 0.5rem;
+	color: #333;
+	text-decoration: none;
+}
+</style>
+<script src="static/js/gfs.js"></script>
+<script src="static/js/ms3.5.js"></script>
+<base target=_top>
+</head>  
+<body >
+<div style="margin-top: 0.8rem;">
+网页扫雷游戏
+</div>
+<div style="margin-top:0.8rem;">
+<a href=javascript: id=c1 onclick="_123(1)">基础</a>
+&nbsp;
+<a href=javascript: id=c2 onclick="_123(2)">中级</a>
+&nbsp;
+<a href=javascript: id=c3 onclick="_123(3)">专家</a>
+&nbsp;
+<a href=javascript: id=c4 onclick="_123(4)">满屏</a>
+&nbsp;
+<a href=javascript: id=c5 onclick="_123(5)">自定义</a>
+</div>
+<div id=custom style="display:none;margin-top:0.8rem">
+横<input id=hm type=number value=40>
+竖<input id=vm type=number value=24>
+雷<input id=mm type=number value=199>
+<input type=button onclick="udf()" value="确定" >
+</div>
+<table style="margin:1rem auto;border-radius:6px;background:#cccccc">
+<tr><td style="padding:9px;">
+<table id=p42 class=pad style="height:34px">
+<tr>
+<td width=35%><canvas id="rm" height=23 width=39></canvas></td>
+<td style="text-align:center;" onmouseup="_45()"><img id="face"></td>
+<td width=35% style="text-align:right"><canvas id="es" height=23 width=39></canvas></td>
+</table>
+<canvas id="paf" class="pad" style="margin-top:6px;" width=0 height=0></canvas>
+</td></tr>
+</table>
+
+<div style="width:90%;text-align:left;margin-top:2rem;">
+<span style="vertical-align:middle">自动标雷</span><input type=checkbox id="af" >
+<span style="float:right">
+夜间<input type="checkbox" id="night"></span>
+</div>
+<div style="width:90%;text-align:left;margin-top:3rem;">
+第一次点击不会是雷。格子里的数字表示它周围有几个雷。游戏目标是找出所有雷。找错则输。点击表情重新开始。<b>“二选一”留到最后，可任选</b>，需先清完其他方块。
+<br><br>
+<b>电脑：</b>鼠标右键点击未明方块，以小旗标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字（左右键均可）翻开周围的安全区域。鼠标左键点击无标记方块则直接打开。
+<a id=setm href="javascript:" onclick="mouse2()">设置</a>
+<div id="_mouse" style="text-align:left;border:solid 1px;display:none;padding:0.5rem;">
+鼠标起效时间点
+<br>
+<br>
+<i>左键</i>
+<br>
+<br>
+<input type=radio name="mp1" value="0" >按下时
+<input type=radio name="mp1" value="1" >弹起时
+<br>
+<br>
+<br>
+<i>右键</i>
+<br>
+<br>
+<input type=radio name="mp2" value="0">按下时
+<input type=radio name="mp2" value="1">弹起时
+<br>
+<br>
+</div>
+<br><br>
+<b>手机或平板：</b>在触屏上点击方块即标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字翻开周围的安全区域。长按方块直接打开（可设置为点击直接打开；或点击三次打开）。
+<a id=sett href="javascript:" onclick="touch2()">设置</a>
+<div id="_touch" style="text-align:left;border:solid 1px;display:none;padding:0.5rem;">
+<i>触击效果</i>
+<br>
+<br>
+<input type=radio name="tpn" value="0">标记
+<input type=radio name="tpn" value="1">直开
+<br><br>
+<br>
+<div id=thint style="text-align:left;display:none;">
+<i>直开模式下的标记方法</i>
+<br>
+<br>
+长按
+</div>
+<div id=topen style="text-align:left;display:none;">
+<i>标记模式下的打开方法</i>
+<br>
+<br>
+<input type=radio name="opn" value="0">长按
+<input type=radio name="opn" value="1">快点三次
+</div>
+<br>
+<br>
+</div>
+</div>
+<div style="width:90%;text-align:left;margin-top:2.5rem;">
+扫雷游戏起源于1973年的"方块"游戏。1992年微软发布的Windows 3.1中加入该游戏，从此风靡全世界。玩扫雷游戏，可以锻炼观察和推理能力，培养细心和耐心。
+<br><br>
+不标雷的玩法称为盲扫。
+</div>
+
+<!-- 兼容原JS的隐藏元素，无视觉效果 -->
+<a id="ss" href="#" style="display:none;"></a>
+<input id="nick" type="text" style="display:none;">
+<span id="uid" style="display:none;"></span>
+
+<div id="footer-bar">
+<a href="about.html">游戏说明</a> | 
+<a href="jichudingshi.html">基础定式</a> | 
+<a href="dingshituli.html">实战图例</a>
+</div>
+
+<div style="margin-top:2rem;word-break:keep-all;">
+&copy; <span id="copyright-year"></span> Mahua
+<br><br><br><br><br><br>
+</div>
+<script>
+shou="收起";
+shez="设置";
+w1="首字母不符合要求";
+app="/bbb";
+mouse2=fold("setm","_mouse");
+touch2=fold("sett","_touch");
+af0=0;
+ny0=0;
+// 自动填充当前年份
+document.getElementById('copyright-year').textContent = new Date().getFullYear();
+start();
+</script>
+</body>
+</html>
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/about.html
+项目内路径：/about.html
+文件名：about.html
+文件大小：1319 字节
+================================================================================
+文件内容：
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width">
+
+<title>关于游戏</title>
+
+<style>
+body{background:#f7f7f0;}
+table{border-collapse:collapse;cursor:default;}
+#foo{border-top:solid 1px #cccccc;padding-top:2rem;margin-top:6rem;width:90%;text-align:center}
+</style>
+
+
+
+<base target="_top">
+</head>
+
+<body>
+
+
+
+
+[<a href="index.html">返回首页</a>]
+
+<center>
+
+<br><br>
+
+<br>
+<br>
+
+<div style="text-align:center">
+
+重温经典，让扫雷游戏更轻松。
+<br><br>
+<table align="center">
+<tr>
+<td>基础 
+</td><td> (9*9)
+</td><td>10雷
+</td></tr><tr>
+<td>中级
+</td><td> (16*16)
+</td><td>40雷
+</td></tr><tr>
+<td>专家
+</td><td> (30*16)
+</td><td>99雷
+</td></tr><tr>
+<td>满屏
+</td><td> (自适应)
+</td><td>自适应
+</td></tr></table>
+
+
+<br><br>
+<a href="jichudingshi.html">点击查看 扫雷基础定式</a>
+<br><br>
+<a href="dingshituli.html">点击查看 实战定式图例</a>
+
+
+
+
+<br><br>
+<br><br>
+<br><br>
+
+
+<br>
+<br>
+
+
+
+</div>
+
+
+
+
+
+
+<div id="foo">
+在线扫雷游戏
+</div>
+
+</center>
+<br><br>
+</div>
+<script language="javascript" type="text/javascript" src=".\static\js\18759442.js"></script>	
+<div style="display: none">
+<script type="text/javascript" src=".\static\js\z_stat.js"></script>
+    </div>
+</body>
+</html>
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/dingshituli.html
+项目内路径：/dingshituli.html
+文件名：dingshituli.html
+文件大小：3550 字节
+================================================================================
+文件内容：
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width">
+
+<title>定式实战判雷图例</title>
+
+<style>
+body{background:#f7f7f0;}
+table{border-collapse:collapse;cursor:default;}
+#foo{border-top:solid 1px #cccccc;padding-top:2rem;margin-top:6rem;width:90%;text-align:center}
+</style>
+
+
+
+<base target="_top">
+</head>
+
+<body>
+
+
+
+
+<a href="index.html">返回首页</a>
+
+<center>
+
+<br><br>
+
+<div style="text-align:left;width:90%">
+<br>
+<br>
+<b>定式实战判雷图例（11、121、1221定式）</b>
+<br><br>
+游戏说明
+<br><br>
+
+本文中统一的标志：红点必定是雷，绿点必定不是雷。
+<br><br>
+图例包含的只是实战中的一小部分，需要理解后在实战中活用。
+<br><br>
+<br><br>
+<b>一、基本定式</b>
+<br><br>
+①11基本定式形态较多，故举例：
+<br>
+<img src="static/picture/11-1.jpg">
+
+<img src="static/picture/11-21.jpg">
+
+<img src="static/picture/11-3.jpg">
+<br><br>
+<br><br>
+②其他定式请参考基本定式一文。
+
+<br><br>
+<br><br>
+<b>二、定式变形</b>
+<br><br>
+定式变形，是一个定式不以最基本的形式出现的情形。有时一些数字旁会有已确定的雷影响，此时需要先将数字减去周围已确定的雷数，得出真实数字，再运用定式。
+<br><br>
+
+
+①11定式变式
+<br><br>
+<img src="static/picture/11b1.jpg">
+<br>
+橙色箭头所指的3，周围已有2个雷通过其他方式判出，因此真实数字为1，可以使用11定式。
+
+
+<br><br>
+<img src="static/picture/11b3.jpg">
+<br>
+
+
+
+橙色箭头所指的两个2，周围已有1个雷通过其他方式判出，因此真实数字均为1，可以使用11定式。
+<br><br>
+<img src="static/picture/11b4.jpg">
+<br>
+方框内两个2实为11。
+
+
+<br><br>
+<img src="static/picture/11b5.jpg">
+<br>
+方框内的3减去2为1。
+
+
+<br><br>
+<img src="static/picture/11b8.jpg">
+<br>
+方框内的4、2变为11。
+
+
+<br><br>
+<img src="static/picture/11b12.jpg">
+<br>
+2、3变为11。
+
+<br><br>
+<img src="static/picture/11b13.jpg">
+<br>
+5、4变为11。
+
+
+
+<br><br>
+<br><br>
+②121定式变式
+<br><br>
+<img src="static/picture/121b1.jpg">
+<br>
+橙色箭头所指的2，周围已有1个雷通过其他方式判出，因此真实数字为1，可以使用121定式。
+<br><br>
+<img src="static/picture/121b2.jpg">
+<br>
+橙色箭头所指的2，周围已有1个雷通过其他方式判出，因此真实数字为1。
+<br>
+橙色箭头所指的3，周围已有1个雷通过其他方式判出，因此真实数字为2
+<br>
+结合右侧的1，可以使用121定式。
+<br><br>
+<img src="static/picture/121b3.jpg">
+，
+<img src="static/picture/121b4.jpg">
+<br>
+这两个同理。
+
+
+<br><br>
+<br><br>
+③1221定式变式
+<br><br>
+<img src="static/picture/1221b1.jpg">
+<br>
+橙色箭头所指的3，周围已有2个雷通过其他方式判出，因此真实数字为1，可以使用1221定式。
+<br><br>
+<img src="static/picture/1221b2.jpg">
+<br>
+橙色箭头所指的2，周围已有1个雷通过其他方式判出，因此真实数字为1，可以使用1221定式。
+<br><br>
+<img src="static/picture/1221b3.jpg">
+<br>
+紫框中的2332，每个数字周围都有1个雷通过其他方式判出，因此真实数字为1221。
+
+
+</div>
+
+
+
+
+<div id="foo">
+在线扫雷游戏
+</div>
+<br><br>
+</center>
+</div>
+<script language="javascript" type="text/javascript" src=".\static\js\18759442.js"></script>	
+<div style="display: none">
+<script type="text/javascript" src=".\static\js\z_stat.js"></script>
+    </div>
+</body>
+</html>
+
+【该文件结束】
+
+================================================================================
+【文件信息】
+完整路径：/storage/emulated/0/Download/Git/Minesweeper/jichudingshi.html
+项目内路径：/jichudingshi.html
+文件名：jichudingshi.html
+文件大小：2345 字节
+================================================================================
+文件内容：
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width">
+
+<title>扫雷入门定式</title>
+
+<style>
+body{background:#f7f7f0;}
+table{border-collapse:collapse;cursor:default;}
+#foo{border-top:solid 1px #cccccc;padding-top:2rem;margin-top:6rem;width:90%;text-align:center}
+</style>
+
+
+
+<base target="_top">
+</head>
+
+<body>
+
+
+
+
+<a href="index.html">返回首页</a>
+
+<center>
+
+<br><br>
+
+<div style="text-align:left;width:90%">
+
+
+
+
+<br>
+<br>
+<b>最常用的基础定式</b>
+
+
+<br><br>
+应用定式，要求数字的一侧没有未明方块。
+<br>
+先假设数字一侧没有已标记的雷。周围有雷的情况，请看后面的“减法原理”。
+
+<br><br>
+
+
+
+<b>“靠边”</b>是指靠边框，或靠已翻开的格子。
+<br>
+（图中隐去了不相关的数字。）
+
+<br><br>
+一、2靠边，两个雷；
+<br>
+<img src="static/picture/2-1.jpg">
+，
+<img src="static/picture/2-2.jpg">
+
+<br><br>
+二、两个1靠边，第三列的三个格子无雷；
+<br>
+<img src="static/picture/11.jpg">
+<img src="static/picture/11-2.jpg">
+
+<br><br>
+三、12在任意位置，第三格是雷；
+<br>
+<img src="static/picture/12.jpg">
+
+
+<br><br>
+四、3在中间，三个雷；
+<br>
+<img src="static/picture/3.jpg">
+
+
+<br><br>
+五、121在任何位置，两个1有雷，2无雷；
+<br>
+<img src="static/picture/121.jpg">
+
+
+<br><br>
+六、1221在任何位置：两个2有雷，1无雷
+<br>
+<img src="static/picture/1221.jpg">
+
+
+<br><br>
+
+方向左右横竖都一样。更多定式上网搜索。
+
+<br><br><br>
+<b>减法原理：</b>
+<br><br>
+一、如果数字的周围已标有地雷，则先用数字减去周围雷数，再应用定式。
+<br><br>
+比如图中，3周围有两个雷3-2=1，2周围有一个雷2-1=1，故简化为11模式，画点的两个格子可以直接打开。
+<br>
+<img src="static/picture/minus.jpg">
+<br><br><br>
+二、根据减法原理，如果未明方块的一头是一个标记的雷，则把此雷数减掉，也视为靠边，可应用定式。
+</div>
+
+
+
+
+<div id="foo">
+在线扫雷游戏
+</div>
+<br><br>
+</center>
+</div>
+<script language="javascript" type="text/javascript" src=".\static\js\18759442.js"></script>	
+<div style="display: none">
+<script type="text/javascript" src=".\static\js\z_stat.js"></script>
+    </div>
+</body>
+</html>
+
+【该文件结束】
+
+整合完成！总共处理 33 个文件。

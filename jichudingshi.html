@@ -7,21 +7,6 @@
 body{background:#f7f7f0;}
 table{border-collapse:collapse;cursor:default;}
 #foo{border-top:solid 1px #cccccc;padding-top:2rem;margin-top:6rem;width:90%;text-align:center}
-/* 滚动轮播样式 */
-.footer-loop-wrap{
-	height: 1.2rem;
-	overflow: hidden;
-	position: relative;
-}
-.footer-loop-inner{
-	transition: transform 0.3s ease;
-}
-.footer-loop-item{
-	height: 1.2rem;
-	line-height: 1.2rem;
-	display: block;
-	font-variant-numeric: tabular-nums;
-}
 </style>
 <base target="_top">
 </head>
@@ -82,37 +67,19 @@ table{border-collapse:collapse;cursor:default;}
 二、根据减法原理，如果未明方块的一头是一个标记的雷，则把此雷数减掉，也视为靠边，可应用定式。
 </div>
 <div id="foo">
-  <div class="footer-loop-wrap">
-    <div class="footer-loop-inner" id="footerLoopInner">
-      <span class="footer-loop-item">&copy; <span id="copyright-year"></span> Mahua</span>
-      <span class="footer-loop-item">总访问量：<span id="busuanzi_value_site_pv">--</span> 次</span>
-    </div>
-  </div>
+&copy; <span id="copyright-year"></span> Mahua
 </div>
 <br><br>
 </center>
 
-<!-- 不蒜子官方原版统计脚本 -->
-<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script>
 document.getElementById('copyright-year').textContent = new Date().getFullYear();
-
-// 底部滚动轮播
-const loopInner = document.getElementById('footerLoopInner');
-let currentIndex = 0;
-const itemCount = 2;
-
-setInterval(() => {
-  currentIndex = (currentIndex + 1) % itemCount;
-  loopInner.style.transform = `translateY(-${currentIndex * 1.2}rem)`;
-}, 3000);
 
 // 夜间模式兼容
 if(localStorage.getItem('night') == 1){
   document.body.style.background = 'black';
   document.body.style.color = 'silver';
   document.querySelectorAll('a').forEach(a => a.style.color = 'silver');
-  document.querySelectorAll('.footer-loop-item').forEach(item => item.style.color = 'silver');
 }
 </script>
 </body>

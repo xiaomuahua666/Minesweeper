@@ -34,9 +34,21 @@ text-decoration:none;
 font-weight:bold;
 color:#444;
 }
+#footer-bar{
+	border-top: 1px solid #cccccc;
+	padding-top: 1rem;
+	margin-top: 4rem;
+	width: 90%;
+	word-break: keep-all;
+}
+#footer-bar a{
+	margin: 0 0.5rem;
+	color: #333;
+	text-decoration: none;
+}
 </style>
-<script src="gfs1.js"></script>
-<script src="new.6.27.js"></script>
+<script src="static/js/gfs.js"></script>
+<script src="static/js/ms3.5.js"></script>
 <base target=_top>
 </head>  
 <body >
@@ -136,12 +148,18 @@ color:#444;
 不标雷的玩法称为盲扫。
 </div>
 
-<!-- 兼容原JS的隐藏元素，无任何视觉效果，仅保证脚本不报错 -->
+<!-- 兼容原JS的隐藏元素，无视觉效果 -->
 <a id="ss" href="#" style="display:none;"></a>
 <input id="nick" type="text" style="display:none;">
 <span id="uid" style="display:none;"></span>
 
-<div style="margin-top:5rem;word-break:keep-all;">
+<div id="footer-bar">
+<a href="about.html">游戏说明</a> | 
+<a href="jichudingshi.html">基础定式</a> | 
+<a href="dingshituli.html">实战图例</a>
+</div>
+
+<div style="margin-top:2rem;word-break:keep-all;">
 &copy; <span id="copyright-year"></span> Mahua
 <br><br><br><br><br><br>
 </div>

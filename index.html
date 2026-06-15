@@ -32,7 +32,6 @@ table{
 	border-bottom-color: #fff;
 }
 
-/* 新增：自动标雷和夜间模式样式 */
 input[type=checkbox]{vertical-align:middle;height:1.19rem;width:1.5rem;}
 
 .choiced{
@@ -87,16 +86,16 @@ input[type=checkbox]{vertical-align:middle;height:1.19rem;width:1.5rem;}
 					</tr>
 				</table>
 
-			<!--table style="margin-top:6px;" class=pad id=paf></table-->
 			<canvas id="paf" class="pad" style="margin-top:6px;" width="0" height="0"></canvas>
 			</td>
 		</tr>
-		<tr><td align="right"></td></tr>
-	</table>
+		<tr><td align="right"> </td>
+	</tr>
+</table>
 
 <div style="margin-top:2rem;"></div>
 
-<!-- 新增：自动标雷和夜间模式开关 -->
+<!-- 自动标雷和夜间模式开关 -->
 <div style="width:90%;text-align:left;margin-top:2.5rem;">
 	<span style="vertical-align:middle">自动标雷</span><input type="checkbox" id="af">
 	<span style="float:right">
@@ -107,9 +106,8 @@ input[type=checkbox]{vertical-align:middle;height:1.19rem;width:1.5rem;}
 <div style="width:90%;text-align:left;margin-top:3rem;">
 初始已自动翻开一片区域。格子里的数字表示它周围有几个雷。游戏目标是在最短的时间内找出所有雷。“触雷”则输。点击表情重新开始。
 <br><br>
-<b>电脑：</b>鼠标右键点击原始方块，以小旗标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字（左右键均可）翻开周围的安全区域。鼠标左键点击无标记方块则直接打开。<a href="javascript:void(0)" onclick="mouse2()">设置</a>
+<b>电脑：</b>鼠标右键点击原始方块，以小旗标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字（左右键均可）翻开周围的安全区域。鼠标左键点击无标记方块则直接打开。<a href="javascript:void(0)" id="setm" onclick="fold('setm','_mouse')()">设置</a>
 
-<!-- 新增：鼠标设置面板 -->
 <div id="_mouse" style="text-align:left;border:solid 1px;display:none;padding:0.5rem;margin-top:0.5rem;">
 	鼠标起效时间点
 	<br><br>
@@ -127,9 +125,8 @@ input[type=checkbox]{vertical-align:middle;height:1.19rem;width:1.5rem;}
 <br><br>
 <b>手机或平板：</b>在触屏上点击方块即标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字翻开周围的安全区域。长按方块直接打开（可设置为点击直接打开；或点击三次打开）。
 
-<a href="javascript:void(0)" onclick="touch2()">设置</a>
+<a href="javascript:void(0)" id="sett" onclick="fold('sett','_touch')()">设置</a>
 
-<!-- 新增：触屏设置面板 -->
 <div id="_touch" style="text-align:left;border:solid 1px;display:none;padding:0.5rem;margin-top:0.5rem;">
 	<i>触击效果</i>
 	<br><br>
@@ -159,7 +156,11 @@ input[type=checkbox]{vertical-align:middle;height:1.19rem;width:1.5rem;}
 <div style="margin-top:5rem;">
 	<br>
 	<span id="uid" style="color:#f7f7f0"></span>
-	<!--a href=setting.htm>改名</a-->
+	<a href="javascript:void(0)" id="setr" onclick="setr()">设置</a>
+	<div id="_rename" style="border:solid 1px;display:none;padding:0.5rem;">
+		昵称：<input id="nick" type="text" style="width:5rem;">
+		<input type="button" value="确定" onclick="nick()">
+	</div>
 </div>
 
 <div style="margin-top:2rem;">
@@ -169,86 +170,63 @@ input[type=checkbox]{vertical-align:middle;height:1.19rem;width:1.5rem;}
 <a href="about.html">游戏说明</a>
 <br><br><br>
 © <script>document.write(new Date().getFullYear())</script> Mahua
-
 <br><br><br><br>
 </div>
 
 </center>
 
-<!-- ========== 关键修改：替换为整合2的核心JS ========== -->
-<!-- 整合2的图片资源JS -->
+<!-- ========== JS文件加载 ========== -->
 <script src="static/js/gfs1.js"></script>
-<!-- 整合2的扫雷主程序（完美版） -->
 <script src="static/js/new.6.27.js"></script>
-
-<!-- 保留原有的统计JS（不影响游戏功能） -->
 <script language="javascript" type="text/javascript" src=".\static\js\18759442.js"></script>	
 <div style="display: none">
 	<script type="text/javascript" src=".\static\js\z_stat.js"></script>
 </div>
 
-<!-- 新增：辅助函数定义（确保设置面板正常工作） -->
+<!-- ========== 补充缺失的变量和函数 ========== -->
 <script>
-// 折叠/展开面板辅助函数
-var shou = "收起";
-var shez = "设置";
-var w1 = "首字母不符合要求";
-var app = "/bbb";
+// 补充 start() 需要的全局变量
+var af0 = 0;   // 自动标雷初始状态
+var ny0 = 0;   // 夜间模式初始状态
+var VER = "1.0"; // 用于hr函数
 
-function fold(id, panelId) {
-	var a = 0;
-	return function() {
-		if(a == 0) {
-			document.getElementById(panelId).style.display = "block";
-			document.getElementById(id).innerText = shou;
-			a = 1;
-		} else {
-			document.getElementById(panelId).style.display = "none";
-			document.getElementById(id).innerText = shez;
-			a = 0;
-		}
-	}
+// 补充 setr 函数（折叠/展开改名面板）
+function setr() {
+    var panel = document.getElementById("_rename");
+    if(panel.style.display === "none" || panel.style.display === "") {
+        panel.style.display = "block";
+        document.getElementById("setr").innerText = "收起";
+    } else {
+        panel.style.display = "none";
+        document.getElementById("setr").innerText = "设置";
+    }
 }
 
-// 初始化设置面板折叠功能
-var mouse2 = fold("setm", "_mouse");
-var touch2 = fold("sett", "_touch");
-
-// 注意：fold函数需要在页面中定义，但new.6.27.js中已有fold定义
-// 如果冲突，可以使用下面这个兼容版本
-if(typeof fold === 'undefined') {
-	fold = function(id, panelId) {
-		var a = 0;
-		return function() {
-			if(a == 0) {
-				document.getElementById(panelId).style.display = "block";
-				document.getElementById(id).innerText = "收起";
-				a = 1;
-			} else {
-				document.getElementById(panelId).style.display = "none";
-				document.getElementById(id).innerText = "设置";
-				a = 0;
-			}
-		}
-	};
-	mouse2 = fold("setm", "_mouse");
-	touch2 = fold("sett", "_touch");
+// 补充 nick 函数（new.6.27.js 中有定义，但可能覆盖，确保存在）
+if(typeof nick === 'undefined') {
+    window.nick = function() {
+        var nick = document.getElementById("nick").value.trim();
+        if(nick.charCodeAt(0) < 65) {
+            alert("首字母不符合要求");
+            return;
+        }
+        localStorage.setItem("nick", nick);
+        document.getElementById("uid").innerHTML = nick || localStorage.getItem("uid") || "";
+        setr();
+    };
 }
 
-// 确保_start函数存在，new.6.27.js中应该有start()
-// 如果没有，确保在页面加载完成后调用
-window.onload = function() {
-	if(typeof start === 'function') {
-		start();
-	}
-};
-
-// 为设置链接添加ID，让fold函数能找到它们
-document.addEventListener('DOMContentLoaded', function() {
-	var setmLink = document.querySelector('a[onclick="mouse2()"]');
-	var settLink = document.querySelector('a[onclick="touch2()"]');
-	if(setmLink && !setmLink.id) setmLink.id = "setm";
-	if(settLink && !settLink.id) settLink.id = "sett";
+// 确保 start 在页面加载完成后调用
+window.addEventListener('DOMContentLoaded', function() {
+    if(typeof start === 'function') {
+        start();
+    } else {
+        console.error("start function not found!");
+        // 延迟重试
+        setTimeout(function() {
+            if(typeof start === 'function') start();
+        }, 100);
+    }
 });
 </script>
 

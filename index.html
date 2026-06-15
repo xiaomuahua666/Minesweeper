@@ -46,8 +46,23 @@ color:#444;
 	color: #333;
 	text-decoration: none;
 }
+.footer-loop-wrap{
+	height:1.2rem;
+	overflow:hidden;
+	position:relative;
+}
+.footer-loop-item{
+	position:absolute;
+	left:0;
+	right:0;
+	transition: opacity 0.3s ease;
+	opacity:0;
+	font-variant-numeric: tabular-nums;
+}
+.footer-loop-item:first-child{
+	opacity:1;
+}
 </style>
-<!-- 修正为根目录真实JS文件名 -->
 <script src="gfs1.js"></script>
 <script src="new.6.27.js"></script>
 <base target=_top>
@@ -161,9 +176,16 @@ color:#444;
 </div>
 
 <div style="margin-top:2rem;word-break:keep-all;">
-&copy; <span id="copyright-year"></span> Mahua
+  <div class="footer-loop-wrap">
+    <span class="footer-loop-item">&copy; <span id="copyright-year"></span> Mahua</span>
+    <span class="footer-loop-item">本站运行：<span id="site-uptime">0天0小时0分00秒</span></span>
+    <span class="footer-loop-item">总访问量：<span id="busuanzi_value_site_pv">--</span> 次</span>
+  </div>
 <br><br><br><br><br><br>
 </div>
+
+<!-- 不蒜子访问统计 -->
+<script async src="https://cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js"></script>
 <script>
 shou="收起";
 shez="设置";
@@ -173,8 +195,44 @@ mouse2=fold("setm","_mouse");
 touch2=fold("sett","_touch");
 af0=0;
 ny0=0;
+
 // 自动填充当前年份
 document.getElementById('copyright-year').textContent = new Date().getFullYear();
+
+// ===== 网站运行时长 可修改为你的实际上线日期 =====
+const LAUNCH_DATE = new Date('2026-01-01 00:00:00').getTime();
+function updateUptime() {
+  const diff = Date.now() - LAUNCH_DATE;
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  document.getElementById('site-uptime').textContent = 
+    `${days}天${hours}小时${minutes}分${String(seconds).padStart(2, '0')}秒`;
+}
+updateUptime();
+setInterval(updateUptime, 1000);
+
+// ===== 底部轮播 3秒切换 =====
+const loopItems = document.querySelectorAll('.footer-loop-item');
+let currentIndex = 0;
+setInterval(() => {
+  loopItems[currentIndex].style.opacity = '0';
+  currentIndex = (currentIndex + 1) % loopItems.length;
+  loopItems[currentIndex].style.opacity = '1';
+}, 3000);
+
+// ===== 夜间模式联动 =====
+function syncNightMode() {
+  const isNight = document.getElementById('night').checked;
+  const color = isNight ? 'silver' : '';
+  loopItems.forEach(item => item.style.color = color);
+}
+document.getElementById('night').addEventListener('change', syncNightMode);
+if(localStorage.getItem('night') == 1){
+  syncNightMode();
+}
+
 start();
 </script>
 </body>

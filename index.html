@@ -1,233 +1,217 @@
 <html>  
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<meta name="viewport" content="initial-scale=1">
-<meta name="keywords" content="扫雷, HTML游戏">
-<meta name="description" content="本网页游戏为经典扫雷游戏，并略作改进，在电脑或手机上打开网页就可以玩，无需下载安装。增加了满屏级别，自适应屏幕大小。成绩榜实时显示大家的扫雷成绩。">
+<meta name="renderer" content="webkit"> 
+<meta name="viewport" content="initial-scale=1,maximum-scale=1, user-scalable=0">
+<meta name="keywords" content="扫雷, minesweeper">
+<meta name="description" content="本网页游戏为经典扫雷游戏，并略作改进，在电脑或手机上打开网页就可以玩，无需下载安装。增加了满屏级别，自适应屏幕大小。">
 <title>扫雷游戏网页版</title>
 
 <style>
-input{height:1.5rem;font-size:1.1rem;width:4rem;}
+
+body{margin:0px;background-color:#f7f7f0}
+
+div{margin:auto;text-align:center;}
+
+input{height:1.5rem;width:3.8rem;}
 
 #face{
 	border:2px solid #808080;
 	border-left-color: #fff;
 	border-top-color: #fff;
-	width:21px;
-	height:21px;
+
 }
 #face:active{
 	border:2px solid #808080;
 	border-bottom:1px solid #808080; 
 	border-right:1px solid #808080; 
+
 }
 
 table{
-	border-collapse:collapse;
+border-collapse:collapse;
 }
 
 .pad{
-	border:2px solid #808080;
-	border-right-color: #fff;
-	border-bottom-color: #fff;
+border:2px solid #808080;
+border-right-color: #fff;
+border-bottom-color: #fff;
 }
 
 input[type=checkbox]{vertical-align:middle;height:1.19rem;width:1.5rem;}
 
 .choiced{
-	text-decoration:none;
-	font-weight:bold;
-	color:#444;
+text-decoration:none;
+font-weight:bold;
+color:#444;
 }
 </style>
-<base target="_top">
+
+<script src="static/js/gfs1.js"></script>
+<script src="static/js/new.6.27.js"></script>
+
+<base target=_top>
+
 </head>  
 
-<body bgcolor="f7f7f0" style="margin:0;" >
+<body >
 
-<center>
+<div style="margin-top: 0.8rem;">
+在线扫雷游戏 <small><a href="about.html">说明</a></small>
+</div>
+
 
 <div style="margin-top:0.8rem;">
-	<b>在线扫雷游戏</b> <small>→<a href="about.html">说明</a></small>
+<a href=javascript: id=c1 onclick="_123(1)">基础</a>
+&nbsp;
+<a href=javascript: id=c2 onclick="_123(2)">中级</a>
+&nbsp;
+<a href=javascript: id=c3 onclick="_123(3)">专家</a>
+&nbsp;
+<a href=javascript: id=c4 onclick="_123(4)">满屏</a>
+&nbsp;
+<a href=javascript: id=c5 onclick="_123(5)">自定义</a>
+</div>
+<div id=custom style="display:none;margin-top:0.8rem">
+横向<input id=hm type=number value=40>
+竖向<input id=vm type=number value=24>
+雷数<input id=mm type=number value=199>
+<input type=button onclick="udf()" value="确定" >
 </div>
 
-<div style="margin-top:0.8rem;">
-	<a href="javascript:void(0)" id="c1" onclick="_123(1)">基础</a>
-	&nbsp;
-	<a href="javascript:void(0)" id="c2" onclick="_123(2)">中级</a>
-	&nbsp;
-	<a href="javascript:void(0)" id="c3" onclick="_123(3)">专家</a>
-	&nbsp;
-	<a href="javascript:void(0)" id="c4" onclick="_123(4)">满屏</a>
-	&nbsp;
-	<a href="javascript:void(0)" id="c5" onclick="_123(5)">自定义</a>
-</div>
-<div id="custom" style="display:none">
-	横向：<input id="hm" type="number" value="40">
-	竖向：<input id="vm" type="number" value="24">
-	雷数：<input id="mm" type="number" value="199">
-	<input type="button" onclick="udf()" value="确定">
-</div>
-<table style="margin-top:0.8rem;border-radius:6px;background:#cccccc">
-	<tr>
-		<td style="padding:9px;">
+<table style="margin:1rem auto;border-radius:6px;background:#cccccc">
+<tr><td style="padding:9px;">
 
-			<table id="p42" class="pad" style="height:34px">
-				<tr>
-					<td width="50%"><canvas id="rm" height="23" width="39"></canvas>
-						<!--img><img><img-->
-						</td>
-					<td align="center">
-						<img onmouseup="_45()" id="face">
-						</td>
-					<td width="50%" align="right"><canvas id="es" height="23" width="39"></canvas>
-						<!--img><img><img-->
-						</td>
-					</tr>
-				</table>
-
-			<canvas id="paf" class="pad" style="margin-top:6px;" width="0" height="0"></canvas>
-			</td>
-		</tr>
-		<tr><td align="right"> </td>
-	</tr>
+<table id=p42 class=pad style="height:34px">
+<tr>
+<td width=35%><canvas id="rm" height=23 width=39></canvas></td>
+<td style="text-align:center;" onmouseup="_45()"><img id="face"></td>
+<td width=35% style="text-align:right"><canvas id="es" height=23 width=39></canvas></td>
+</tr>
 </table>
 
-<div style="margin-top:2rem;"></div>
+<canvas id="paf" class="pad" style="margin-top:6px;" width=0 height=0></canvas>
 
-<!-- 自动标雷和夜间模式开关 -->
+</td></tr>
+</table>
+
+
 <div style="width:90%;text-align:left;margin-top:2.5rem;">
-	<span style="vertical-align:middle">自动标雷</span><input type="checkbox" id="af">
-	<span style="float:right">
-		夜间<input type="checkbox" id="night">
-	</span>
+<span style="vertical-align:middle">自动标雷</span><input type=checkbox id="af" >
+<span style="float:right">
+夜间<input type="checkbox" id="night"></span>
 </div>
+
 
 <div style="width:90%;text-align:left;margin-top:3rem;">
-初始已自动翻开一片区域。格子里的数字表示它周围有几个雷。游戏目标是在最短的时间内找出所有雷。“触雷”则输。点击表情重新开始。
-<br><br>
-<b>电脑：</b>鼠标右键点击原始方块，以小旗标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字（左右键均可）翻开周围的安全区域。鼠标左键点击无标记方块则直接打开。<a href="javascript:void(0)" id="setm" onclick="fold('setm','_mouse')()">设置</a>
+格子里的数字表示它周围有几个雷。游戏目标是找出所有雷。找错则输。点击表情重新开始。
 
-<div id="_mouse" style="text-align:left;border:solid 1px;display:none;padding:0.5rem;margin-top:0.5rem;">
-	鼠标起效时间点
-	<br><br>
-	<i>左键</i>
-	<br>
-	<input type="radio" name="mp1" value="0">按下时
-	<input type="radio" name="mp1" value="1">弹起时
-	<br><br>
-	<i>右键</i>
-	<br>
-	<input type="radio" name="mp2" value="0">按下时
-	<input type="radio" name="mp2" value="1">弹起时
+<br><br>
+<b>电脑：</b>鼠标右键点击未明方块，以小旗标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字（左右键均可）翻开周围的安全区域。鼠标左键点击无标记方块则直接打开。
+
+<a id=setm href="javascript:" onclick="mouse2()">设置</a>
+
+<div id="_mouse" style="text-align:left;border:solid 1px;display:none;padding:0.5rem;">
+
+鼠标起效时间点
+
+<br>
+<br>
+
+<i>左键</i>
+<br>
+<br>
+
+<input type=radio name="mp1" value="0" >按下时
+<input type=radio name="mp1" value="1" >弹起时
+
+<br>
+<br>
+<br>
+
+<i>右键</i>
+<br>
+<br>
+
+<input type=radio name="mp2" value="0">按下时
+<input type=radio name="mp2" value="1">弹起时
+
+<br>
+<br>
 </div>
+
 
 <br><br>
 <b>手机或平板：</b>在触屏上点击方块即标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字翻开周围的安全区域。长按方块直接打开（可设置为点击直接打开；或点击三次打开）。
 
-<a href="javascript:void(0)" id="sett" onclick="fold('sett','_touch')()">设置</a>
+<a id=sett href="javascript:" onclick="touch2()">设置</a>
 
-<div id="_touch" style="text-align:left;border:solid 1px;display:none;padding:0.5rem;margin-top:0.5rem;">
-	<i>触击效果</i>
-	<br><br>
-	<input type="radio" name="tpn" value="0">标记
-	<input type="radio" name="tpn" value="1">直开
-	<br><br>
-	<div id="thint" style="text-align:left;display:none;">
-		<i>直开模式下的标记方法</i>
-		<br>长按
-	</div>
-	<div id="topen" style="text-align:left;display:none;">
-		<i>标记模式下的打开方法</i>
-		<br>
-		<input type="radio" name="opn" value="0">长按
-		<input type="radio" name="opn" value="1">快点三次
-	</div>
-</div>
 
-</div>
+<div id="_touch" style="text-align:left;border:solid 1px;display:none;padding:0.5rem;">
 
-<div style="width:90%;text-align:left;margin-top:3rem;">
-扫雷游戏起源于1973年的"方块"游戏。1992年微软发布的Windows 3.1中加入该游戏，从此风靡全世界。玩扫雷游戏，可以锻炼观察和推理能力，培养细心和耐心。
-</div>
+<i>触击效果</i>
 
-<div id="zz" style="margin-top:4rem;"></div>
-
-<div style="margin-top:5rem;">
-	<br>
-	<span id="uid" style="color:#f7f7f0"></span>
-	<a href="javascript:void(0)" id="setr" onclick="setr()">设置</a>
-	<div id="_rename" style="border:solid 1px;display:none;padding:0.5rem;">
-		昵称：<input id="nick" type="text" style="width:5rem;">
-		<input type="button" value="确定" onclick="nick()">
-	</div>
-</div>
-
-<div style="margin-top:2rem;">
-在线HTML扫雷游戏
-<hr width="90%">
 <br>
-<a href="about.html">游戏说明</a>
-<br><br><br>
-© <script>document.write(new Date().getFullYear())</script> Mahua
-<br><br><br><br>
+<br>
+<input type=radio name="tpn" value="0">标记
+<input type=radio name="tpn" value="1">直开
+
+<br><br>
+<br>
+
+<div id=thint style="text-align:left;display:none;">
+<i>直开模式下的标记方法</i>
+<br>
+<br>
+长按
 </div>
 
-</center>
+<div id=topen style="text-align:left;display:none;">
 
-<!-- ========== JS文件加载 ========== -->
-<script src="static/js/gfs1.js"></script>
-<script src="static/js/new.6.27.js"></script>
-<script language="javascript" type="text/javascript" src=".\static\js\18759442.js"></script>	
-<div style="display: none">
-	<script type="text/javascript" src=".\static\js\z_stat.js"></script>
+<i>标记模式下的打开方法</i>
+<br>
+<br>
+<input type=radio name="opn" value="0">长按
+<input type=radio name="opn" value="1">快点三次
+</div>
+<br>
+<br>
+
 </div>
 
-<!-- ========== 补充缺失的变量和函数 ========== -->
+</div>
+
+
+<div style="width:90%;text-align:left;margin-top:2.5rem;">
+
+扫雷游戏起源于1973年的"方块"游戏。1992年微软发布的Windows 3.1中加入该游戏，从此风靡全世界。玩扫雷游戏，可以锻炼观察和推理能力，培养细心和耐心。
+<a href="jichudingshi.html">基础定式</a> | <a href="dingshituli.html">实战图例</a>
+
+</div>
+
+
+<div style="margin-top:2rem;word-break:keep-all">
+<a href="about.html">关于游戏</a>
+</div>
+
+<div style="margin-top:5rem;word-break:keep-all">
+<hr width=90%>
+<br>
+<br>
+&copy; <script>document.write(new Date().getFullYear())</script> Mahua
+<br><br><br><br><br><br>
+</div>
+
 <script>
-// 补充 start() 需要的全局变量
-var af0 = 0;   // 自动标雷初始状态
-var ny0 = 0;   // 夜间模式初始状态
-var VER = "1.0"; // 用于hr函数
-
-// 补充 setr 函数（折叠/展开改名面板）
-function setr() {
-    var panel = document.getElementById("_rename");
-    if(panel.style.display === "none" || panel.style.display === "") {
-        panel.style.display = "block";
-        document.getElementById("setr").innerText = "收起";
-    } else {
-        panel.style.display = "none";
-        document.getElementById("setr").innerText = "设置";
-    }
-}
-
-// 补充 nick 函数（new.6.27.js 中有定义，但可能覆盖，确保存在）
-if(typeof nick === 'undefined') {
-    window.nick = function() {
-        var nick = document.getElementById("nick").value.trim();
-        if(nick.charCodeAt(0) < 65) {
-            alert("首字母不符合要求");
-            return;
-        }
-        localStorage.setItem("nick", nick);
-        document.getElementById("uid").innerHTML = nick || localStorage.getItem("uid") || "";
-        setr();
-    };
-}
-
-// 确保 start 在页面加载完成后调用
-window.addEventListener('DOMContentLoaded', function() {
-    if(typeof start === 'function') {
-        start();
-    } else {
-        console.error("start function not found!");
-        // 延迟重试
-        setTimeout(function() {
-            if(typeof start === 'function') start();
-        }, 100);
-    }
-});
+shou="收起";
+shez="设置";
+w1="首字母不符合要求";
+app="/bbb";
+mouse2=fold("setm","_mouse");
+touch2=fold("sett","_touch");
+af0=0;
+ny0=0;
+start();
 </script>
 
 </body>

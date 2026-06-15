@@ -7,21 +7,20 @@
 body{background:#f7f7f0;}
 table{border-collapse:collapse;cursor:default;}
 #foo{border-top:solid 1px #cccccc;padding-top:2rem;margin-top:6rem;width:90%;text-align:center}
+/* 滚动轮播样式 */
 .footer-loop-wrap{
-	height:1.2rem;
-	overflow:hidden;
-	position:relative;
+	height: 1.2rem;
+	overflow: hidden;
+	position: relative;
+}
+.footer-loop-inner{
+	transition: transform 0.3s ease;
 }
 .footer-loop-item{
-	position:absolute;
-	left:0;
-	right:0;
-	transition: opacity 0.3s ease;
-	opacity:0;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	display: block;
 	font-variant-numeric: tabular-nums;
-}
-.footer-loop-item:first-child{
-	opacity:1;
 }
 </style>
 <base target="_top">
@@ -84,40 +83,28 @@ table{border-collapse:collapse;cursor:default;}
 </div>
 <div id="foo">
   <div class="footer-loop-wrap">
-    <span class="footer-loop-item">&copy; <span id="copyright-year"></span> Mahua</span>
-    <span class="footer-loop-item">本站运行：<span id="site-uptime">0天0小时0分00秒</span></span>
-    <span class="footer-loop-item">总访问量：<span id="busuanzi_value_site_pv">--</span> 次</span>
+    <div class="footer-loop-inner" id="footerLoopInner">
+      <span class="footer-loop-item">&copy; <span id="copyright-year"></span> Mahua</span>
+      <span class="footer-loop-item">总访问量：<span id="busuanzi_value_site_pv">--</span> 次</span>
+    </div>
   </div>
 </div>
 <br><br>
 </center>
 
-<!-- 不蒜子访问统计 -->
-<script async src="https://cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js"></script>
+<!-- 不蒜子官方原版统计脚本 -->
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script>
 document.getElementById('copyright-year').textContent = new Date().getFullYear();
 
-// 网站运行时长
-const LAUNCH_DATE = new Date('2026-01-01 00:00:00').getTime();
-function updateUptime() {
-  const diff = Date.now() - LAUNCH_DATE;
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-  document.getElementById('site-uptime').textContent = 
-    `${days}天${hours}小时${minutes}分${String(seconds).padStart(2, '0')}秒`;
-}
-updateUptime();
-setInterval(updateUptime, 1000);
-
-// 底部轮播
-const loopItems = document.querySelectorAll('.footer-loop-item');
+// 底部滚动轮播
+const loopInner = document.getElementById('footerLoopInner');
 let currentIndex = 0;
+const itemCount = 2;
+
 setInterval(() => {
-  loopItems[currentIndex].style.opacity = '0';
-  currentIndex = (currentIndex + 1) % loopItems.length;
-  loopItems[currentIndex].style.opacity = '1';
+  currentIndex = (currentIndex + 1) % itemCount;
+  loopInner.style.transform = `translateY(-${currentIndex * 1.2}rem)`;
 }, 3000);
 
 // 夜间模式兼容
@@ -125,7 +112,7 @@ if(localStorage.getItem('night') == 1){
   document.body.style.background = 'black';
   document.body.style.color = 'silver';
   document.querySelectorAll('a').forEach(a => a.style.color = 'silver');
-  loopItems.forEach(item => item.style.color = 'silver');
+  document.querySelectorAll('.footer-loop-item').forEach(item => item.style.color = 'silver');
 }
 </script>
 </body>

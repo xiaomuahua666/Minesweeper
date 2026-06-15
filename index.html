@@ -4,67 +4,45 @@
 <meta name="renderer" content="webkit"> 
 <meta name="viewport" content="initial-scale=1,maximum-scale=1, user-scalable=0">
 <meta name="keywords" content="扫雷, minesweeper">
-<meta name="description" content="本站提供了经典扫雷游戏，并略作改进，在电脑或手机上打开网页就可以玩，无需下载安装。增加了满屏级别，自适应屏幕大小。成绩榜实时显示大家的在线扫雷成绩。">
-<title>扫雷游戏网页版 - Minesweeper</title>
-
-
-
+<meta name="description" content="经典扫雷游戏离线版，电脑手机均可游玩。">
+<title>扫雷游戏 离线版</title>
 <style>
-
 body{margin:0px;background-color:#f7f7f0}
-
 div{margin:auto;text-align:center;}
-
 input{height:1.5rem;width:3.8rem;}
-
 #face{
 	border:2px solid #808080;
 	border-left-color: #fff;
 	border-top-color: #fff;
-
 }
 #face:active{
 	border:2px solid #808080;
 	border-bottom:1px solid #808080; 
 	border-right:1px solid #808080; 
-
 }
-
-
-
 table{
 border-collapse:collapse;
 }
-
 .pad{
 border:2px solid #808080;
 border-right-color: #fff;
 border-bottom-color: #fff;
 }
-
 input[type=checkbox]{vertical-align:middle;height:1.19rem;width:1.5rem;}
-
 .choiced{
 text-decoration:none;
 font-weight:bold;
 color:#444;
 }
 </style>
-
 <script src="gfs1.js"></script>
 <script src="new.6.27.js"></script>
-
 <base target=_top>
-
 </head>  
-
 <body >
-
 <div style="margin-top: 0.8rem;">
 网页扫雷游戏
 </div>
-
-
 <div style="margin-top:0.8rem;">
 <a href=javascript: id=c1 onclick="_123(1)">基础</a>
 &nbsp;
@@ -82,110 +60,66 @@ color:#444;
 雷<input id=mm type=number value=199>
 <input type=button onclick="udf()" value="确定" >
 </div>
-
 <table style="margin:1rem auto;border-radius:6px;background:#cccccc">
 <tr><td style="padding:9px;">
-
 <table id=p42 class=pad style="height:34px">
 <tr>
 <td width=35%><canvas id="rm" height=23 width=39></canvas></td>
 <td style="text-align:center;" onmouseup="_45()"><img id="face"></td>
 <td width=35% style="text-align:right"><canvas id="es" height=23 width=39></canvas></td>
 </table>
-
-
 <canvas id="paf" class="pad" style="margin-top:6px;" width=0 height=0></canvas>
-
 </td></tr>
-
 </table>
 
-
-<div style="margin-top:2rem;" >
-<a id=ss href=scores.htm >成绩榜</a>
-</div>
-
-
-
-<div style="width:90%;text-align:left;margin-top:2.5rem;">
+<div style="width:90%;text-align:left;margin-top:2rem;">
 <span style="vertical-align:middle">自动标雷</span><input type=checkbox id="af" >
 <span style="float:right">
 夜间<input type="checkbox" id="night"></span>
-
 </div>
-
-
-
-
 <div style="width:90%;text-align:left;margin-top:3rem;">
 第一次点击不会是雷。格子里的数字表示它周围有几个雷。游戏目标是找出所有雷。找错则输。点击表情重新开始。<b>“二选一”留到最后，可任选</b>，需先清完其他方块。
-
 <br><br>
 <b>电脑：</b>鼠标右键点击未明方块，以小旗标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字（左右键均可）翻开周围的安全区域。鼠标左键点击无标记方块则直接打开。
-
 <a id=setm href="javascript:" onclick="mouse2()">设置</a>
-
 <div id="_mouse" style="text-align:left;border:solid 1px;display:none;padding:0.5rem;">
-
 鼠标起效时间点
-
-
 <br>
 <br>
-
 <i>左键</i>
 <br>
 <br>
-
 <input type=radio name="mp1" value="0" >按下时
 <input type=radio name="mp1" value="1" >弹起时
-
-<br>
-
 <br>
 <br>
-
+<br>
 <i>右键</i>
 <br>
 <br>
-
-
 <input type=radio name="mp2" value="0">按下时
 <input type=radio name="mp2" value="1">弹起时
-
 <br>
 <br>
 </div>
-
-
 <br><br>
 <b>手机或平板：</b>在触屏上点击方块即标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字翻开周围的安全区域。长按方块直接打开（可设置为点击直接打开；或点击三次打开）。
-
 <a id=sett href="javascript:" onclick="touch2()">设置</a>
-
-
 <div id="_touch" style="text-align:left;border:solid 1px;display:none;padding:0.5rem;">
-
-
 <i>触击效果</i>
-
 <br>
 <br>
 <input type=radio name="tpn" value="0">标记
 <input type=radio name="tpn" value="1">直开
-
 <br><br>
 <br>
-
 <div id=thint style="text-align:left;display:none;">
 <i>直开模式下的标记方法</i>
 <br>
 <br>
 长按
 </div>
-
 <div id=topen style="text-align:left;display:none;">
-
 <i>标记模式下的打开方法</i>
 <br>
 <br>
@@ -194,82 +128,21 @@ color:#444;
 </div>
 <br>
 <br>
-
 </div>
-
 </div>
-
-
-<div style="margin-top:2.5rem;width:90%;">
-
-<script async id="gg"  
-     crossorigin="anonymous"></script>
-<!-- saolei -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-2872916894005511"
-     data-ad-slot="1319601002"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-
-
-</div>
-
-
 <div style="width:90%;text-align:left;margin-top:2.5rem;">
-
 扫雷游戏起源于1973年的"方块"游戏。1992年微软发布的Windows 3.1中加入该游戏，从此风靡全世界。玩扫雷游戏，可以锻炼观察和推理能力，培养细心和耐心。
-<a href=doc/jichudingshi.htm>基础定式</a>
-<br><br>
-局域网中如访问不正常，可清空缓存或用https访问。
-<br><br>
-安卓手机上连击放大问题：【设置】-【智能辅助】-【无障碍】-【放大手势】-关闭。
 <br><br>
 不标雷的玩法称为盲扫。
-<!--苹果：【设置】-【通用】-【辅助功能】-【缩放】-关闭。-->
 </div>
 
+<!-- 兼容原JS逻辑的隐藏元素，无视觉影响 -->
+<span id="uid" style="display:none;"></span>
 
-
-
-<div style="margin-top:6rem;width:90%">
-ID: <span id=uid></span>
-<a id=setr href="javascript:" onclick="setr()">设置</a>
-<div id="_rename" style="border:solid 1px;display:none;padding:0.5rem;">
-昵称：<input id=nick type="text" style="width:5rem;">
-<input type="button" value="确定" onclick="nick()">
-</div>
-
-</div>
-
-
-<div style="margin-top:2rem;word-break:keep-all">
-<span id="ver" style="display:none;"></span>
-<br>
-其他：<a href="plane/">飞机大战</a> | <a href="falling/">俄罗斯方块</a> | <a href="sudoku/">数独</a> | <a href="defense/">塔防</a>
-</div>
-
-<!--div style="margin-top:3rem;word-break:keep-all">
-<a href="doc/qqqun.htm">QQ频道</a>
-</div-->
-
-<div style="margin-top:5rem;word-break:keep-all">
-<hr width=90%>
-<br>
-<br>
-<a href=shortcut.htm>加入桌面</a> | <a href=about.htm>关于本站</a> | <a href=guest/>留言簿</a>
-<br><br><br><br>
-
-&copy; Minesweeper.cn
-<br><br><a href=en.html>english</a>
-
+<div style="margin-top:5rem;word-break:keep-all;">
+&copy; <span id="copyright-year"></span> Mahua
 <br><br><br><br><br><br>
-
 </div>
-
 <script>
 shou="收起";
 shez="设置";
@@ -277,13 +150,11 @@ w1="首字母不符合要求";
 app="/bbb";
 mouse2=fold("setm","_mouse");
 touch2=fold("sett","_touch");
-setr=fold("setr","_rename");
 af0=0;
 ny0=0;
+// 自动获取并填充当前年份
+document.getElementById('copyright-year').textContent = new Date().getFullYear();
 start();
-$("gg").src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2872916894005511";
 </script>
-
 </body>
-
 </html>

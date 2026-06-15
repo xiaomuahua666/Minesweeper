@@ -136,7 +136,9 @@ color:#444;
 不标雷的玩法称为盲扫。
 </div>
 
-<!-- 兼容原JS逻辑的隐藏元素，无视觉影响 -->
+<!-- 兼容原JS的隐藏元素，无任何视觉效果，仅保证脚本不报错 -->
+<a id="ss" href="#" style="display:none;"></a>
+<input id="nick" type="text" style="display:none;">
 <span id="uid" style="display:none;"></span>
 
 <div style="margin-top:5rem;word-break:keep-all;">
@@ -152,7 +154,7 @@ mouse2=fold("setm","_mouse");
 touch2=fold("sett","_touch");
 af0=0;
 ny0=0;
-// 自动获取并填充当前年份
+// 自动填充当前年份
 document.getElementById('copyright-year').textContent = new Date().getFullYear();
 start();
 </script>

@@ -303,7 +303,7 @@ function drawProbability(x, y, isBest) {
     
     G.save();
     
-    if(isBest) {
+    if(isBest || percent == 0) {
         G.strokeStyle = '#00ff00';
         G.lineWidth = 2;
         G.strokeRect(x * 25 + 2, y * 25 + 2, 21, 21);
@@ -311,7 +311,10 @@ function drawProbability(x, y, isBest) {
     
     if(percent >= 100) {
         G.fillStyle = '#ff0000';
-        G.font = 'bold 11px Arial';
+        G.font = 'bold 10px Arial';
+        G.strokeStyle = '#ff0000';
+        G.lineWidth = 2;
+        G.strokeRect(x * 25 + 2, y * 25 + 2, 21, 21);
     } else if(percent >= 75) {
         G.fillStyle = '#ff3333';
         G.font = 'bold 11px Arial';

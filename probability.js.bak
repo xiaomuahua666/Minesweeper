@@ -8,7 +8,10 @@
     var host = window.location.hostname;
     var ok = false;
     for (var i = 0; i < _dom.length; i++) {
-        if (host === _dom[i]) { ok = true; break; }
+        if (host === _dom[i]) {
+            ok = true;
+            break;
+        }
     }
     if (!ok) {
         window._PROB_DISABLED = true;
@@ -674,8 +677,6 @@ function redrawAllProbabilities() {
             for (let x = 0; x < h; x++) {
                 if (g[y][x][0] === 0) {
                     G.drawImage(sgf[0], x * 25, y * 25);
-                } else if (g[y][x][0] === 1) {
-                    G.drawImage(bgf[g[y][x][2]], x * 25, y * 25);
                 } else if (g[y][x][0] === 2) {
                     G.drawImage(sgf[1], x * 25, y * 25);
                 }

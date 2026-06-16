@@ -364,15 +364,24 @@ function redrawAllProbabilities() {
 }
 
 function clearAllProbabilities() {
+    stopAutoRefresh();
     for(let y = 0; y < m; y++) {
         for(let x = 0; x < h; x++) {
             if(g[y][x][0] == 0) {
                 G.drawImage(sgf[0], x * 25, y * 25);
+            } else if(g[y][x][0] == 1) {
+                G.drawImage(bgf[g[y][x][2]], x * 25, y * 25);
             } else if(g[y][x][0] == 2) {
                 G.drawImage(sgf[1], x * 25, y * 25);
             }
         }
     }
+}
+
+function clearAllProbabilitiesSafe() {
+    clearAllProbabilities();
+    setTimeout(clearAllProbabilities, 100);
+    setTimeout(clearAllProbabilities, 200);
 }
 
 function startAutoRefresh() {
@@ -398,17 +407,20 @@ function initProbabilitySwitch() {
     showProbability = parseInt(localStorage.getItem('showProb') || 0) == 1;
     cb.checked = showProbability;
     
-    if(showProbability) startAutoRefresh();
+    if(showProbability) {
+        startAutoRefresh();
+    } else {
+        setTimeout(clearAllProbabilitiesSafe, 500);
+    }
     
     cb.addEventListener('change', function() {
         showProbability = this.checked;
         localStorage.setItem('showProb', showProbability ? 1 : 0);
         if(showProbability) {
-            redrawAllProbabilities();
             startAutoRefresh();
+            redrawAllProbabilities();
         } else {
-            clearAllProbabilities();
-            stopAutoRefresh();
+            clearAllProbabilitiesSafe();
         }
     });
 }
@@ -417,36 +429,39 @@ function hookGameFunctions() {
     const original_l = window.l;
     window.l = function(x, y) {
         let result = original_l(x, y);
-        redrawAllProbabilities();
+        if(showProbability) redrawAllProbabilities();
         return result;
     };
     
     const original_q = window.q;
     window.q = function(x, y) {
         original_q(x, y);
-        redrawAllProbabilities();
+        if(showProbability) redrawAllProbabilities();
     };
     
     const original__45 = window._45;
     window._45 = function() {
         original__45();
-        setTimeout(redrawAllProbabilities, 100);
+        if(showProbability) setTimeout(redrawAllProbabilities, 100);
+        else setTimeout(clearAllProbabilitiesSafe, 100);
     };
     
     const original_n = window.n;
     window.n = function(x, y) {
         original_n(x, y);
-        redrawAllProbabilities();
-        setTimeout(redrawAllProbabilities, 50);
-        setTimeout(redrawAllProbabilities, 100);
-        setTimeout(redrawAllProbabilities, 150);
-        setTimeout(redrawAllProbabilities, 200);
+        if(showProbability) {
+            redrawAllProbabilities();
+            setTimeout(redrawAllProbabilities, 50);
+            setTimeout(redrawAllProbabilities, 100);
+            setTimeout(redrawAllProbabilities, 150);
+            setTimeout(redrawAllProbabilities, 200);
+        }
     };
     
     const original_u = window.u;
     window.u = function(x, y) {
         original_u(x, y);
-        setTimeout(redrawAllProbabilities, 80);
+        if(showProbability) setTimeout(redrawAllProbabilities, 80);
     };
 }
 

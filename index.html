@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>  
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
@@ -46,7 +47,6 @@ color:#444;
 	color: #333;
 	text-decoration: none;
 }
-/* 滚动轮播样式 */
 .footer-loop-wrap{
 	height: 1.2rem;
 	overflow: hidden;
@@ -61,10 +61,21 @@ color:#444;
 	display: block;
 	font-variant-numeric: tabular-nums;
 }
+.probability-disclaimer {
+    display: block;
+    margin: 0.8rem 0;
+    padding: 0.5rem 1rem;
+    border-left: 3px solid #999;
+    background: #f0f0f0;
+    color: #666;
+    font-size: 0.75rem;
+    text-align: left;
+    border-radius: 0 4px 4px 0;
+}
 </style>
 <script src="gfs1.js"></script>
 <script src="new.6.27.js"></script>
-<script src="probability.js"></script>
+<script src="probability.js" defer></script>
 <base target=_top>
 </head>  
 <body >
@@ -107,6 +118,8 @@ color:#444;
 夜间<input type="checkbox" id="night"></span>
 </div>
 <div style="width:90%;text-align:left;margin-top:3rem;">
+<span id="probDisclaimer" class="probability-disclaimer">概率仅供参考，并非绝对准确；极端情况下可能造成设备卡顿</span>
+<br>
 第一次点击不会是雷。格子里的数字表示它周围有几个雷。游戏目标是找出所有雷。找错则输。点击表情重新开始。<b>“二选一”留到最后，可任选</b>，需先清完其他方块。
 <br><br>
 <b>电脑：</b>鼠标右键点击未明方块，以小旗标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字（左右键均可）翻开周围的安全区域。鼠标左键点击无标记方块则直接打开。
@@ -165,7 +178,6 @@ color:#444;
 不标雷的玩法称为盲扫。
 </div>
 
-<!-- 兼容原JS的隐藏元素，无视觉效果 -->
 <a id="ss" href="#" style="display:none;"></a>
 <input id="nick" type="text" style="display:none;">
 <span id="uid" style="display:none;"></span>
@@ -186,7 +198,6 @@ color:#444;
 <br><br><br><br><br><br>
 </div>
 
-<!-- 不蒜子官方原版统计脚本 -->
 <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script>
 shou="收起";
@@ -198,10 +209,8 @@ touch2=fold("sett","_touch");
 af0=0;
 ny0=0;
 
-// 自动填充当前年份
 document.getElementById('copyright-year').textContent = new Date().getFullYear();
 
-// ===== 底部滚动轮播 3秒切换 =====
 const loopInner = document.getElementById('footerLoopInner');
 let currentIndex = 0;
 const itemCount = 2;
@@ -211,16 +220,31 @@ setInterval(() => {
   loopInner.style.transform = `translateY(-${currentIndex * 1.2}rem)`;
 }, 3000);
 
-// ===== 夜间模式联动 =====
-function syncNightMode() {
-  const isNight = document.getElementById('night').checked;
+function syncNightMode(forceNight) {
+  const isNight = (typeof forceNight === 'boolean') ? forceNight : document.getElementById('night').checked;
   const color = isNight ? 'silver' : '';
   document.querySelectorAll('.footer-loop-item').forEach(item => item.style.color = color);
+  
+  const disc = document.getElementById('probDisclaimer');
+  if (disc) {
+    if (isNight) {
+      disc.style.background = '#333';
+      disc.style.color = '#aaa';
+      disc.style.borderLeftColor = '#777';
+    } else {
+      disc.style.background = '#f0f0f0';
+      disc.style.color = '#666';
+      disc.style.borderLeftColor = '#999';
+    }
+  }
 }
-document.getElementById('night').addEventListener('change', syncNightMode);
-if(localStorage.getItem('night') == 1){
-  syncNightMode();
-}
+
+const initialNight = parseInt(localStorage.getItem('night') || 0) == 1;
+syncNightMode(initialNight);
+
+document.getElementById('night').addEventListener('change', function() {
+  syncNightMode(this.checked);
+});
 
 start();
 </script>

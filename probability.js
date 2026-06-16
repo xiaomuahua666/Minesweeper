@@ -1,288 +1,453 @@
-// ========== 概率显示模块（修复版） ==========
 let showProbability = false;
-let patternResults = {};
 let _probInitialized = false;
 
-// 简单坐标键
-function getPatternKey(x, y) {
-    return x + ',' + y;
-}
-function setPatternMine(x, y) {
-    // 边界保护
-    if (x < 0 || x >= h || y < 0 || y >= m) return;
-    patternResults[getPatternKey(x, y)] = 1;
-}
-function setPatternSafe(x, y) {
-    if (x < 0 || x >= h || y < 0 || y >= m) return;
-    patternResults[getPatternKey(x, y)] = 0;
-}
-function getPatternResult(x, y) {
-    return patternResults[getPatternKey(x, y)];
-}
+let knownMines = new Set();
+let knownSafes = new Set();
+let patternResults = {};
+let exactProbs = new Map();
 
-// 有效数字：数字 - 周围旗子
+function posKey(x, y) { return x + ',' + y; }
+function isValid(x, y) { return x >= 0 && x < h && y >= 0 && y < m; }
+
+function addKnownMine(x, y) { if (isValid(x, y)) knownMines.add(posKey(x, y)); }
+function addKnownSafe(x, y) { if (isValid(x, y)) knownSafes.add(posKey(x, y)); }
+function isKnownMine(x, y) { return knownMines.has(posKey(x, y)); }
+function isKnownSafe(x, y) { return knownSafes.has(posKey(x, y)); }
+
+function setPatternMine(x, y) { if (isValid(x, y)) patternResults[posKey(x, y)] = 1; }
+function setPatternSafe(x, y) { if (isValid(x, y)) patternResults[posKey(x, y)] = 0; }
+function getPatternResult(x, y) { return patternResults[posKey(x, y)]; }
+
 function getEffectiveNumber(x, y) {
     if (g[y][x][0] != 1) return -1;
-    let flagged = 0;
+    let total = g[y][x][2];
     for (let t = 0; t < 8; t++) {
-        let ny = y + d[t];
-        let nx = x + p[t];
-        if (ny >= 0 && ny < m && nx >= 0 && nx < h) {
-            if (g[ny][nx][0] == 2) flagged++;
-        }
+        let nx = x + p[t], ny = y + d[t];
+        if (isValid(nx, ny) && (g[ny][nx][0] == 2 || isKnownMine(nx, ny))) total--;
     }
-    return g[y][x][2] - flagged;
+    return total;
 }
 
-// 判断一个数字的所有隐藏格是否都在指定方向
-function allHiddenOnlyAbove(x, y) {
+function getUnknowns(x, y) {
+    let list = [];
     for (let t = 0; t < 8; t++) {
-        let ny = y + d[t];
-        let nx = x + p[t];
-        if (ny >= 0 && ny < m && nx >= 0 && nx < h) {
-            if (g[ny][nx][0] == 0) {
-                if (ny >= y) return false; // 有隐藏格不在上方
-            }
+        let nx = x + p[t], ny = y + d[t];
+        if (isValid(nx, ny) && g[ny][nx][0] == 0 && !isKnownMine(nx, ny) && !isKnownSafe(nx, ny)) {
+            list.push({x: nx, y: ny});
         }
     }
-    return true;
-}
-function allHiddenOnlyBelow(x, y) {
-    for (let t = 0; t < 8; t++) {
-        let ny = y + d[t];
-        let nx = x + p[t];
-        if (ny >= 0 && ny < m && nx >= 0 && nx < h) {
-            if (g[ny][nx][0] == 0) {
-                if (ny <= y) return false;
-            }
-        }
-    }
-    return true;
-}
-function allHiddenOnlyLeft(x, y) {
-    for (let t = 0; t < 8; t++) {
-        let ny = y + d[t];
-        let nx = x + p[t];
-        if (ny >= 0 && ny < m && nx >= 0 && nx < h) {
-            if (g[ny][nx][0] == 0) {
-                if (nx >= x) return false;
-            }
-        }
-    }
-    return true;
-}
-function allHiddenOnlyRight(x, y) {
-    for (let t = 0; t < 8; t++) {
-        let ny = y + d[t];
-        let nx = x + p[t];
-        if (ny >= 0 && ny < m && nx >= 0 && nx < h) {
-            if (g[ny][nx][0] == 0) {
-                if (nx <= x) return false;
-            }
-        }
-    }
-    return true;
+    return list;
 }
 
-// 扫描已知模式
-function scanPatterns() {
+function allHiddenOnlyDir(x, y, check) {
+    for (let t = 0; t < 8; t++) {
+        let nx = x + p[t], ny = y + d[t];
+        if (isValid(nx, ny) && g[ny][nx][0] == 0 && !isKnownSafe(nx, ny) && !isKnownMine(nx, ny)) {
+            if (!check(nx, ny, x, y)) return false;
+        }
+    }
+    return true;
+}
+function above(nx, ny, cx, cy) { return ny < cy; }
+function below(nx, ny, cx, cy) { return ny > cy; }
+function left(nx, ny, cx, cy) { return nx < cx; }
+function right(nx, ny, cx, cy) { return nx > cx; }
+
+function seedPatterns() {
     patternResults = {};
 
-    // 水平三连：1-2-1（删除了 2-1-2 的错误处理）
     for (let y = 0; y < m; y++) {
         for (let x = 0; x < h - 2; x++) {
-            let n1 = getEffectiveNumber(x, y);
-            let n2 = getEffectiveNumber(x+1, y);
-            let n3 = getEffectiveNumber(x+2, y);
-
-            if (n1 == 1 && n2 == 2 && n3 == 1) {
-                let allUp = allHiddenOnlyAbove(x, y) && allHiddenOnlyAbove(x+1, y) && allHiddenOnlyAbove(x+2, y);
-                let allDown = allHiddenOnlyBelow(x, y) && allHiddenOnlyBelow(x+1, y) && allHiddenOnlyBelow(x+2, y);
-
-                if (allUp) {
-                    setPatternMine(x, y-1);
-                    setPatternSafe(x+1, y-1);
-                    setPatternMine(x+2, y-1);
+            let n1 = getEffectiveNumber(x, y), n2 = getEffectiveNumber(x+1, y), n3 = getEffectiveNumber(x+2, y);
+            if (n1 === 1 && n2 === 2 && n3 === 1) {
+                let up = allHiddenOnlyDir(x, y, above) && allHiddenOnlyDir(x+1, y, above) && allHiddenOnlyDir(x+2, y, above);
+                let down = allHiddenOnlyDir(x, y, below) && allHiddenOnlyDir(x+1, y, below) && allHiddenOnlyDir(x+2, y, below);
+                if (up) {
+                    setPatternMine(x, y-1); setPatternSafe(x+1, y-1); setPatternMine(x+2, y-1);
                 }
-                if (allDown) {
-                    setPatternMine(x, y+1);
-                    setPatternSafe(x+1, y+1);
-                    setPatternMine(x+2, y+1);
+                if (down) {
+                    setPatternMine(x, y+1); setPatternSafe(x+1, y+1); setPatternMine(x+2, y+1);
                 }
             }
-            // 2-1-2 已删除，因为在该条件下不可判定
         }
     }
-
-    // 垂直三连：1-2-1
     for (let x = 0; x < h; x++) {
         for (let y = 0; y < m - 2; y++) {
-            let n1 = getEffectiveNumber(x, y);
-            let n2 = getEffectiveNumber(x, y+1);
-            let n3 = getEffectiveNumber(x, y+2);
-
-            if (n1 == 1 && n2 == 2 && n3 == 1) {
-                let allLeft = allHiddenOnlyLeft(x, y) && allHiddenOnlyLeft(x, y+1) && allHiddenOnlyLeft(x, y+2);
-                let allRight = allHiddenOnlyRight(x, y) && allHiddenOnlyRight(x, y+1) && allHiddenOnlyRight(x, y+2);
-
-                if (allLeft) {
-                    setPatternMine(x-1, y);
-                    setPatternSafe(x-1, y+1);
-                    setPatternMine(x-1, y+2);
+            let n1 = getEffectiveNumber(x, y), n2 = getEffectiveNumber(x, y+1), n3 = getEffectiveNumber(x, y+2);
+            if (n1 === 1 && n2 === 2 && n3 === 1) {
+                let lf = allHiddenOnlyDir(x, y, left) && allHiddenOnlyDir(x, y+1, left) && allHiddenOnlyDir(x, y+2, left);
+                let rg = allHiddenOnlyDir(x, y, right) && allHiddenOnlyDir(x, y+1, right) && allHiddenOnlyDir(x, y+2, right);
+                if (lf) {
+                    setPatternMine(x-1, y); setPatternSafe(x-1, y+1); setPatternMine(x-1, y+2);
                 }
-                if (allRight) {
-                    setPatternMine(x+1, y);
-                    setPatternSafe(x+1, y+1);
-                    setPatternMine(x+1, y+2);
+                if (rg) {
+                    setPatternMine(x+1, y); setPatternSafe(x+1, y+1); setPatternMine(x+1, y+2);
                 }
             }
         }
     }
 
-    // 水平四连：1-2-2-1（补全条件）
     for (let y = 0; y < m; y++) {
         for (let x = 0; x < h - 3; x++) {
-            let n1 = getEffectiveNumber(x, y);
-            let n2 = getEffectiveNumber(x+1, y);
-            let n3 = getEffectiveNumber(x+2, y);
-            let n4 = getEffectiveNumber(x+3, y);
-
-            if (n1 == 1 && n2 == 2 && n3 == 2 && n4 == 1) {
-                let allUp = allHiddenOnlyAbove(x, y) && allHiddenOnlyAbove(x+1, y)
-                         && allHiddenOnlyAbove(x+2, y) && allHiddenOnlyAbove(x+3, y);
-                let allDown = allHiddenOnlyBelow(x, y) && allHiddenOnlyBelow(x+1, y)
-                           && allHiddenOnlyBelow(x+2, y) && allHiddenOnlyBelow(x+3, y);
-
-                if (allUp) {
-                    setPatternMine(x+1, y-1);
-                    setPatternMine(x+2, y-1);
-                }
-                if (allDown) {
-                    setPatternMine(x+1, y+1);
-                    setPatternMine(x+2, y+1);
-                }
+            let n1 = getEffectiveNumber(x, y), n2 = getEffectiveNumber(x+1, y), n3 = getEffectiveNumber(x+2, y), n4 = getEffectiveNumber(x+3, y);
+            if (n1 === 1 && n2 === 2 && n3 === 2 && n4 === 1) {
+                let up = allHiddenOnlyDir(x, y, above) && allHiddenOnlyDir(x+1, y, above) && allHiddenOnlyDir(x+2, y, above) && allHiddenOnlyDir(x+3, y, above);
+                let down = allHiddenOnlyDir(x, y, below) && allHiddenOnlyDir(x+1, y, below) && allHiddenOnlyDir(x+2, y, below) && allHiddenOnlyDir(x+3, y, below);
+                if (up) { setPatternMine(x+1, y-1); setPatternMine(x+2, y-1); }
+                if (down) { setPatternMine(x+1, y+1); setPatternMine(x+2, y+1); }
             }
         }
     }
-
-    // 垂直四连：1-2-2-1
     for (let x = 0; x < h; x++) {
         for (let y = 0; y < m - 3; y++) {
-            let n1 = getEffectiveNumber(x, y);
-            let n2 = getEffectiveNumber(x, y+1);
-            let n3 = getEffectiveNumber(x, y+2);
-            let n4 = getEffectiveNumber(x, y+3);
+            let n1 = getEffectiveNumber(x, y), n2 = getEffectiveNumber(x, y+1), n3 = getEffectiveNumber(x, y+2), n4 = getEffectiveNumber(x, y+3);
+            if (n1 === 1 && n2 === 2 && n3 === 2 && n4 === 1) {
+                let lf = allHiddenOnlyDir(x, y, left) && allHiddenOnlyDir(x, y+1, left) && allHiddenOnlyDir(x, y+2, left) && allHiddenOnlyDir(x, y+3, left);
+                let rg = allHiddenOnlyDir(x, y, right) && allHiddenOnlyDir(x, y+1, right) && allHiddenOnlyDir(x, y+2, right) && allHiddenOnlyDir(x, y+3, right);
+                if (lf) { setPatternMine(x-1, y+1); setPatternMine(x-1, y+2); }
+                if (rg) { setPatternMine(x+1, y+1); setPatternMine(x+1, y+2); }
+            }
+        }
+    }
+}
 
-            if (n1 == 1 && n2 == 2 && n3 == 2 && n4 == 1) {
-                let allLeft = allHiddenOnlyLeft(x, y) && allHiddenOnlyLeft(x, y+1)
-                           && allHiddenOnlyLeft(x, y+2) && allHiddenOnlyLeft(x, y+3);
-                let allRight = allHiddenOnlyRight(x, y) && allHiddenOnlyRight(x, y+1)
-                            && allHiddenOnlyRight(x, y+2) && allHiddenOnlyRight(x, y+3);
-
-                if (allLeft) {
-                    setPatternMine(x-1, y+1);
-                    setPatternMine(x-1, y+2);
-                }
-                if (allRight) {
-                    setPatternMine(x+1, y+1);
-                    setPatternMine(x+1, y+2);
+function runInference() {
+    let changed = true;
+    while (changed) {
+        changed = false;
+        for (let y = 0; y < m; y++) {
+            for (let x = 0; x < h; x++) {
+                if (g[y][x][0] !== 1) continue;
+                let rem = getEffectiveNumber(x, y);
+                let unk = getUnknowns(x, y);
+                if (unk.length === 0) continue;
+                if (rem === 0) {
+                    for (let u of unk) {
+                        if (!isKnownSafe(u.x, u.y)) {
+                            addKnownSafe(u.x, u.y);
+                            changed = true;
+                        }
+                    }
+                } else if (rem === unk.length) {
+                    for (let u of unk) {
+                        if (!isKnownMine(u.x, u.y)) {
+                            addKnownMine(u.x, u.y);
+                            changed = true;
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-// 获取某格是雷的概率（-1：已开/旗，-2：无信息）
-function getMineProbability(x, y) {
-    if (g[y][x][0] != 0) return -1;
+const MAX_COMPONENT_CELLS = 18;
 
-    // 优先使用模式库的确定结果
-    let pat = getPatternResult(x, y);
-    if (pat === 0) return 0;
-    if (pat === 1) return 1;
+function buildFrontier() {
+    const numbers = [];
+    const cellSet = new Set();
+    const numMap = new Map();
+
+    for (let y = 0; y < m; y++) {
+        for (let x = 0; x < h; x++) {
+            if (g[y][x][0] === 1) {
+                let rem = getEffectiveNumber(x, y);
+                let unk = getUnknowns(x, y);
+                if (unk.length > 0 && rem >= 0) {
+                    let numObj = {x, y, rem, unknowns: unk};
+                    numbers.push(numObj);
+                    numMap.set(posKey(x, y), numbers.length - 1);
+                    for (let c of unk) {
+                        cellSet.add(posKey(c.x, c.y));
+                    }
+                }
+            }
+        }
+    }
+
+    const allCells = [];
+    for (let y = 0; y < m; y++) {
+        for (let x = 0; x < h; x++) {
+            if (g[y][x][0] === 0 && !isKnownMine(x, y) && !isKnownSafe(x, y)) {
+                allCells.push({x, y});
+                cellSet.add(posKey(x, y));
+            }
+        }
+    }
+
+    const cellIndexMap = new Map();
+    allCells.forEach((c, idx) => cellIndexMap.set(posKey(c.x, c.y), idx));
+
+    const numCellIndices = numbers.map(num => {
+        return num.unknowns.map(u => cellIndexMap.get(posKey(u.x, u.y))).filter(idx => idx !== undefined);
+    });
+
+    return { numbers, allCells, cellIndexMap, numCellIndices };
+}
+
+function buildComponents(numbers, allCells, numCellIndices) {
+    const n = allCells.length;
+    const adj = Array.from({ length: n }, () => []);
+    for (let indices of numCellIndices) {
+        for (let i = 0; i < indices.length; i++) {
+            for (let j = i + 1; j < indices.length; j++) {
+                let a = indices[i], b = indices[j];
+                adj[a].push(b);
+                adj[b].push(a);
+            }
+        }
+    }
+
+    const visited = new Array(n).fill(false);
+    const components = [];
+
+    for (let i = 0; i < n; i++) {
+        if (visited[i]) continue;
+        let comp = [];
+        let queue = [i];
+        visited[i] = true;
+        while (queue.length) {
+            let cur = queue.shift();
+            comp.push(cur);
+            for (let nb of adj[cur]) {
+                if (!visited[nb]) {
+                    visited[nb] = true;
+                    queue.push(nb);
+                }
+            }
+        }
+        components.push(comp);
+    }
+
+    return components.map(compIndices => {
+        const cellIdxSet = new Set(compIndices);
+        const nums = [];
+        for (let ni = 0; ni < numbers.length; ni++) {
+            if (numCellIndices[ni].some(idx => cellIdxSet.has(idx))) {
+                nums.push(ni);
+            }
+        }
+        return { cells: compIndices, numIndices: nums };
+    });
+}
+
+function solveComponentExact(compCells, compNums, numbers, allCells, numCellIndices) {
+    const cellCount = compCells.length;
+    if (cellCount === 0) return {};
+
+    const globalToLocal = new Map();
+    compCells.forEach((globalIdx, localIdx) => globalToLocal.set(globalIdx, localIdx));
+
+    const constraints = compNums.map(ni => {
+        let num = numbers[ni];
+        let localIndices = numCellIndices[ni].map(gIdx => globalToLocal.get(gIdx)).filter(i => i !== undefined);
+        return { rem: num.rem, cells: localIndices };
+    });
+
+    let totalSolutions = 0;
+    const mineCounts = new Array(cellCount).fill(0);
+
+    function backtrack(idx, assignment) {
+        if (idx === cellCount) {
+            for (let c of constraints) {
+                let sum = 0;
+                for (let li of c.cells) sum += assignment[li];
+                if (sum !== c.rem) return;
+            }
+            totalSolutions++;
+            for (let i = 0; i < cellCount; i++) {
+                if (assignment[i]) mineCounts[i]++;
+            }
+            return;
+        }
+
+        for (let val of [0, 1]) {
+            assignment[idx] = val;
+            let possible = true;
+            for (let c of constraints) {
+                let currentSum = 0, remaining = 0;
+                for (let li of c.cells) {
+                    if (li < idx) currentSum += assignment[li];
+                    else if (li === idx) currentSum += val;
+                    else remaining++;
+                }
+                if (currentSum > c.rem || currentSum + remaining < c.rem) {
+                    possible = false;
+                    break;
+                }
+            }
+            if (possible) {
+                backtrack(idx + 1, assignment);
+            }
+            assignment[idx] = 0;
+        }
+    }
+
+    backtrack(0, new Array(cellCount).fill(0));
+
+    const probs = {};
+    if (totalSolutions > 0) {
+        for (let i = 0; i < cellCount; i++) {
+            let globalIdx = compCells[i];
+            let cell = allCells[globalIdx];
+            probs[posKey(cell.x, cell.y)] = mineCounts[i] / totalSolutions;
+        }
+    } else {
+        for (let i = 0; i < cellCount; i++) {
+            let globalIdx = compCells[i];
+            let cell = allCells[globalIdx];
+            probs[posKey(cell.x, cell.y)] = 0.5;
+        }
+    }
+    return probs;
+}
+
+function computeExactProbabilities() {
+    exactProbs.clear();
+
+    const { numbers, allCells, cellIndexMap, numCellIndices } = buildFrontier();
+    if (allCells.length === 0) return;
+
+    const components = buildComponents(numbers, allCells, numCellIndices);
+    const totalHidden = allCells.length;
+    const remainingMines = (typeof E !== 'undefined' ? E : 0);
+    const coveredCells = new Set();
+
+    for (let comp of components) {
+        if (comp.cells.length <= MAX_COMPONENT_CELLS) {
+            let probs = solveComponentExact(comp.cells, comp.numIndices, numbers, allCells, numCellIndices);
+            for (let key in probs) {
+                exactProbs.set(key, probs[key]);
+                coveredCells.add(key);
+            }
+        } else {
+            for (let gIdx of comp.cells) {
+                let cell = allCells[gIdx];
+                let key = posKey(cell.x, cell.y);
+                let minProb = 1;
+                for (let ni of comp.numIndices) {
+                    let num = numbers[ni];
+                    let unk = num.unknowns;
+                    if (unk.length > 0) {
+                        let prob = num.rem / unk.length;
+                        if (prob < minProb) minProb = prob;
+                    }
+                }
+                exactProbs.set(key, minProb);
+                coveredCells.add(key);
+            }
+        }
+    }
+
+    for (let cell of allCells) {
+        let key = posKey(cell.x, cell.y);
+        if (!coveredCells.has(key)) {
+            if (totalHidden > 0) {
+                exactProbs.set(key, remainingMines / totalHidden);
+            } else {
+                exactProbs.set(key, 0);
+            }
+        }
+    }
+}
+
+function getMineProbability(x, y) {
+    if (g[y][x][0] !== 0) return -1;
+
+    if (isKnownMine(x, y)) return 1;
+    if (isKnownSafe(x, y)) return 0;
+
+    let key = posKey(x, y);
+    if (exactProbs.has(key)) return exactProbs.get(key);
 
     let minProb = 1;
     let hasInfo = false;
-
     for (let t = 0; t < 8; t++) {
-        let ny = y + d[t];
-        let nx = x + p[t];
-        if (ny < 0 || ny >= m || nx < 0 || nx >= h) continue;
-
-        let neighbor = g[ny][nx];
-        if (neighbor[0] == 1 && neighbor[2] > 0) {
-            hasInfo = true;
-            let flagged = 0;
-            let hidden = 0;
-            for (let t2 = 0; t2 < 8; t2++) {
-                let nny = ny + d[t2];
-                let nnx = nx + p[t2];
-                if (nny < 0 || nny >= m || nnx < 0 || nnx >= h) continue;
-                if (g[nny][nnx][0] == 2) flagged++;
-                else if (g[nny][nnx][0] == 0) hidden++;
-            }
-
-            if (hidden > 0) {
-                let need = neighbor[2] - flagged;
-                // 确定雷
-                if (need == hidden) return 1;
-                // 确定安全
-                if (need == 0) return 0;
-                // 不确定时，取保守估计（最小概率）
-                let prob = need / hidden;
-                if (prob < minProb) minProb = prob;
-            }
+        let nx = x + p[t], ny = y + d[t];
+        if (!isValid(nx, ny) || g[ny][nx][0] !== 1) continue;
+        hasInfo = true;
+        let rem = getEffectiveNumber(nx, ny);
+        let unk = getUnknowns(nx, ny);
+        if (unk.length > 0) {
+            let prob = rem / unk.length;
+            if (prob < minProb) minProb = prob;
         }
     }
-
     if (!hasInfo) return -2;
     return minProb;
 }
 
-// 找到最佳点击（概率最小的未开非雷格）
+function isBoundaryCell(x, y) {
+    if (g[y][x][0] !== 0) return false;
+    for (let t = 0; t < 8; t++) {
+        let nx = x + p[t], ny = y + d[t];
+        if (isValid(nx, ny) && g[ny][nx][0] === 1 && g[ny][nx][2] > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function getAllHiddenCells() {
+    let cells = [];
+    for (let y = 0; y < m; y++) {
+        for (let x = 0; x < h; x++) {
+            if (g[y][x][0] === 0) cells.push({x, y});
+        }
+    }
+    return cells;
+}
+
+function performFullAnalysis() {
+    knownMines.clear();
+    knownSafes.clear();
+    patternResults = {};
+    seedPatterns();
+    for (let key in patternResults) {
+        let [x, y] = key.split(',').map(Number);
+        if (patternResults[key] === 1) addKnownMine(x, y);
+        else if (patternResults[key] === 0) addKnownSafe(x, y);
+    }
+    runInference();
+    computeExactProbabilities();
+}
+
 function findBestClick() {
-    scanPatterns();
+    performFullAnalysis();
 
     let minProb = 2;
     let best = [];
-    let totalHidden = 0;
 
-    // 第一遍：统计未开格子数量（用于无信息回退）
+    let boundaryCells = [];
     for (let y = 0; y < m; y++) {
         for (let x = 0; x < h; x++) {
-            if (g[y][x][0] == 0) totalHidden++;
+            if (isBoundaryCell(x, y)) {
+                boundaryCells.push({x, y});
+            }
         }
     }
 
-    // 第二遍：计算概率
-    for (let y = 0; y < m; y++) {
-        for (let x = 0; x < h; x++) {
-            let prob = getMineProbability(x, y);
-            // 若无局部信息，使用全局概率
-            if (prob == -2 && totalHidden > 0) {
-                prob = (typeof E !== 'undefined' ? E : 0) / totalHidden;
-            }
-            if (prob >= 0 && prob < minProb) {
-                minProb = prob;
-                best = [{x, y}];
-            } else if (prob >= 0 && prob === minProb) {
-                best.push({x, y});
-            }
+    let candidates = boundaryCells.length > 0 ? boundaryCells : getAllHiddenCells();
+
+    for (let {x, y} of candidates) {
+        let prob = getMineProbability(x, y);
+        if (prob === -1) continue;
+        if (prob < 0) prob = 0;
+
+        if (prob < minProb) {
+            minProb = prob;
+            best = [{x, y}];
+        } else if (prob === minProb) {
+            best.push({x, y});
         }
     }
 
     return best;
 }
 
-// 绘制概率数字和高亮
 function drawProbability(x, y, isBest) {
     let prob = getMineProbability(x, y);
-    if (prob < 0 && prob !== -2) return; // 已开/旗
-    if (prob === -2) {
-        // 无信息情况暂不绘制，或使用全局概率（已在 findBestClick 中使用，这里绘图也可以显示）
-        // 这里为简洁，只绘制有局部信息的格子
-        return;
-    }
+    if (prob < 0) return;
 
     let percent = Math.round(prob * 100);
     G.save();
@@ -322,17 +487,15 @@ function drawProbability(x, y, isBest) {
     G.restore();
 }
 
-// 重绘所有概率（使用单次 requestAnimationFrame）
 function redrawAllProbabilities() {
     if (!showProbability || o > 1) return;
 
     requestAnimationFrame(() => {
-        // 先恢复未被打开的格子外观
         for (let y = 0; y < m; y++) {
             for (let x = 0; x < h; x++) {
-                if (g[y][x][0] == 0) {
+                if (g[y][x][0] === 0) {
                     G.drawImage(sgf[0], x * 25, y * 25);
-                } else if (g[y][x][0] == 2) {
+                } else if (g[y][x][0] === 2) {
                     G.drawImage(sgf[1], x * 25, y * 25);
                 }
             }
@@ -342,43 +505,41 @@ function redrawAllProbabilities() {
 
         for (let y = 0; y < m; y++) {
             for (let x = 0; x < h; x++) {
-                let isBest = bestClicks.some(b => b.x == x && b.y == y);
+                if (g[y][x][0] === 0 && !isBoundaryCell(x, y)) continue;
+                let isBest = bestClicks.some(b => b.x === x && b.y === y);
                 drawProbability(x, y, isBest);
             }
         }
     });
 }
 
-// 清除所有概率绘制，恢复游戏原样
 function clearAllProbabilities() {
     for (let y = 0; y < m; y++) {
         for (let x = 0; x < h; x++) {
-            if (g[y][x][0] == 0) {
-                G.drawImage(sgf[0], x * 25, y * 25);
-            } else if (g[y][x][0] == 1) {
-                G.drawImage(bgf[g[y][x][2]], x * 25, y * 25);
-            } else if (g[y][x][0] == 2) {
-                G.drawImage(sgf[1], x * 25, y * 25);
-            }
+            if (g[y][x][0] === 0) G.drawImage(sgf[0], x * 25, y * 25);
+            else if (g[y][x][0] === 1) G.drawImage(bgf[g[y][x][2]], x * 25, y * 25);
+            else if (g[y][x][0] === 2) G.drawImage(sgf[1], x * 25, y * 25);
         }
     }
 }
-
-// 安全清除（多次以防连锁反应）
 function clearAllProbabilitiesSafe() {
     clearAllProbabilities();
     setTimeout(clearAllProbabilities, 100);
     setTimeout(clearAllProbabilities, 200);
 }
 
-// 初始化开关
+(function() {
+    const cb = document.getElementById('showProb');
+    if (cb) {
+        showProbability = parseInt(localStorage.getItem('showProb') || 0) == 1;
+        cb.checked = showProbability;
+    }
+})();
+
 function initProbabilitySwitch() {
     if (_probInitialized) return;
     const cb = document.getElementById('showProb');
     if (!cb) return;
-
-    showProbability = parseInt(localStorage.getItem('showProb') || 0) == 1;
-    cb.checked = showProbability;
 
     if (showProbability) {
         redrawAllProbabilities();
@@ -397,54 +558,43 @@ function initProbabilitySwitch() {
     });
 }
 
-// 劫持游戏函数，自动刷新概率
 function hookGameFunctions() {
     if (_probInitialized) return;
 
-    const original_l = window.l;
+    const orig_l = window.l;
     window.l = function(x, y) {
-        let result = original_l(x, y);
+        let res = orig_l(x, y);
         if (showProbability) redrawAllProbabilities();
-        return result;
+        return res;
     };
-
-    const original_q = window.q;
+    const orig_q = window.q;
     window.q = function(x, y) {
-        original_q(x, y);
+        orig_q(x, y);
         if (showProbability) redrawAllProbabilities();
     };
-
-    const original__45 = window._45;
+    const orig__45 = window._45;
     window._45 = function() {
-        original__45();
-        if (showProbability) {
-            // 重置后需要稍微延迟，等主程序重绘完成
-            setTimeout(redrawAllProbabilities, 100);
-        } else {
-            setTimeout(clearAllProbabilitiesSafe, 100);
-        }
+        orig__45();
+        if (showProbability) setTimeout(redrawAllProbabilities, 100);
+        else setTimeout(clearAllProbabilitiesSafe, 100);
     };
-
-    const original_n = window.n;
+    const orig_n = window.n;
     window.n = function(x, y) {
-        original_n(x, y);
+        orig_n(x, y);
         if (showProbability) {
-            // 双击可能触发连锁，多次绘制确保最终结果正确
             redrawAllProbabilities();
             setTimeout(redrawAllProbabilities, 50);
             setTimeout(redrawAllProbabilities, 150);
             setTimeout(redrawAllProbabilities, 300);
         }
     };
-
-    const original_u = window.u;
+    const orig_u = window.u;
     window.u = function(x, y) {
-        original_u(x, y);
+        orig_u(x, y);
         if (showProbability) setTimeout(redrawAllProbabilities, 80);
     };
 }
 
-// 启动：页面加载完成后执行
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
         initProbabilitySwitch();

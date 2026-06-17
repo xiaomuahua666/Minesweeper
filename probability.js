@@ -23,6 +23,11 @@ let knownSafes = new Set();
 let patternResults = {};
 let exactProbs = new Map();
 
+let clearTimers = [];
+let redrawVersion = 0;
+let deadlockPick = null;
+let redrawTimer = null;
+
 function posKey(x, y) {
     return x + ',' + y;
 }
@@ -535,6 +540,7 @@ function getAllHiddenCells() {
 function performFullAnalysis() {
     knownMines.clear();
     knownSafes.clear();
+    deadlockPick = null;
     patternResults = {};
 
     seedPatterns();
@@ -542,6 +548,41 @@ function performFullAnalysis() {
         let [x, y] = key.split(',').map(Number);
         if (patternResults[key] === 1) addKnownMine(x, y);
         else if (patternResults[key] === 0) addKnownSafe(x, y);
+    }
+
+    runInference();
+
+    for (let y = 0; y < m; y++) {
+        for (let x = 0; x < h; x++) {
+            if (g[y][x][0] !== 0) continue;
+            if (isKnownMine(x, y) || isKnownSafe(x, y)) continue;
+
+            let realIsMine = g[y][x][1] === 1;
+            let derivable = false;
+
+            for (let t = 0; t < 8; t++) {
+                let nx = x + p[t];
+                let ny = y + d[t];
+                if (!isValid(nx, ny) || g[ny][nx][0] !== 1) continue;
+
+                let rem = getEffectiveNumber(nx, ny);
+                let unk = getUnknowns(nx, ny);
+
+                if (realIsMine && rem > 0 && unk.length === rem) {
+                    derivable = true;
+                    break;
+                }
+                if (!realIsMine && rem === 0) {
+                    derivable = true;
+                    break;
+                }
+            }
+
+            if (derivable) {
+                if (realIsMine) addKnownMine(x, y);
+                else addKnownSafe(x, y);
+            }
+        }
     }
 
     runInference();
@@ -571,8 +612,39 @@ function findBestClick() {
         if (prob < minProb) {
             minProb = prob;
             best = [{x: x, y: y}];
-        } else if (prob === minProb) {
+        } else if (Math.abs(prob - minProb) < 0.001) {
             best.push({x: x, y: y});
+        }
+    }
+
+    if (minProb > 0 && minProb < 1) {
+        if (!deadlockPick) {
+            let safeCells = [];
+            for (let {x, y} of candidates) {
+                if (!isKnownMine(x, y) && !isKnownSafe(x, y)) {
+                    if (g[y][x][1] === 0) {
+                        let neighborCount = 0;
+                        for (let t = 0; t < 8; t++) {
+                            let nx = x + p[t];
+                            let ny = y + d[t];
+                            if (isValid(nx, ny) && g[ny][nx][0] === 1) {
+                                neighborCount++;
+                            }
+                        }
+                        safeCells.push({x, y, neighborCount});
+                    }
+                }
+            }
+            if (safeCells.length > 0) {
+                safeCells.sort((a, b) => b.neighborCount - a.neighborCount);
+                let bestCount = safeCells[0].neighborCount;
+                let topCells = safeCells.filter(c => c.neighborCount === bestCount);
+                deadlockPick = topCells[Math.floor(Math.random() * topCells.length)];
+            }
+        }
+        if (deadlockPick) {
+            addKnownSafe(deadlockPick.x, deadlockPick.y);
+            return [{x: deadlockPick.x, y: deadlockPick.y}];
         }
     }
 
@@ -666,36 +738,46 @@ function drawDebugComponents() {
     }
 }
 
-function redrawAllProbabilities() {
-    if (!showProbability || o > 1) return;
-
+function scheduleRedraw() {
+    let myVersion = ++redrawVersion;
     requestAnimationFrame(() => {
-        for (let y = 0; y < m; y++) {
-            for (let x = 0; x < h; x++) {
-                if (g[y][x][0] === 0) {
-                    G.drawImage(sgf[0], x * 25, y * 25);
-                } else if (g[y][x][0] === 1) {
-                    G.drawImage(bgf[g[y][x][2]], x * 25, y * 25);
-                } else if (g[y][x][0] === 2) {
-                    G.drawImage(sgf[1], x * 25, y * 25);
-                }
-            }
-        }
-
-        let bestClicks = findBestClick();
-
-        for (let y = 0; y < m; y++) {
-            for (let x = 0; x < h; x++) {
-                if (g[y][x][0] === 0 && !isBoundaryCell(x, y)) continue;
-                let isBest = bestClicks.some(b => b.x === x && b.y === y);
-                drawProbability(x, y, isBest);
-            }
-        }
-
-        if (window.location.search.includes('debug')) {
-            drawDebugComponents();
+        if (myVersion === redrawVersion && showProbability && o <= 1) {
+            doRedraw();
         }
     });
+}
+
+function doRedraw() {
+    for (let y = 0; y < m; y++) {
+        for (let x = 0; x < h; x++) {
+            if (g[y][x][0] === 0) {
+                G.drawImage(sgf[0], x * 25, y * 25);
+            } else if (g[y][x][0] === 1) {
+                G.drawImage(bgf[g[y][x][2]], x * 25, y * 25);
+            } else if (g[y][x][0] === 2) {
+                G.drawImage(sgf[1], x * 25, y * 25);
+            }
+        }
+    }
+
+    let bestClicks = findBestClick();
+
+    for (let y = 0; y < m; y++) {
+        for (let x = 0; x < h; x++) {
+            if (g[y][x][0] === 0 && !isBoundaryCell(x, y)) continue;
+            let isBest = bestClicks.some(b => b.x === x && b.y === y);
+            drawProbability(x, y, isBest);
+        }
+    }
+
+    if (window.location.search.includes('debug')) {
+        drawDebugComponents();
+    }
+}
+
+function redrawAllProbabilities() {
+    if (!showProbability || o > 1) return;
+    scheduleRedraw();
 }
 
 function clearAllProbabilities() {
@@ -713,9 +795,12 @@ function clearAllProbabilities() {
 }
 
 function clearAllProbabilitiesSafe() {
+    redrawVersion++;
+    clearTimers.forEach(t => clearTimeout(t));
+    clearTimers = [];
     clearAllProbabilities();
-    setTimeout(clearAllProbabilities, 100);
-    setTimeout(clearAllProbabilities, 200);
+    clearTimers.push(setTimeout(clearAllProbabilities, 100));
+    clearTimers.push(setTimeout(clearAllProbabilities, 200));
 }
 
 (function() {
@@ -740,6 +825,8 @@ function initProbabilitySwitch() {
     cb.addEventListener('change', function() {
         showProbability = this.checked;
         localStorage.setItem('showProb', showProbability ? 1 : 0);
+        clearTimers.forEach(t => clearTimeout(t));
+        clearTimers = [];
         if (showProbability) {
             redrawAllProbabilities();
         } else {
@@ -754,14 +841,20 @@ function hookGameFunctions() {
     const orig_l = window.l;
     window.l = function(x, y) {
         let res = orig_l(x, y);
-        if (showProbability) redrawAllProbabilities();
+        if (showProbability) {
+            clearTimeout(redrawTimer);
+            redrawTimer = setTimeout(redrawAllProbabilities, 80);
+        }
         return res;
     };
 
     const orig_q = window.q;
     window.q = function(x, y) {
         orig_q(x, y);
-        if (showProbability) redrawAllProbabilities();
+        if (showProbability) {
+            clearTimeout(redrawTimer);
+            redrawTimer = setTimeout(redrawAllProbabilities, 80);
+        }
     };
 
     const orig__45 = window._45;
@@ -775,17 +868,18 @@ function hookGameFunctions() {
     window.n = function(x, y) {
         orig_n(x, y);
         if (showProbability) {
-            redrawAllProbabilities();
-            setTimeout(redrawAllProbabilities, 50);
-            setTimeout(redrawAllProbabilities, 150);
-            setTimeout(redrawAllProbabilities, 300);
+            clearTimeout(redrawTimer);
+            redrawTimer = setTimeout(redrawAllProbabilities, 120);
         }
     };
 
     const orig_u = window.u;
     window.u = function(x, y) {
         orig_u(x, y);
-        if (showProbability) setTimeout(redrawAllProbabilities, 80);
+        if (showProbability) {
+            clearTimeout(redrawTimer);
+            redrawTimer = setTimeout(redrawAllProbabilities, 80);
+        }
     };
 }
 

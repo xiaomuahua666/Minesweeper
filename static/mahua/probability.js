@@ -28,12 +28,8 @@ let redrawVersion = 0;
 let deadlockPick = null;
 let redrawTimer = null;
 
-let _cachedBestClicks = [];
-let _isAnalyzing = false;
-let _lockedBestClick = null;
-
 function posKey(x, y) {
-    return (y << 16) | x;
+    return x + ',' + y;
 }
 
 function isValid(x, y) {
@@ -102,10 +98,21 @@ function allHiddenOnlyDir(x, y, check) {
     return true;
 }
 
-function above(nx, ny, cx, cy) { return ny < cy; }
-function below(nx, ny, cx, cy) { return ny > cy; }
-function left(nx, ny, cx, cy) { return nx < cx; }
-function right(nx, ny, cx, cy) { return nx > cx; }
+function above(nx, ny, cx, cy) {
+    return ny < cy;
+}
+
+function below(nx, ny, cx, cy) {
+    return ny > cy;
+}
+
+function left(nx, ny, cx, cy) {
+    return nx < cx;
+}
+
+function right(nx, ny, cx, cy) {
+    return nx > cx;
+}
 
 function seedPatterns() {
     patternResults = {};
@@ -368,14 +375,6 @@ function solveComponentExact(compCells, compNums, numbers, allCells, numCellIndi
     let totalSolutions = 0;
     const mineCounts = new Array(cellCount).fill(0);
 
-    const cellToConstraints = [];
-    for (let i = 0; i < cellCount; i++) cellToConstraints.push([]);
-    for (let ci = 0; ci < constraints.length; ci++) {
-        for (let li of constraints[ci].cells) {
-            cellToConstraints[li].push(ci);
-        }
-    }
-
     function backtrack(idx, assignment) {
         if (idx === cellCount) {
             for (let c of constraints) {
@@ -393,10 +392,7 @@ function solveComponentExact(compCells, compNums, numbers, allCells, numCellIndi
         for (let val of [0, 1]) {
             assignment[idx] = val;
             let possible = true;
-            
-            const relatedConstraints = cellToConstraints[idx];
-            for (let ci = 0; ci < relatedConstraints.length; ci++) {
-                let c = constraints[relatedConstraints[ci]];
+            for (let c of constraints) {
                 let currentSum = 0;
                 let remaining = 0;
                 for (let li of c.cells) {
@@ -409,7 +405,6 @@ function solveComponentExact(compCells, compNums, numbers, allCells, numCellIndi
                     break;
                 }
             }
-            
             if (possible) {
                 backtrack(idx + 1, assignment);
             }
@@ -455,10 +450,7 @@ function computeExactProbabilities() {
         if (comp.cells.length <= MAX_COMPONENT_CELLS) {
             let probs = solveComponentExact(comp.cells, comp.numIndices, numbers, allCells, numCellIndices);
             for (let key in probs) {
-                let prob = probs[key];
-                // 确保概率在0-1范围内
-                prob = Math.max(0, Math.min(1, prob));
-                exactProbs.set(key, prob);
+                exactProbs.set(key, probs[key]);
                 coveredCells.add(key);
             }
         } else {
@@ -474,8 +466,6 @@ function computeExactProbabilities() {
                         if (prob < minProb) minProb = prob;
                     }
                 }
-                // 确保概率在0-1范围内
-                minProb = Math.max(0, Math.min(1, minProb));
                 exactProbs.set(key, minProb);
                 coveredCells.add(key);
             }
@@ -486,10 +476,7 @@ function computeExactProbabilities() {
         let key = posKey(cell.x, cell.y);
         if (!coveredCells.has(key)) {
             if (totalHidden > 0) {
-                let prob = remainingMines / totalHidden;
-                // 确保概率在0-1范围内
-                prob = Math.max(0, Math.min(1, prob));
-                exactProbs.set(key, prob);
+                exactProbs.set(key, remainingMines / totalHidden);
             } else {
                 exactProbs.set(key, 0);
             }
@@ -506,11 +493,7 @@ function getMineProbability(x, y) {
     if (isKnownSafe(x, y)) return 0;
 
     let key = posKey(x, y);
-    if (exactProbs.has(key)) {
-        let prob = exactProbs.get(key);
-        // 确保概率在0-1范围内
-        return Math.max(0, Math.min(1, prob));
-    }
+    if (exactProbs.has(key)) return exactProbs.get(key);
 
     let minProb = 1;
     let hasInfo = false;
@@ -529,8 +512,7 @@ function getMineProbability(x, y) {
     }
 
     if (!hasInfo) return -2;
-    // 确保概率在0-1范围内
-    return Math.max(0, Math.min(1, minProb));
+    return minProb;
 }
 
 function isBoundaryCell(x, y) {
@@ -556,9 +538,6 @@ function getAllHiddenCells() {
 }
 
 function performFullAnalysis() {
-    if (_isAnalyzing) return;
-    _isAnalyzing = true;
-
     knownMines.clear();
     knownSafes.clear();
     deadlockPick = null;
@@ -566,10 +545,9 @@ function performFullAnalysis() {
 
     seedPatterns();
     for (let key in patternResults) {
-        let extractedX = key & 0xFFFF;
-        let extractedY = (key >> 16) & 0xFFFF;
-        if (patternResults[key] === 1) addKnownMine(extractedX, extractedY);
-        else if (patternResults[key] === 0) addKnownSafe(extractedX, extractedY);
+        let [x, y] = key.split(',').map(Number);
+        if (patternResults[key] === 1) addKnownMine(x, y);
+        else if (patternResults[key] === 0) addKnownSafe(x, y);
     }
 
     runInference();
@@ -609,14 +587,13 @@ function performFullAnalysis() {
 
     runInference();
     computeExactProbabilities();
-
-    _cachedBestClicks = findBestClick();
-    _isAnalyzing = false;
 }
 
 function findBestClick() {
+    performFullAnalysis();
+
     let minProb = 2;
-    let candidates = [];
+    let best = [];
 
     let boundaryCells = [];
     for (let y = 0; y < m; y++) {
@@ -625,111 +602,53 @@ function findBestClick() {
         }
     }
 
-    let searchPool = boundaryCells.length > 0 ? boundaryCells : getAllHiddenCells();
+    let candidates = boundaryCells.length > 0 ? boundaryCells : getAllHiddenCells();
 
-    for (let cell of searchPool) {
-        let x = cell.x, y = cell.y;
+    for (let {x, y} of candidates) {
         let prob = getMineProbability(x, y);
         if (prob === -1) continue;
         if (prob < 0) prob = 0;
 
-        if (prob < minProb - 0.0001) {
+        if (prob < minProb) {
             minProb = prob;
-            candidates = [{x: x, y: y}];
-        } else if (Math.abs(prob - minProb) < 0.0001) {
-            candidates.push({x: x, y: y});
+            best = [{x: x, y: y}];
+        } else if (Math.abs(prob - minProb) < 0.001) {
+            best.push({x: x, y: y});
         }
     }
 
     if (minProb > 0 && minProb < 1) {
         if (!deadlockPick) {
             let safeCells = [];
-            for (let cell of searchPool) {
-                let x = cell.x, y = cell.y;
+            for (let {x, y} of candidates) {
                 if (!isKnownMine(x, y) && !isKnownSafe(x, y)) {
                     if (g[y][x][1] === 0) {
-                        let infoGain = 0;
+                        let neighborCount = 0;
                         for (let t = 0; t < 8; t++) {
                             let nx = x + p[t];
                             let ny = y + d[t];
                             if (isValid(nx, ny) && g[ny][nx][0] === 1) {
-                                let unk = getUnknowns(nx, ny);
-                                if (unk.length > 0) {
-                                    infoGain += 1.0 / unk.length;
-                                }
+                                neighborCount++;
                             }
                         }
-                        safeCells.push({x, y, gain: infoGain});
+                        safeCells.push({x, y, neighborCount});
                     }
                 }
             }
-            
             if (safeCells.length > 0) {
-                safeCells.sort((a, b) => b.gain - a.gain);
-                let maxGain = safeCells[0].gain;
-                let topCells = safeCells.filter(c => Math.abs(c.gain - maxGain) < 0.0001);
-                
-                deadlockPick = topCells[Math.floor(Math.random() * topCells.length)]; 
+                safeCells.sort((a, b) => b.neighborCount - a.neighborCount);
+                let bestCount = safeCells[0].neighborCount;
+                let topCells = safeCells.filter(c => c.neighborCount === bestCount);
+                deadlockPick = topCells[Math.floor(Math.random() * topCells.length)];
             }
         }
-        
         if (deadlockPick) {
             addKnownSafe(deadlockPick.x, deadlockPick.y);
             return [{x: deadlockPick.x, y: deadlockPick.y}];
         }
     }
 
-    if (candidates.length === 0) return [];
-
-    let bestInCands = null;
-    let maxGain = -1;
-    let maxGainCells = [];
-
-    for (let c of candidates) {
-        let gain = 0;
-        for (let t = 0; t < 8; t++) {
-            let nx = c.x + p[t];
-            let ny = c.y + d[t];
-            if (isValid(nx, ny) && g[ny][nx][0] === 1) {
-                let unk = getUnknowns(nx, ny);
-                if (unk.length > 0) {
-                    gain += 1.0 / unk.length;
-                }
-            }
-        }
-        c.gain = gain;
-        
-        if (gain > maxGain + 0.0001) {
-            maxGain = gain;
-            maxGainCells = [c];
-        } else if (Math.abs(gain - maxGain) < 0.0001) {
-            maxGainCells.push(c);
-        }
-    }
-
-    if (_lockedBestClick) {
-        let stillExists = candidates.some(c => c.x === _lockedBestClick.x && c.y === _lockedBestClick.y);
-        let currentLockedGain = 0;
-        if (stillExists) {
-            for (let t = 0; t < 8; t++) {
-                let nx = _lockedBestClick.x + p[t];
-                let ny = _lockedBestClick.y + d[t];
-                if (isValid(nx, ny) && g[ny][nx][0] === 1) {
-                    let unk = getUnknowns(nx, ny);
-                    if (unk.length > 0) currentLockedGain += 1.0 / unk.length;
-                }
-            }
-        }
-
-        if (stillExists && Math.abs(currentLockedGain - maxGain) < 0.0001) {
-            return [_lockedBestClick];
-        }
-    }
-
-    bestInCands = maxGainCells[Math.floor(Math.random() * maxGainCells.length)];
-    _lockedBestClick = {x: bestInCands.x, y: bestInCands.y};
-    
-    return [bestInCands];
+    return best;
 }
 
 function drawProbability(x, y, isBest) {
@@ -841,7 +760,7 @@ function doRedraw() {
         }
     }
 
-    let bestClicks = _cachedBestClicks;
+    let bestClicks = findBestClick();
 
     for (let y = 0; y < m; y++) {
         for (let x = 0; x < h; x++) {
@@ -858,7 +777,6 @@ function doRedraw() {
 
 function redrawAllProbabilities() {
     if (!showProbability || o > 1) return;
-    performFullAnalysis();
     scheduleRedraw();
 }
 
@@ -922,7 +840,7 @@ function hookGameFunctions() {
 
     const orig_l = window.l;
     window.l = function(x, y) {
-        let res = orig_l.apply(this, arguments);
+        let res = orig_l(x, y);
         if (showProbability) {
             clearTimeout(redrawTimer);
             redrawTimer = setTimeout(redrawAllProbabilities, 80);
@@ -932,7 +850,7 @@ function hookGameFunctions() {
 
     const orig_q = window.q;
     window.q = function(x, y) {
-        orig_q.apply(this, arguments);
+        orig_q(x, y);
         if (showProbability) {
             clearTimeout(redrawTimer);
             redrawTimer = setTimeout(redrawAllProbabilities, 80);
@@ -941,14 +859,14 @@ function hookGameFunctions() {
 
     const orig__45 = window._45;
     window._45 = function() {
-        orig__45.apply(this, arguments);
+        orig__45();
         if (showProbability) setTimeout(redrawAllProbabilities, 100);
         else setTimeout(clearAllProbabilitiesSafe, 100);
     };
 
     const orig_n = window.n;
     window.n = function(x, y) {
-        orig_n.apply(this, arguments);
+        orig_n(x, y);
         if (showProbability) {
             clearTimeout(redrawTimer);
             redrawTimer = setTimeout(redrawAllProbabilities, 120);
@@ -957,7 +875,7 @@ function hookGameFunctions() {
 
     const orig_u = window.u;
     window.u = function(x, y) {
-        orig_u.apply(this, arguments);
+        orig_u(x, y);
         if (showProbability) {
             clearTimeout(redrawTimer);
             redrawTimer = setTimeout(redrawAllProbabilities, 80);

@@ -1,219 +1,356 @@
-function $(r) {
-    return document.getElementById(r)
+// ============================================================
+// 扫雷游戏核心逻辑
+// 变量名已从原始短名还原为可读名称
+// ============================================================
+
+// ---------- 工具函数 ----------
+
+/** 通过 ID 获取 DOM 元素 */
+function $id(id) {
+    return document.getElementById(id)
 }
 
-function V(r, f, a) {
-    var e = new XMLHttpRequest;
-    e.open(f != null ? "POST" : "GET", r, true);
-    e.onreadystatechange = function() {
-        if (e.readyState == 4 && (e.status == 200 || e.status == 304)) {
-            a(e.responseText)
+/** AJAX 请求 */
+function ajax(url, data, callback) {
+    var req = new XMLHttpRequest;
+    req.open(data != null ? "POST" : "GET", url, true);
+    req.onreadystatechange = function() {
+        if (req.readyState == 4 && (req.status == 200 || req.status == 304)) {
+            callback(req.responseText)
         }
     };
-    e.send(f)
+    req.send(data)
 }
-var g = [];
-var h, m, i;
-var p = [-1, -1, -1, 0, 0, 1, 1, 1, 0];
-var d = [-1, 0, 1, -1, 1, -1, 0, 1, 0];
-var o;
 
-function X(r, f) {
-    G.drawImage(bgf[0], r * 25, f * 25);
+// ---------- 全局游戏状态 ----------
+
+/** 游戏网格 grid[row][col] = [state, isMine, adjacentMines, reserved]
+ *  state: 0=未翻开, 1=已翻开, 2=插旗
+ *  isMine: 0=安全, 1=地雷
+ *  adjacentMines: 周围雷数
+ *  reserved: 自动标雷标记
+ */
+var grid = [];
+
+/** 棋盘列数（宽度） */
+var cols;
+
+/** 棋盘行数（高度） */
+var rows;
+
+/** 总雷数 */
+var totalMines;
+
+/** 8 方向邻居 X 偏移量 */
+var dx = [-1, -1, -1, 0, 0, 1, 1, 1, 0];
+
+/** 8 方向邻居 Y 偏移量 */
+var dy = [-1, 0, 1, -1, 1, -1, 0, 1, 0];
+
+/** 游戏状态: 0=等待开始, 1=进行中, 2=胜利, 3=失败 */
+var gameState;
+
+/** 未翻开的格子列表（用于死局判定） */
+var unrevealedCells;
+
+/** 格子顺序数组（用于洗牌） */
+var cellOrder;
+
+/** 格子位置映射 */
+var cellPos;
+
+/** 动画定时器列表 */
+var animTimers;
+
+/** 动画定时器数量 */
+var animTimerCount;
+
+/** 是否首次点击 */
+var isFirstClick;
+
+/** 左键触发时机: 0=按下, 1=弹起 */
+var leftBtnTiming;
+
+/** 右键触发时机: 0=按下, 1=弹起 */
+var rightBtnTiming;
+
+/** 上次触摸 X 坐标 */
+var lastTouchX;
+
+/** 上次触摸 Y 坐标 */
+var lastTouchY;
+
+/** 长按定时器 ID */
+var longPressTimerId;
+
+/** 上次点击时间戳（用于三击检测） */
+var lastTapMs;
+
+/** 自动标雷开关 */
+var autoFlagEnabled;
+
+/** 计时器 interval ID */
+var timerIntervalId;
+
+/** 游戏开始时间戳 */
+var gameStartTime;
+
+/** 已流逝秒数 */
+var elapsedSec;
+
+/** 触屏模式: 0=标记模式, 1=直开模式 */
+var touchMode;
+
+/** 打开方式: 0=长按打开, 1=三击打开 */
+var tripleTapMode;
+
+/** 触摸状态机 */
+var touchState;
+
+/** 剩余雷数 */
+var minesLeft;
+
+/** 剩余待翻格子数 */
+var cellsLeft;
+
+/** 游戏画布元素 */
+var gameCanvas;
+
+/** 画布 2D 上下文 */
+var ctx;
+
+/** 雷数计数器绘制函数 */
+var drawMineCounter;
+
+/** 计时器绘制函数 */
+var drawTimerCounter;
+
+/** 总格子数 */
+var totalCells;
+
+/** 分享基础 URL */
+var shareBaseUrl;
+
+/** 游戏结果码 */
+var gameResult;
+
+/** 难度等级 */
+var difficulty;
+
+// ---------- 常量 ----------
+
+var apiPath = "/bbb";
+var TEXT_COLLAPSE = "收起";
+var TEXT_SETTINGS = "设置";
+var MSG_INVALID_NICK = "首字母不符合要求";
+var DEFAULT_AUTOFLAG = 0;
+var DEFAULT_NIGHT = 0;
+
+// ---------- 核心游戏函数 ----------
+
+/** 点击动画效果 */
+function showClickEffect(x, y) {
+    ctx.drawImage(numBgImgs[0], x * 25, y * 25);
     setTimeout(function() {
-        if (g[f][r][0] == 0) G.drawImage(sgf[0], r * 25, f * 25)
+        if (grid[y][x][0] == 0) ctx.drawImage(cellImgs[0], x * 25, y * 25)
     }, 120)
 }
 
-function n(r, f) {
-    var a = 0,
-        e = 0;
-    var i, n;
-    var t;
-    var o, v;
-    for (t = 0; t < 8; t++) {
-        n = f + d[t];
-        i = r + p[t];
-        if (n >= 0 && n < m && i >= 0 && i < h) {
-            o = g[n][i];
-            v = o[0];
-            if (v == 2) {
-                a++
-            } else if (v == 0) {
-                if (o[1] == 1) e = 1
+/** 双击数字翻开周围（Chord 操作） */
+function chordClick(x, y) {
+    var flaggedCount = 0,
+        hasUnflaggedMine = 0;
+    var nx, ny;
+    var dir;
+    var cell, state;
+    for (dir = 0; dir < 8; dir++) {
+        ny = y + dy[dir];
+        nx = x + dx[dir];
+        if (ny >= 0 && ny < rows && nx >= 0 && nx < cols) {
+            cell = grid[ny][nx];
+            state = cell[0];
+            if (state == 2) {
+                flaggedCount++
+            } else if (state == 0) {
+                if (cell[1] == 1) hasUnflaggedMine = 1
             }
         }
     }
-    var u = g[f][r];
-    var c = a >= u[2];
-    for (t = 0; t < 8; t++) {
-        n = f + d[t];
-        i = r + p[t];
-        if (n >= 0 && n < m && i >= 0 && i < h) {
-            var o = g[n][i];
-            if (o[0] == 0) {
-                if (c) {
-                    if (e) {
-                        if (o[1] == 1) {
-                            G.drawImage(sgf[2], i * 25, n * 25);
-                            o[0] = 1
+    var cur = grid[y][x];
+    var matched = flaggedCount >= cur[2];
+    for (dir = 0; dir < 8; dir++) {
+        ny = y + dy[dir];
+        nx = x + dx[dir];
+        if (ny >= 0 && ny < rows && nx >= 0 && nx < cols) {
+            var cell = grid[ny][nx];
+            if (cell[0] == 0) {
+                if (matched) {
+                    if (hasUnflaggedMine) {
+                        if (cell[1] == 1) {
+                            ctx.drawImage(cellImgs[2], nx * 25, ny * 25);
+                            cell[0] = 1
                         }
                     } else {
-                        l(i, n)
+                        revealCell(nx, ny)
                     }
                 } else {
-                    X(i, n)
+                    showClickEffect(nx, ny)
                 }
             }
         }
     }
-    if (c && e) j()
+    if (matched && hasUnflaggedMine) gameOver()
 }
 
-function j() {
-    or();
-    $("face").src = fgf[2];
-    o = 3;
-    var r, f;
-    var a;
-    for (f = 0; f < m; f++) {
-        for (r = 0; r < h; r++) {
-            a = g[f][r];
-            if (a[0] == 0) {
-                if (a[1] == 1) {
-                    G.drawImage(sgf[3], r * 25, f * 25)
+/** 游戏失败 */
+function gameOver() {
+    stopTimer();
+    $id("face").src = faceImgs[2];
+    gameState = 3;
+    var col, row;
+    var cell;
+    for (row = 0; row < rows; row++) {
+        for (col = 0; col < cols; col++) {
+            cell = grid[row][col];
+            if (cell[0] == 0) {
+                if (cell[1] == 1) {
+                    ctx.drawImage(cellImgs[3], col * 25, row * 25)
                 }
-            } else if (a[0] == 2) {
-                if (a[1] == 0) {
-                    W[S++] = setInterval(function(r, f) {
-                        var a = 0;
+            } else if (cell[0] == 2) {
+                if (cell[1] == 0) {
+                    animTimers[animTimerCount++] = setInterval(function(col, row) {
+                        var toggle = 0;
                         return function() {
-                            G.drawImage(a == 0 ? bgf[g[f][r][2]] : sgf[1], r * 25, f * 25);
-                            a = !a
+                            ctx.drawImage(toggle == 0 ? numBgImgs[grid[row][col][2]] : cellImgs[1], col * 25, row * 25);
+                            toggle = !toggle
                         }
-                    }(r, f), 800)
+                    }(col, row), 800)
                 }
             }
         }
     }
 }
-var t;
 
-function A() {
-    t = [];
-    var r, f, a;
-    var e = 0,
-        i = 0;
-    for (f = 0; f < m; f++) {
-        for (r = 0; r < h; r++) {
-            a = g[f][r];
-            if (a[0] == 2 && a[1] != 1) return 1;
-            if (a[0] == 0 && a[3] == 0) {
-                if (a[1] == 1) {
-                    e++
+/** 检查是否进入死局（所有未翻格都是雷或都不是雷） */
+function checkEndgame() {
+    unrevealedCells = [];
+    var col, row, cell;
+    var mineCount = 0,
+        safeCount = 0;
+    for (row = 0; row < rows; row++) {
+        for (col = 0; col < cols; col++) {
+            cell = grid[row][col];
+            if (cell[0] == 2 && cell[1] != 1) return 1;
+            if (cell[0] == 0 && cell[3] == 0) {
+                if (cell[1] == 1) {
+                    mineCount++
                 } else {
-                    i++
+                    safeCount++
                 }
-                t.push([r, f])
+                unrevealedCells.push([col, row])
             }
         }
     }
-    if (e != i) return 2;
+    if (mineCount != safeCount) return 2;
     return 0
 }
 
-function C(r, f) {
-    var a = 0;
-    var e, i;
-    for (var n = 0; n < 8; n++) {
-        i = f + d[n];
-        e = r + p[n];
-        if (i >= 0 && i < m && e >= 0 && e < h) {
-            if (g[i][e][1] == 1) {
-                a++
+/** 统计某格周围已插旗数 */
+function countFlags(x, y) {
+    var count = 0;
+    var nx, ny;
+    for (var dir = 0; dir < 8; dir++) {
+        ny = y + dy[dir];
+        nx = x + dx[dir];
+        if (ny >= 0 && ny < rows && nx >= 0 && nx < cols) {
+            if (grid[ny][nx][1] == 1) {
+                count++
             }
         }
     }
-    return a
+    return count
 }
 
-function F() {
-    var r, f, a;
-    for (f = 0; f < t.length; f++) {
-        r = t[f];
-        a = g[r[1]][r[0]];
-        a[1] = a[1] == 0 ? 1 : 0
+/** 翻转死局中未翻格子的推测标记 */
+function toggleFlags() {
+    var i, cell;
+    for (i = 0; i < unrevealedCells.length; i++) {
+        cell = unrevealedCells[i];
+        var data = grid[cell[1]][cell[0]];
+        data[1] = data[1] == 0 ? 1 : 0
     }
 }
 
-function J() {
-    if (A() != 0) return 1;
-    F();
-    var r, f, a;
-    var e;
-    for (f = 0; f < m; f++) {
-        for (r = 0; r < h; r++) {
-            a = g[f][r];
-            e = a[2];
-            if (a[0] == 1 && e != 0) {
-                if (C(r, f) != e) {
-                    F();
+/** 验证棋盘一致性（死局时使用） */
+function validateBoard() {
+    if (checkEndgame() != 0) return 1;
+    toggleFlags();
+    var col, row, cell;
+    var num;
+    for (row = 0; row < rows; row++) {
+        for (col = 0; col < cols; col++) {
+            cell = grid[row][col];
+            num = cell[2];
+            if (cell[0] == 1 && num != 0) {
+                if (countFlags(col, row) != num) {
+                    toggleFlags();
                     return 2
                 }
             }
         }
     }
-    for (f = 0; f < m; f++) {
-        for (r = 0; r < h; r++) {
-            a = g[f][r];
-            if (a[0] != 1) {
-                a[2] = C(r, f)
+    for (row = 0; row < rows; row++) {
+        for (col = 0; col < cols; col++) {
+            cell = grid[row][col];
+            if (cell[0] != 1) {
+                cell[2] = countFlags(col, row)
             }
         }
     }
     return 0
 }
 
-function K(r, f) {
-    var a, e;
-    var i, n;
-    var t;
-    var o, v;
-    var u, c;
-    var l, s;
-    for (s = 0; s < 9; s++) {
-        c = f + d[s];
-        u = r + p[s];
-        if (c >= 0 && c < m && u >= 0 && u < h) {
-            a = g[c][u];
-            v = a[2];
-            if (a[0] == 1 && v > 0) {
-                o = 0;
-                for (l = 0; l < 8; l++) {
-                    i = c + d[l];
-                    n = u + p[l];
-                    if (i >= 0 && i < m && n >= 0 && n < h) {
-                        e = g[i][n];
-                        t = e[0];
-                        if (t == 0) {
-                            o++
-                        } else if (t == 2) {
-                            if (e[1] == 1) v--;
-                            else o++
+/** 自动标雷逻辑 */
+function autoFlag(x, y) {
+    var cell, neighbor;
+    var nx, ny;
+    var dir;
+    var cur, curNum;
+    var unknownCount, remainingMines;
+    var cx, cy;
+    for (dir = 0; dir < 9; dir++) {
+        cy = y + dy[dir];
+        cx = x + dx[dir];
+        if (cy >= 0 && cy < rows && cx >= 0 && cx < cols) {
+            cell = grid[cy][cx];
+            curNum = cell[2];
+            if (cell[0] == 1 && curNum > 0) {
+                unknownCount = 0;
+                for (var subDir = 0; subDir < 8; subDir++) {
+                    ny = cy + dy[subDir];
+                    nx = cx + dx[subDir];
+                    if (ny >= 0 && ny < rows && nx >= 0 && nx < cols) {
+                        neighbor = grid[ny][nx];
+                        var state = neighbor[0];
+                        if (state == 0) {
+                            unknownCount++
+                        } else if (state == 2) {
+                            if (neighbor[1] == 1) curNum--;
+                            else unknownCount++
                         }
                     }
                 }
-                if (o > 0 && v == o) {
-                    for (l = 0; l < 8; l++) {
-                        i = c + d[l];
-                        n = u + p[l];
-                        if (i >= 0 && i < m && n >= 0 && n < h) {
-                            e = g[i][n];
-                            t = e[0];
-                            if (t != 1) e[3] = 1;
-                            if (t == 0) {
-                                if (x == 1) {
-                                    q(n, i)
+                if (unknownCount > 0 && curNum == unknownCount) {
+                    for (var subDir = 0; subDir < 8; subDir++) {
+                        ny = cy + dy[subDir];
+                        nx = cx + dx[subDir];
+                        if (ny >= 0 && ny < rows && nx >= 0 && nx < cols) {
+                            neighbor = grid[ny][nx];
+                            var state = neighbor[0];
+                            if (state != 1) neighbor[3] = 1;
+                            if (state == 0) {
+                                if (autoFlagEnabled == 1) {
+                                    flagCell(nx, ny)
                                 }
                             }
                         }
@@ -224,462 +361,459 @@ function K(r, f) {
     }
 }
 
-function l(r, f) {
-    var a = g[f][r];
-    if (a[1] == 1) {
-        if (o == 1) J();
-        if (a[1] == 1) {
-            G.drawImage(sgf[2], r * 25, f * 25);
-            a[0] = 1;
-            j();
+/** 翻开格子（核心递归函数） */
+function revealCell(x, y) {
+    var cell = grid[y][x];
+    if (cell[1] == 1) {
+        if (gameState == 1) validateBoard();
+        if (cell[1] == 1) {
+            ctx.drawImage(cellImgs[2], x * 25, y * 25);
+            cell[0] = 1;
+            gameOver();
             return 1
         }
     }
-    a[0] = 1;
-    G.drawImage(bgf[a[2]], r * 25, f * 25);
-    R--;
-    if (R == 0) N();
-    else if (a[2] == 0) {
-        var e, i, n;
-        for (e = 0; e < 8; e++) {
-            i = f + d[e];
-            n = r + p[e];
-            if (i >= 0 && i < m && n >= 0 && n < h) {
-                if (g[i][n][0] == 0) l(n, i)
+    cell[0] = 1;
+    ctx.drawImage(numBgImgs[cell[2]], x * 25, y * 25);
+    cellsLeft--;
+    if (cellsLeft == 0) winGame();
+    else if (cell[2] == 0) {
+        var nx, ny, dir;
+        for (dir = 0; dir < 8; dir++) {
+            ny = y + dy[dir];
+            nx = x + dx[dir];
+            if (ny >= 0 && ny < rows && nx >= 0 && nx < cols) {
+                if (grid[ny][nx][0] == 0) revealCell(nx, ny)
             }
         }
     }
-    K(r, f);
+    autoFlag(x, y);
     return 0
 }
-var e;
 
-function N() {
-    if (!x && k) e = 2;
-    else e = x;
-    o = 2;
-    or();
-    var r, f, a;
-    for (f = 0; f < m; f++) {
-        for (r = 0; r < h; r++) {
-            a = g[f][r];
-            if (a[0] == 0) {
-                if (a[1] != 1) {
-                    hr(1, r, f)
+/** 胜利 */
+function winGame() {
+    if (!autoFlagEnabled && isFirstClick) gameResult = 2;
+    else gameResult = autoFlagEnabled;
+    gameState = 2;
+    stopTimer();
+    var col, row, cell;
+    for (row = 0; row < rows; row++) {
+        for (col = 0; col < cols; col++) {
+            cell = grid[row][col];
+            if (cell[0] == 0) {
+                if (cell[1] != 1) {
+                    reportError(1, col, row)
                 } else {
-                    q(r, f)
+                    flagCell(col, row)
                 }
             }
         }
     }
-    if (E != 0) hr(2, r, f);
-    H(i);
-    $("face").src = fgf[1];
-    Q()
+    if (minesLeft != 0) reportError(2, col, row);
+    drawMineCounter(totalMines);
+    $id("face").src = faceImgs[1];
+    reportStats()
 }
-var v;
 
-function Q() {
-    if (v > 3 && a < 20) return;
-    var f = lr();
-    var r = "B" + f + "c3/" + v + "" + a + "" + e;
-    if (v > 3) r += "" + h + "" + m + "" + i;
-    V(app, r, function(r) {
-        if (f == "" && r.length > 1) {
-            $("uid").innerHTML = r;
-            localStorage.setItem("uid", r)
+/** 上报统计数据 */
+function reportStats() {
+    if (difficulty > 3 && gameStartTime < 20) return;
+    var playerId = getPlayerId();
+    var data = "B" + playerId + "\u001ec3/" + difficulty + "\u001e" + gameStartTime + "\u001f" + gameResult;
+    if (difficulty > 3) data += "\u001f" + cols + "\u001f" + rows + "\u001f" + totalMines;
+    ajax(apiPath, data, function(res) {
+        if (playerId == "" && res.length > 1) {
+            $id("uid").innerHTML = res;
+            localStorage.setItem("uid", res)
         }
     })
 }
 
-function U(r) {
-    var i = $(r);
-    var n = i.getContext("2d");
-    var t = 3;
-    return function(r) {
-        if (r < 10) r = "00" + r;
-        else if (r < 100) r = "0" + r;
-        else r = r.toString();
-        var f = r.length;
-        if (f != t) {
-            i.width = f * 13;
-            t = f
+/** 创建计数器绘制函数 */
+function createCounter(elementId) {
+    var el = $id(elementId);
+    var ctx2d = el.getContext("2d");
+    var prevWidth = 3;
+    return function(value) {
+        if (value < 10) value = "00" + value;
+        else if (value < 100) value = "0" + value;
+        else value = value.toString();
+        var len = value.length;
+        if (len != prevWidth) {
+            el.width = len * 13;
+            prevWidth = len
         }
-        var a = 0;
-        for (var e = 0; e < f; e++) {
-            n.drawImage(dgf[parseInt(r.charAt(e))], a, 0);
-            a += 13
+        var offset = 0;
+        for (var i = 0; i < len; i++) {
+            ctx2d.drawImage(digitImgs[parseInt(value.charAt(i))], offset, 0);
+            offset += 13
         }
     }
 }
 
-function r(r) {
-    var f = $("es");
-    var a = f.getContext("2d");
-    r = r.toString();
-    var e = r.length;
-    if (e == 1) {
-        r = "0" + r;
-        e = 2
+/** 绘制时间显示 */
+function drawTimeDisplay(time) {
+    var el = $id("es");
+    var ctx2d = el.getContext("2d");
+    time = time.toString();
+    var len = time.length;
+    if (len == 1) {
+        time = "0" + time;
+        len = 2
     }
-    f.width = (e + 1) * 13;
-    var i = 0;
-    for (var n = 0; n < e - 1; n++) {
-        a.drawImage(dgf[parseInt(r.charAt(n))], i, 0);
-        i += 13
+    el.width = (len + 1) * 13;
+    var offset = 0;
+    for (var i = 0; i < len - 1; i++) {
+        ctx2d.drawImage(digitImgs[parseInt(time.charAt(i))], offset, 0);
+        offset += 13
     }
-    a.drawImage(pgf, i, 0);
-    i += 13;
-    a.drawImage(dgf[parseInt(r.charAt(n))], i, 0)
+    ctx2d.drawImage(slashImg, offset, 0);
+    offset += 13;
+    ctx2d.drawImage(digitImgs[parseInt(time.charAt(i))], offset, 0)
 }
 
-function u(r, f) {
-    var a;
-    var e, i;
-    var n = R;
-    for (a = 8; a >= 0 && n > 0; a--) {
-        e = f + d[a];
-        i = r + p[a];
-        if (e >= 0 && e < m && i >= 0 && i < h) {
-            var t = s[e * h + i];
-            if (g[e][i][1] == 1) {
-                var o = Math.floor(Math.random() * n);
-                M(t, -1);
-                M(o, 1);
-                n--;
-                I(o, n)
+/** 确保首次点击安全（如果踩雷则重排） */
+function ensureFirstSafe(x, y) {
+    var dir;
+    var nx, ny;
+    var remaining = cellsLeft;
+    for (dir = 8; dir >= 0 && remaining > 0; dir--) {
+        ny = y + dy[dir];
+        nx = x + dx[dir];
+        if (ny >= 0 && ny < rows && nx >= 0 && nx < cols) {
+            var idx = cellPos[ny * cols + nx];
+            if (grid[ny][nx][1] == 1) {
+                var randIdx = Math.floor(Math.random() * remaining);
+                placeMine(idx, -1);
+                placeMine(randIdx, 1);
+                remaining--;
+                swapOrder(randIdx, remaining)
             } else {
-                n--;
-                I(t, n)
+                remaining--;
+                swapOrder(idx, remaining)
             }
         }
     }
-    ur()
-}
-var c = [];
-var s = [];
-
-function f() {
-    var r, f;
-    var a;
-    var e;
-    for (f = 0; f < m; f++) {
-        g[f] = [];
-        for (r = 0; r < h; r++) g[f][r] = [0, 0, 0, 0]
-    }
-    for (e = 0; e < O; e++) {
-        c[e] = e;
-        s[e] = e
-    }
-    R = O;
-    for (a = 0; a < i; a++) {
-        e = Math.floor(Math.random() * R);
-        R--;
-        I(e, R)
-    }
-    for (e = R; e < O; e++) {
-        M(e, 1)
-    }
-    E = i;
-    R = O - i
+    startTimer()
 }
 
-function I(r, f) {
-    var a = c[r];
-    var e = c[f];
-    c[r] = e;
-    c[f] = a;
-    s[a] = f;
-    s[e] = r
+/** 初始化游戏网格 */
+function initGrid() {
+    var col, row;
+    var i;
+    var idx;
+    for (row = 0; row < rows; row++) {
+        grid[row] = [];
+        for (col = 0; col < cols; col++) grid[row][col] = [0, 0, 0, 0]
+    }
+    for (idx = 0; idx < totalCells; idx++) {
+        cellOrder[idx] = idx;
+        cellPos[idx] = idx
+    }
+    cellsLeft = totalCells;
+    for (i = 0; i < totalMines; i++) {
+        idx = Math.floor(Math.random() * cellsLeft);
+        cellsLeft--;
+        swapOrder(idx, cellsLeft)
+    }
+    for (idx = cellsLeft; idx < totalCells; idx++) {
+        placeMine(idx, 1)
+    }
+    minesLeft = totalMines;
+    cellsLeft = totalCells - totalMines
 }
 
-function M(r, f) {
-    var a, e;
-    var i = c[r];
-    a = Math.floor(i / h);
-    e = i % h;
-    g[a][e][1] += f;
-    for (z = 0; z < 8; z++) {
-        cy = a + d[z];
-        cx = e + p[z];
-        if (cy >= 0 && cy < m && cx >= 0 && cx < h) {
-            g[cy][cx][2] += f
-        }
-    }
+/** 交换两个格子在顺序数组中的位置 */
+function swapOrder(a, b) {
+    var tmpA = cellOrder[a];
+    var tmpB = cellOrder[b];
+    cellOrder[a] = tmpB;
+    cellOrder[b] = tmpA;
+    cellPos[tmpA] = b;
+    cellPos[tmpB] = a
 }
-var W = [];
-var S = 0;
 
-function _45() {
-    if (y > 0) {
-        clearInterval(y);
-        y = 0
-    }
-    for (var r = 0; r < S; r++) {
-        clearInterval(W[r])
-    }
-    S = 0;
-    $("es").width = 39;
-    f();
-    tr();
-    b = -1;
-    T = -1;
-    k = 1;
-    o = 0
-}
-var k;
-var Y, Z;
-var b;
-var T;
-
-function _(r) {
-    if (D || o > 1) return;
-    var f = B.getBoundingClientRect();
-    var a = Math.floor((r.clientX - f.left) / 25);
-    var e = Math.floor((r.clientY - f.top) / 25);
-    if (a < 0 || a == h || e < 0 || e == m) return;
-    b = a;
-    T = e;
-    var i = g[e][a][0];
-    if (r.button == 2) {
-        if (Z != 1) {
-            if (i == 1) {
-                n(a, e)
-            } else {
-                q(a, e)
-            }
-        }
-    } else {
-        if (Y != 1) {
-            if (i == 0) {
-                if (o == 0) u(a, e);
-                l(a, e)
-            } else if (i == 1) {
-                n(a, e)
-            } else {
-                q(a, e)
-            }
+/** 放置/移除雷，并更新邻居数字 */
+function placeMine(idx, delta) {
+    var row, col;
+    var cellIdx = cellOrder[idx];
+    row = Math.floor(cellIdx / cols);
+    col = cellIdx % cols;
+    grid[row][col][1] += delta;
+    for (var dir = 0; dir < 8; dir++) {
+        var ny = row + dy[dir];
+        var nx = col + dx[dir];
+        if (ny >= 0 && ny < rows && nx >= 0 && nx < cols) {
+            grid[ny][nx][2] += delta
         }
     }
 }
 
-function rr(r) {
-    if (D || o > 1) return;
-    var f = B.getBoundingClientRect();
-    var a = Math.floor((r.clientX - f.left) / 25);
-    var e = Math.floor((r.clientY - f.top) / 25);
-    if (a < 0 || a == h || e < 0 || e == m) return;
-    var i = g[e][a][0];
-    if (r.button == 2) {
-        if (Z != 0) {
-            if (i == 1) {
-                n(a, e)
+/** 重新开始游戏 */
+function restartGame() {
+    if (timerIntervalId > 0) {
+        clearInterval(timerIntervalId);
+        timerIntervalId = 0
+    }
+    for (var i = 0; i < animTimerCount; i++) {
+        clearInterval(animTimers[i])
+    }
+    animTimerCount = 0;
+    $id("es").width = 39;
+    initGrid();
+    renderBoard();
+    lastTouchX = -1;
+    lastTouchY = -1;
+    isFirstClick = 1;
+    gameState = 0
+}
+
+/** 鼠标按下事件 */
+function handleMouseDown(e) {
+    if (touchState || gameState > 1) return;
+    var rect = gameCanvas.getBoundingClientRect();
+    var x = Math.floor((e.clientX - rect.left) / 25);
+    var y = Math.floor((e.clientY - rect.top) / 25);
+    if (x < 0 || x == cols || y < 0 || y == rows) return;
+    lastTouchX = x;
+    lastTouchY = y;
+    var state = grid[y][x][0];
+    if (e.button == 2) {
+        if (rightBtnTiming != 1) {
+            if (state == 1) {
+                chordClick(x, y)
             } else {
-                q(a, e)
+                flagCell(x, y)
             }
         }
     } else {
-        if (Y != 0) {
-            if (i == 0) {
-                if (o == 0) u(a, e);
-                l(a, e)
-            } else if (i == 1) {
-                n(a, e)
+        if (leftBtnTiming != 1) {
+            if (state == 0) {
+                if (gameState == 0) ensureFirstSafe(x, y);
+                revealCell(x, y)
+            } else if (state == 1) {
+                chordClick(x, y)
             } else {
-                q(a, e)
+                flagCell(x, y)
             }
         }
     }
 }
 
-function fr(r) {
-    if (o > 1) return;
-    D = 1;
-    var f = B.getBoundingClientRect();
-    var a = Math.floor((r.touches[0].clientX - f.left) / 25);
-    var e = Math.floor((r.touches[0].clientY - f.top) / 25);
-    if (a < 0 || a == h || e < 0 || e == m) return;
-    if (g[e][a][0] == 1) {
-        n(a, e)
+/** 鼠标弹起事件 */
+function handleMouseUp(e) {
+    if (touchState || gameState > 1) return;
+    var rect = gameCanvas.getBoundingClientRect();
+    var x = Math.floor((e.clientX - rect.left) / 25);
+    var y = Math.floor((e.clientY - rect.top) / 25);
+    if (x < 0 || x == cols || y < 0 || y == rows) return;
+    var state = grid[y][x][0];
+    if (e.button == 2) {
+        if (rightBtnTiming != 0) {
+            if (state == 1) {
+                chordClick(x, y)
+            } else {
+                flagCell(x, y)
+            }
+        }
     } else {
-        ar = setTimeout(function() {
-            return er(a, e)
+        if (leftBtnTiming != 0) {
+            if (state == 0) {
+                if (gameState == 0) ensureFirstSafe(x, y);
+                revealCell(x, y)
+            } else if (state == 1) {
+                chordClick(x, y)
+            } else {
+                flagCell(x, y)
+            }
+        }
+    }
+}
+
+/** 触摸开始事件 */
+function handleTouchStart(e) {
+    if (gameState > 1) return;
+    touchState = 1;
+    var rect = gameCanvas.getBoundingClientRect();
+    var x = Math.floor((e.touches[0].clientX - rect.left) / 25);
+    var y = Math.floor((e.touches[0].clientY - rect.top) / 25);
+    if (x < 0 || x == cols || y < 0 || y == rows) return;
+    if (grid[y][x][0] == 1) {
+        chordClick(x, y)
+    } else {
+        longPressTimerId = setTimeout(function() {
+            return handleLongPress(x, y)
         }, 320)
     }
 }
-var ar;
 
-function er(r, f) {
-    if (cr == 1 && w == 0) return;
-    if (o == 0) {
-        u(r, f);
-        l(r, f);
+/** 长按处理 */
+function handleLongPress(x, y) {
+    if (tripleTapMode == 1 && touchMode == 0) return;
+    if (gameState == 0) {
+        ensureFirstSafe(x, y);
+        revealCell(x, y);
         return
     }
-    D = 3;
-    if (w == 0) {
-        if (g[f][r][0] == 2) {
-            q(r, f)
+    touchState = 3;
+    if (touchMode == 0) {
+        if (grid[y][x][0] == 2) {
+            flagCell(x, y)
         }
-        if (g[f][r][0] == 0) l(r, f)
+        if (grid[y][x][0] == 0) revealCell(x, y)
     } else {
-        q(r, f)
+        flagCell(x, y)
     }
 }
-var ir = 0;
 
-function nr(r) {
-    if (D == 1) {
-        var f = B.getBoundingClientRect();
-        var a = Math.floor((r.changedTouches[0].clientX - f.left) / 25);
-        var e = Math.floor((r.changedTouches[0].clientY - f.top) / 25);
-        if (a < 0 || a == h || e < 0 || e == m) return;
-        var i = g[e][a][0];
-        if (o == 0) {
-            u(a, e);
-            l(a, e)
+/** 触摸结束事件 */
+function handleTouchEnd(e) {
+    if (touchState == 1) {
+        var rect = gameCanvas.getBoundingClientRect();
+        var x = Math.floor((e.changedTouches[0].clientX - rect.left) / 25);
+        var y = Math.floor((e.changedTouches[0].clientY - rect.top) / 25);
+        if (x < 0 || x == cols || y < 0 || y == rows) return;
+        var state = grid[y][x][0];
+        if (gameState == 0) {
+            ensureFirstSafe(x, y);
+            revealCell(x, y)
         } else {
-            if (w == 0) {
-                if (i != 1) {
-                    var n = Date.now();
-                    var t;
-                    if (a == b && e == T) {
-                        t = n - ir
+            if (touchMode == 0) {
+                if (state != 1) {
+                    var now = Date.now();
+                    var elapsed;
+                    if (x == lastTouchX && y == lastTouchY) {
+                        elapsed = now - lastTapMs
                     } else {
-                        b = a;
-                        T = e;
-                        ir = Date.now();
-                        t = 1e3
+                        lastTouchX = x;
+                        lastTouchY = y;
+                        lastTapMs = Date.now();
+                        elapsed = 1000
                     }
-                    if (cr == 1 && t < 400 && i == 0) {
-                        l(a, e)
+                    if (tripleTapMode == 1 && elapsed < 400 && state == 0) {
+                        revealCell(x, y)
                     } else {
-                        q(a, e)
+                        flagCell(x, y)
                     }
-                    ir = n
+                    lastTapMs = now
                 }
             } else {
-                if (i == 0) {
-                    l(a, e)
-                } else if (i == 2) {
-                    q(a, e)
+                if (state == 0) {
+                    revealCell(x, y)
+                } else if (state == 2) {
+                    flagCell(x, y)
                 }
             }
         }
-        D = 4;
-        clearTimeout(ar)
+        touchState = 4;
+        clearTimeout(longPressTimerId)
     }
-    if (r.preventDefault) {
-        r.preventDefault()
+    if (e.preventDefault) {
+        e.preventDefault()
     } else {
         window.event.returnValue = false
     }
 }
-var x;
 
-function tr() {
-    or();
-    y = 0;
-    D = 0;
-    x = parseInt($("af").checked ? 1 : 0);
-    var r = h * 25;
-    $("p42").style.width = r + 4 + "px";
-    B.width = r;
-    B.height = m * 25;
-    $("face").src = fgf[0];
-    for (var f = 0; f < h; f++) {
-        for (var a = 0; a < m; a++) {
-            G.drawImage(sgf[0], f * 25, a * 25)
+/** 渲染棋盘 */
+function renderBoard() {
+    stopTimer();
+    timerIntervalId = 0;
+    touchState = 0;
+    autoFlagEnabled = parseInt($id("af").checked ? 1 : 0);
+    var width = cols * 25;
+    $id("p42").style.width = width + 4 + "px";
+    gameCanvas.width = width;
+    gameCanvas.height = rows * 25;
+    $id("face").src = faceImgs[0];
+    for (var x = 0; x < cols; x++) {
+        for (var y = 0; y < rows; y++) {
+            ctx.drawImage(cellImgs[0], x * 25, y * 25)
         }
     }
-    H(E);
-    L(0)
+    drawMineCounter(minesLeft);
+    drawTimerCounter(0)
 }
 
-function or() {
-    if (y > 0) {
-        clearInterval(y);
-        y = 0;
-        a = Date.now() - a;
-        if (o == 2) {
-            a = Math.ceil(a / 100);
-            r(a)
+/** 停止计时器 */
+function stopTimer() {
+    if (timerIntervalId > 0) {
+        clearInterval(timerIntervalId);
+        timerIntervalId = 0;
+        gameStartTime = Date.now() - gameStartTime;
+        if (gameState == 2) {
+            gameStartTime = Math.ceil(gameStartTime / 100);
+            drawTimeDisplay(gameStartTime)
         } else {
-            L(parseInt(a / 1e3))
+            drawTimerCounter(parseInt(gameStartTime / 1000))
         }
     } else {
-        a = 0
+        gameStartTime = 0
     }
 }
-var y = 0;
-var a;
-var vr;
 
-function ur() {
-    a = Date.now();
-    vr = 0;
-    o = 1;
-    y = setInterval(function() {
-        L(++vr)
-    }, 1e3)
+/** 启动计时器 */
+function startTimer() {
+    gameStartTime = Date.now();
+    elapsedSec = 0;
+    gameState = 1;
+    timerIntervalId = setInterval(function() {
+        drawTimerCounter(++elapsedSec)
+    }, 1000)
 }
-var w;
-var cr;
-var D;
-var E;
-var R;
 
-function q(r, f) {
-    k = 0;
-    var a = g[f][r];
-    if (a[0] == 0) {
-        if (E > 0) {
-            if (a[1] == 0) {
-                J()
+/** 插旗/取消插旗 */
+function flagCell(x, y) {
+    isFirstClick = 0;
+    var cell = grid[y][x];
+    if (cell[0] == 0) {
+        if (minesLeft > 0) {
+            if (cell[1] == 0) {
+                validateBoard()
             }
-            G.drawImage(sgf[1], r * 25, f * 25);
-            a[0] = 2;
-            H(--E)
+            ctx.drawImage(cellImgs[1], x * 25, y * 25);
+            cell[0] = 2;
+            drawMineCounter(--minesLeft)
         }
-    } else if (a[0] == 2) {
-        G.drawImage(sgf[0], r * 25, f * 25);
-        a[0] = 0;
-        H(++E)
+    } else if (cell[0] == 2) {
+        ctx.drawImage(cellImgs[0], x * 25, y * 25);
+        cell[0] = 0;
+        drawMineCounter(++minesLeft)
     }
 }
-var B;
-var G;
-var H;
-var L;
 
-function start() {
-    sr = $("ss").href + "#";
-    pr("night", ny0, gr);
-    gr();
-    pr("af", af0, _45);
-    P("mp1", 0, r => {
-        Y = r
+// ---------- 初始化入口 ----------
+
+/** 主初始化函数 */
+function initGame() {
+    shareBaseUrl = $id("ss").href + "#";
+    initCheckbox("night", DEFAULT_NIGHT, applyNightMode);
+    applyNightMode();
+    initCheckbox("af", DEFAULT_AUTOFLAG, restartGame);
+    initRadio("mp1", 0, function(val) {
+        leftBtnTiming = val
     });
-    P("mp2", 0, r => {
-        Z = r
+    initRadio("mp2", 0, function(val) {
+        rightBtnTiming = val
     });
-    P("tpn", 0, r => {
-        w = r;
-        dr(r)
+    initRadio("tpn", 0, function(val) {
+        touchMode = val;
+        updateTouchUI(val)
     });
-    P("opn", 0, r => {
-        cr = r
+    initRadio("opn", 0, function(val) {
+        tripleTapMode = val
     });
-    var r = localStorage.getItem("df5");
-    if (r == null) {
-        $("hm").value = 15;
-        $("vm").value = 15;
-        $("mm").value = 20
+    var saved = localStorage.getItem("df5");
+    if (saved == null) {
+        $id("hm").value = 15;
+        $id("vm").value = 15;
+        $id("mm").value = 20
     } else {
-        var f = r.split(";");
-        $("hm").value = f[0];
-        $("vm").value = f[1];
-        $("mm").value = f[2]
+        var parts = saved.split(";");
+        $id("hm").value = parts[0];
+        $id("vm").value = parts[1];
+        $id("mm").value = parts[2]
     }
     document.oncontextmenu = function() {
         return false
@@ -687,176 +821,189 @@ function start() {
     document.onselectstart = function() {
         return false
     };
-    B = $("paf");
-    G = B.getContext("2d");
-    H = U("rm");
-    L = U("es");
-    B.onmousedown = _;
-    B.onmouseup = rr;
-    B.ontouchstart = fr;
-    B.ontouchmove = function() {
-        D = 2;
-        clearTimeout(ar)
+    gameCanvas = $id("paf");
+    ctx = gameCanvas.getContext("2d");
+    drawMineCounter = createCounter("rm");
+    drawTimerCounter = createCounter("es");
+    gameCanvas.onmousedown = handleMouseDown;
+    gameCanvas.onmouseup = handleMouseUp;
+    gameCanvas.ontouchstart = handleTouchStart;
+    gameCanvas.ontouchmove = function() {
+        touchState = 2;
+        clearTimeout(longPressTimerId)
     };
-    B.ontouchend = nr;
-    _123(localStorage.getItem("ch7"));
-    $("nick").value = localStorage.getItem("nick");
-    $("uid").innerHTML = lr()
+    gameCanvas.ontouchend = handleTouchEnd;
+    setDifficulty(localStorage.getItem("ch7"));
+    $id("nick").value = localStorage.getItem("nick");
+    $id("uid").innerHTML = getPlayerId()
 }
 
-function lr() {
-    var r = localStorage.getItem("nick");
-    if (r == null || r == "") r = localStorage.getItem("uid");
-    if (r == null) r = "";
-    return r
+/** 获取玩家标识 */
+function getPlayerId() {
+    var id = localStorage.getItem("nick");
+    if (id == null || id == "") id = localStorage.getItem("uid");
+    if (id == null) id = "";
+    return id
 }
-var O;
 
-function _123(r) {
-    var f, a;
-    o = 0;
-    f = document.body.clientWidth;
-    a = document.body.clientHeight;
-    v = parseInt(r) || 2;
-    $("custom").style.display = v == 5 ? "" : "none";
-    if (v == 1) {
-        h = 9;
-        m = 9;
-        i = 10;
-        O = 81
-    } else if (v == 2) {
-        h = 16;
-        m = 16;
-        i = 40;
-        O = 256
-    } else if (v == 3) {
-        i = 99;
-        if (f > a) {
-            h = 30;
-            m = 16
+/** 设置难度 */
+function setDifficulty(level) {
+    var screenW, screenH;
+    gameState = 0;
+    screenW = document.body.clientWidth;
+    screenH = document.body.clientHeight;
+    difficulty = parseInt(level) || 2;
+    $id("custom").style.display = difficulty == 5 ? "" : "none";
+    if (difficulty == 1) {
+        cols = 9;
+        rows = 9;
+        totalMines = 10;
+        totalCells = 81
+    } else if (difficulty == 2) {
+        cols = 16;
+        rows = 16;
+        totalMines = 40;
+        totalCells = 256
+    } else if (difficulty == 3) {
+        totalMines = 99;
+        if (screenW > screenH) {
+            cols = 30;
+            rows = 16
         } else {
-            h = 16;
-            m = 30
+            cols = 16;
+            rows = 30
         }
-        O = 480
-    } else if (v == 4) {
-        h = parseInt((f - 18) / 25);
-        m = parseInt((a - 54) / 25);
-        O = h * m;
-        if (O >= 480) i = O * .20625;
-        else i = O * O / 5760 + O / 8;
-        i = parseInt(i)
-    } else if (v == 5) {
-        h = parseInt($("hm").value);
-        m = parseInt($("vm").value);
-        O = h * m;
-        i = parseInt($("mm").value);
-        if (i > O) i = O
+        totalCells = 480
+    } else if (difficulty == 4) {
+        cols = parseInt((screenW - 18) / 25);
+        rows = parseInt((screenH - 54) / 25);
+        totalCells = cols * rows;
+        if (totalCells >= 480) totalMines = totalCells * .20625;
+        else totalMines = totalCells * totalCells / 5760 + totalCells / 8;
+        totalMines = parseInt(totalMines)
+    } else if (difficulty == 5) {
+        cols = parseInt($id("hm").value);
+        rows = parseInt($id("vm").value);
+        totalCells = cols * rows;
+        totalMines = parseInt($id("mm").value);
+        if (totalMines > totalCells) totalMines = totalCells
     } else {
         return
     }
-    _45();
-    localStorage.setItem("ch7", v);
-    $("ss").href = sr + v;
-    mr(v)
-}
-var sr;
-
-function udf() {
-    _123(5);
-    localStorage.setItem("df5", $("hm").value + ";" + $("vm").value + ";" + $("mm").value);
-    $("custom").style.display = "none"
+    restartGame();
+    localStorage.setItem("ch7", difficulty);
+    $id("ss").href = shareBaseUrl + difficulty;
+    markDifficulty(difficulty)
 }
 
-function nick() {
-    var nick = $("nick").value.trim();
+/** 应用自定义尺寸 */
+function applyCustom() {
+    setDifficulty(5);
+    localStorage.setItem("df5", $id("hm").value + ";" + $id("vm").value + ";" + $id("mm").value);
+    $id("custom").style.display = "none"
+}
+
+/** 保存昵称 */
+function saveNickname() {
+    var nick = $id("nick").value.trim();
     if (nick.charCodeAt(0) < 65) {
-        alert(w1);
+        alert(MSG_INVALID_NICK);
         return
     }
     localStorage.setItem("nick", nick);
-    $("uid").innerHTML = lr();
+    $id("uid").innerHTML = getPlayerId();
     setr()
 }
 
-function gr() {
-    var r = document.body.style;
-    var f = document.getElementsByTagName("a");
-    if ($("night").checked) {
-        r.backgroundColor = "black";
-        r.color = "silver";
-        for (var a = 0; a < f.length; a++) {
-            f[a].style.color = "silver"
+/** 应用夜间模式 */
+function applyNightMode() {
+    var bodyStyle = document.body.style;
+    var links = document.getElementsByTagName("a");
+    if ($id("night").checked) {
+        bodyStyle.backgroundColor = "black";
+        bodyStyle.color = "silver";
+        for (var i = 0; i < links.length; i++) {
+            links[i].style.color = "silver"
         }
     } else {
-        r.backgroundColor = "#f7f7f0";
-        r.color = "";
-        for (var a = 0; a < f.length; a++) {
-            f[a].style.color = ""
+        bodyStyle.backgroundColor = "#f7f7f0";
+        bodyStyle.color = "";
+        for (var i = 0; i < links.length; i++) {
+            links[i].style.color = ""
         }
     }
 }
 
-function hr(r, f, a) {
-    var e = VER + ":" + r;
-    V("bug.php", e, function(r) {})
+/** 上报错误 */
+function reportError(code, x, y) {
+    var msg = VER + ":" + code;
+    ajax("bug.php", msg, function(res) {})
 }
 
-function mr(r) {
-    for (var f = 1; f <= 5; f++) {
-        var a = $("c" + f);
-        if (f == r) {
-            a.className = "choiced"
+/** 高亮当前难度 */
+function markDifficulty(level) {
+    for (var i = 1; i <= 5; i++) {
+        var link = $id("c" + i);
+        if (i == level) {
+            link.className = "choiced"
         } else {
-            a.className = ""
+            link.className = ""
         }
     }
 }
 
-function pr(r, f, a) {
-    var e = $(r);
-    e.checked = parseInt(localStorage.getItem(r) || f);
-    e.addEventListener("change", function() {
-        a();
-        localStorage.setItem(r, this.checked ? 1 : 0)
+/** 初始化复选框设置 */
+function initCheckbox(id, defaultVal, callback) {
+    var el = $id(id);
+    el.checked = parseInt(localStorage.getItem(id) || defaultVal);
+    el.addEventListener("change", function() {
+        callback();
+        localStorage.setItem(id, this.checked ? 1 : 0)
     })
 }
 
-function P(f, r, a) {
-    var e = parseInt(localStorage.getItem(f) || r);
-    a(e);
-    document.getElementsByName(f).forEach(r => {
-        if (r.value == e) {
-            r.checked = true
+/** 初始化单选按钮设置 */
+function initRadio(name, defaultVal, callback) {
+    var val = parseInt(localStorage.getItem(name) || defaultVal);
+    callback(val);
+    document.getElementsByName(name).forEach(function(radio) {
+        if (radio.value == val) {
+            radio.checked = true
         }
-        r.addEventListener("change", function() {
-            a(parseInt(this.value));
-            if (this.checked) localStorage.setItem(f, this.value)
+        radio.addEventListener("change", function() {
+            callback(parseInt(this.value));
+            if (this.checked) localStorage.setItem(name, this.value)
         })
     })
 }
 
-function dr(r) {
-    if (r == 0) {
-        $("topen").style.display = "block";
-        $("thint").style.display = "none"
+/** 切换触摸 UI 显示 */
+function updateTouchUI(mode) {
+    if (mode == 0) {
+        $id("topen").style.display = "block";
+        $id("thint").style.display = "none"
     } else {
-        $("thint").style.display = "block";
-        $("topen").style.display = "none"
+        $id("thint").style.display = "block";
+        $id("topen").style.display = "none"
     }
 }
 
-function fold(r, f) {
-    var a = 0;
+/** 创建折叠/展开切换函数 */
+function createToggle(btnId, panelId) {
+    var expanded = 0;
     return function() {
-        if (a == 0) {
-            $(f).style.display = "block";
-            $(r).innerText = shou;
-            a = 1
+        if (expanded == 0) {
+            $id(panelId).style.display = "block";
+            $id(btnId).innerText = TEXT_COLLAPSE;
+            expanded = 1
         } else {
-            $(f).style.display = "none";
-            $(r).innerText = shez;
-            a = 0
+            $id(panelId).style.display = "none";
+            $id(btnId).innerText = TEXT_SETTINGS;
+            expanded = 0
         }
     }
 }
+
+// 设置面板的折叠切换
+var toggleMouseSettings = createToggle("setm", "_mouse");
+var toggleTouchSettings = createToggle("sett", "_touch");

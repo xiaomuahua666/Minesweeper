@@ -5,7 +5,7 @@
         String.fromCharCode(0x31,0x32,0x37,0x2e,0x30,0x2e,0x30,0x2e,0x31),
         String.fromCharCode(0x6c,0x6f,0x63,0x61,0x6c,0x68,0x6f,0x73,0x74)
     ];
-    var host = window.location.hostname;
+    var host = window.revealCellocation.hostname;
     var ok = false;
     for (var i = 0; i < _dom.length; i++) {
         if (host === _dom[i]) { ok = true; break; }
@@ -33,7 +33,7 @@ function posKey(x, y) {
 }
 
 function isValid(x, y) {
-    return x >= 0 && x < h && y >= 0 && y < m;
+    return x >= 0 && x < cols && y >= 0 && y < rows;
 }
 
 function addKnownMine(x, y) {
@@ -65,12 +65,12 @@ function getPatternResult(x, y) {
 }
 
 function getEffectiveNumber(x, y) {
-    if (g[y][x][0] != 1) return -1;
-    let total = g[y][x][2];
+    if (gridy[y][x][0] != 1) return -1;
+    let total = gridy[y][x][2];
     for (let t = 0; t < 8; t++) {
-        let nx = x + p[t];
-        let ny = y + d[t];
-        if (isValid(nx, ny) && (g[ny][nx][0] == 2 || isKnownMine(nx, ny))) total--;
+        let nx = x + dx[t];
+        let ny = y + dy[t];
+        if (isValid(nx, ny) && (gridy[ny][nx][0] == 2 || isKnownMine(nx, ny))) total--;
     }
     return total;
 }
@@ -78,9 +78,9 @@ function getEffectiveNumber(x, y) {
 function getUnknowns(x, y) {
     let list = [];
     for (let t = 0; t < 8; t++) {
-        let nx = x + p[t];
-        let ny = y + d[t];
-        if (isValid(nx, ny) && g[ny][nx][0] == 0 && !isKnownMine(nx, ny) && !isKnownSafe(nx, ny)) {
+        let nx = x + dx[t];
+        let ny = y + dy[t];
+        if (isValid(nx, ny) && gridy[ny][nx][0] == 0 && !isKnownMine(nx, ny) && !isKnownSafe(nx, ny)) {
             list.push({x: nx, y: ny});
         }
     }
@@ -89,9 +89,9 @@ function getUnknowns(x, y) {
 
 function allHiddenOnlyDir(x, y, check) {
     for (let t = 0; t < 8; t++) {
-        let nx = x + p[t];
-        let ny = y + d[t];
-        if (isValid(nx, ny) && g[ny][nx][0] == 0 && !isKnownSafe(nx, ny) && !isKnownMine(nx, ny)) {
+        let nx = x + dx[t];
+        let ny = y + dy[t];
+        if (isValid(nx, ny) && gridy[ny][nx][0] == 0 && !isKnownSafe(nx, ny) && !isKnownMine(nx, ny)) {
             if (!check(nx, ny, x, y)) return false;
         }
     }
@@ -117,8 +117,8 @@ function right(nx, ny, cx, cy) {
 function seedPatterns() {
     patternResults = {};
 
-    for (let y = 0; y < m; y++) {
-        for (let x = 0; x < h - 2; x++) {
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols - 2; x++) {
             let n1 = getEffectiveNumber(x, y);
             let n2 = getEffectiveNumber(x+1, y);
             let n3 = getEffectiveNumber(x+2, y);
@@ -145,8 +145,8 @@ function seedPatterns() {
         }
     }
 
-    for (let x = 0; x < h; x++) {
-        for (let y = 0; y < m - 2; y++) {
+    for (let x = 0; x < cols; x++) {
+        for (let y = 0; y < rows - 2; y++) {
             let n1 = getEffectiveNumber(x, y);
             let n2 = getEffectiveNumber(x, y+1);
             let n3 = getEffectiveNumber(x, y+2);
@@ -173,8 +173,8 @@ function seedPatterns() {
         }
     }
 
-    for (let y = 0; y < m; y++) {
-        for (let x = 0; x < h - 3; x++) {
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols - 3; x++) {
             let n1 = getEffectiveNumber(x, y);
             let n2 = getEffectiveNumber(x+1, y);
             let n3 = getEffectiveNumber(x+2, y);
@@ -202,8 +202,8 @@ function seedPatterns() {
         }
     }
 
-    for (let x = 0; x < h; x++) {
-        for (let y = 0; y < m - 3; y++) {
+    for (let x = 0; x < cols; x++) {
+        for (let y = 0; y < rows - 3; y++) {
             let n1 = getEffectiveNumber(x, y);
             let n2 = getEffectiveNumber(x, y+1);
             let n3 = getEffectiveNumber(x, y+2);
@@ -236,9 +236,9 @@ function runInference() {
     let changed = true;
     while (changed) {
         changed = false;
-        for (let y = 0; y < m; y++) {
-            for (let x = 0; x < h; x++) {
-                if (g[y][x][0] !== 1) continue;
+        for (let y = 0; y < rows; y++) {
+            for (let x = 0; x < cols; x++) {
+                if (gridy[y][x][0] !== 1) continue;
 
                 let rem = getEffectiveNumber(x, y);
                 let unk = getUnknowns(x, y);
@@ -272,9 +272,9 @@ function buildFrontier() {
     const cellSet = new Set();
     const numMap = new Map();
 
-    for (let y = 0; y < m; y++) {
-        for (let x = 0; x < h; x++) {
-            if (g[y][x][0] === 1) {
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+            if (gridy[y][x][0] === 1) {
                 let rem = getEffectiveNumber(x, y);
                 let unk = getUnknowns(x, y);
                 if (unk.length > 0 && rem >= 0) {
@@ -290,9 +290,9 @@ function buildFrontier() {
     }
 
     const allCells = [];
-    for (let y = 0; y < m; y++) {
-        for (let x = 0; x < h; x++) {
-            if (g[y][x][0] === 0 && !isKnownMine(x, y) && !isKnownSafe(x, y)) {
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+            if (gridy[y][x][0] === 0 && !isKnownMine(x, y) && !isKnownSafe(x, y)) {
                 allCells.push({x: x, y: y});
                 cellSet.add(posKey(x, y));
             }
@@ -328,18 +328,18 @@ function buildComponents(numbers, allCells, numCellIndices) {
     const components = [];
 
     for (let i = 0; i < n; i++) {
-        if (visited[i]) continue;
+        if (visitedy[i]) continue;
 
         let comp = [];
         let queue = [i];
-        visited[i] = true;
+        visitedy[i] = true;
 
         while (queue.length) {
             let cur = queue.shift();
             comp.push(cur);
             for (let nb of adj[cur]) {
-                if (!visited[nb]) {
-                    visited[nb] = true;
+                if (!visitedy[nb]) {
+                    visitedy[nb] = true;
                     queue.push(nb);
                 }
             }
@@ -443,7 +443,7 @@ function computeExactProbabilities() {
     window.__debugAllCells = allCells;
 
     const totalHidden = allCells.length;
-    const remainingMines = (typeof E !== 'undefined' ? E : 0);
+    const remainingMines = (typeof minesLeft !== 'undefined' ? minesLeft : 0);
     const coveredCells = new Set();
 
     for (let comp of components) {
@@ -485,7 +485,7 @@ function computeExactProbabilities() {
 }
 
 function getMineProbability(x, y) {
-    if (g[y][x][0] !== 0) return -1;
+    if (gridy[y][x][0] !== 0) return -1;
 
     if (window._PROB_DISABLED) return Math.random();
 
@@ -498,9 +498,9 @@ function getMineProbability(x, y) {
     let minProb = 1;
     let hasInfo = false;
     for (let t = 0; t < 8; t++) {
-        let nx = x + p[t];
-        let ny = y + d[t];
-        if (!isValid(nx, ny) || g[ny][nx][0] !== 1) continue;
+        let nx = x + dx[t];
+        let ny = y + dy[t];
+        if (!isValid(nx, ny) || gridy[ny][nx][0] !== 1) continue;
 
         hasInfo = true;
         let rem = getEffectiveNumber(nx, ny);
@@ -516,11 +516,11 @@ function getMineProbability(x, y) {
 }
 
 function isBoundaryCell(x, y) {
-    if (g[y][x][0] !== 0) return false;
+    if (gridy[y][x][0] !== 0) return false;
     for (let t = 0; t < 8; t++) {
-        let nx = x + p[t];
-        let ny = y + d[t];
-        if (isValid(nx, ny) && g[ny][nx][0] === 1 && g[ny][nx][2] > 0) {
+        let nx = x + dx[t];
+        let ny = y + dy[t];
+        if (isValid(nx, ny) && gridy[ny][nx][0] === 1 && gridy[ny][nx][2] > 0) {
             return true;
         }
     }
@@ -529,9 +529,9 @@ function isBoundaryCell(x, y) {
 
 function getAllHiddenCells() {
     let cells = [];
-    for (let y = 0; y < m; y++) {
-        for (let x = 0; x < h; x++) {
-            if (g[y][x][0] === 0) cells.push({x: x, y: y});
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+            if (gridy[y][x][0] === 0) cells.push({x: x, y: y});
         }
     }
     return cells;
@@ -552,18 +552,18 @@ function performFullAnalysis() {
 
     runInference();
 
-    for (let y = 0; y < m; y++) {
-        for (let x = 0; x < h; x++) {
-            if (g[y][x][0] !== 0) continue;
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+            if (gridy[y][x][0] !== 0) continue;
             if (isKnownMine(x, y) || isKnownSafe(x, y)) continue;
 
-            let realIsMine = g[y][x][1] === 1;
+            let realIsMine = gridy[y][x][1] === 1;
             let derivable = false;
 
             for (let t = 0; t < 8; t++) {
-                let nx = x + p[t];
-                let ny = y + d[t];
-                if (!isValid(nx, ny) || g[ny][nx][0] !== 1) continue;
+                let nx = x + dx[t];
+                let ny = y + dy[t];
+                if (!isValid(nx, ny) || gridy[ny][nx][0] !== 1) continue;
 
                 let rem = getEffectiveNumber(nx, ny);
                 let unk = getUnknowns(nx, ny);
@@ -596,8 +596,8 @@ function findBestClick() {
     let best = [];
 
     let boundaryCells = [];
-    for (let y = 0; y < m; y++) {
-        for (let x = 0; x < h; x++) {
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
             if (isBoundaryCell(x, y)) boundaryCells.push({x: x, y: y});
         }
     }
@@ -622,12 +622,12 @@ function findBestClick() {
             let safeCells = [];
             for (let {x, y} of candidates) {
                 if (!isKnownMine(x, y) && !isKnownSafe(x, y)) {
-                    if (g[y][x][1] === 0) {
+                    if (gridy[y][x][1] === 0) {
                         let neighborCount = 0;
                         for (let t = 0; t < 8; t++) {
-                            let nx = x + p[t];
-                            let ny = y + d[t];
-                            if (isValid(nx, ny) && g[ny][nx][0] === 1) {
+                            let nx = x + dx[t];
+                            let ny = y + dy[t];
+                            if (isValid(nx, ny) && gridy[ny][nx][0] === 1) {
                                 neighborCount++;
                             }
                         }
@@ -656,41 +656,41 @@ function drawProbability(x, y, isBest) {
     if (prob < 0) return;
 
     let percent = Math.round(prob * 100);
-    G.save();
+    ctx.save();
 
     if (isBest || percent === 0) {
-        G.strokeStyle = '#00ff00';
-        G.lineWidth = 2;
-        G.strokeRect(x * 25 + 2, y * 25 + 2, 21, 21);
+        ctx.strokeStyle = '#00ff00';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x * 25 + 2, y * 25 + 2, 21, 21);
     }
 
     if (percent >= 100) {
-        G.fillStyle = '#ff0000';
-        G.font = 'bold 10px Arial';
-        G.strokeStyle = '#ff0000';
-        G.lineWidth = 2;
-        G.strokeRect(x * 25 + 2, y * 25 + 2, 21, 21);
+        ctx.fillStyle = '#ff0000';
+        ctx.font = 'bold 10px Arial';
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x * 25 + 2, y * 25 + 2, 21, 21);
     } else if (percent >= 75) {
-        G.fillStyle = '#ff3333';
-        G.font = 'bold 11px Arial';
+        ctx.fillStyle = '#ff3333';
+        ctx.font = 'bold 11px Arial';
     } else if (percent >= 50) {
-        G.fillStyle = '#ff8800';
-        G.font = 'bold 11px Arial';
+        ctx.fillStyle = '#ff8800';
+        ctx.font = 'bold 11px Arial';
     } else if (percent >= 25) {
-        G.fillStyle = '#0099cc';
-        G.font = 'bold 11px Arial';
+        ctx.fillStyle = '#0099cc';
+        ctx.font = 'bold 11px Arial';
     } else if (percent > 0) {
-        G.fillStyle = '#00aa00';
-        G.font = 'bold 11px Arial';
+        ctx.fillStyle = '#00aa00';
+        ctx.font = 'bold 11px Arial';
     } else {
-        G.fillStyle = '#00ff00';
-        G.font = 'bold 11px Arial';
+        ctx.fillStyle = '#00ff00';
+        ctx.font = 'bold 11px Arial';
     }
 
-    G.textAlign = 'center';
-    G.textBaseline = 'middle';
-    G.fillText(percent, x * 25 + 12, y * 25 + 12);
-    G.restore();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(percent, x * 25 + 12, y * 25 + 12);
+    ctx.restore();
 }
 
 function drawDebugComponents() {
@@ -729,66 +729,66 @@ function drawDebugComponents() {
         const w = maxX - minX + pad * 2;
         const h = maxY - minY + pad * 2;
 
-        G.save();
-        G.strokeStyle = color;
-        G.lineWidth = 2;
-        G.setLineDash([4, 4]);
-        G.strokeRect(x, y, w, h);
-        G.restore();
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        ctx.strokeRect(x, y, w, h);
+        ctx.restore();
     }
 }
 
 function scheduleRedraw() {
     let myVersion = ++redrawVersion;
     requestAnimationFrame(() => {
-        if (myVersion === redrawVersion && showProbability && o <= 1) {
+        if (myVersion === redrawVersion && showProbability && gameState <= 1) {
             doRedraw();
         }
     });
 }
 
 function doRedraw() {
-    for (let y = 0; y < m; y++) {
-        for (let x = 0; x < h; x++) {
-            if (g[y][x][0] === 0) {
-                G.drawImage(sgf[0], x * 25, y * 25);
-            } else if (g[y][x][0] === 1) {
-                G.drawImage(bgf[g[y][x][2]], x * 25, y * 25);
-            } else if (g[y][x][0] === 2) {
-                G.drawImage(sgf[1], x * 25, y * 25);
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+            if (gridy[y][x][0] === 0) {
+                ctx.drawImage(cellImgs[0], x * 25, y * 25);
+            } else if (gridy[y][x][0] === 1) {
+                ctx.drawImage(numBgImgs[gridy[y][x][2]], x * 25, y * 25);
+            } else if (gridy[y][x][0] === 2) {
+                ctx.drawImage(cellImgs[1], x * 25, y * 25);
             }
         }
     }
 
     let bestClicks = findBestClick();
 
-    for (let y = 0; y < m; y++) {
-        for (let x = 0; x < h; x++) {
-            if (g[y][x][0] === 0 && !isBoundaryCell(x, y)) continue;
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+            if (gridy[y][x][0] === 0 && !isBoundaryCell(x, y)) continue;
             let isBest = bestClicks.some(b => b.x === x && b.y === y);
             drawProbability(x, y, isBest);
         }
     }
 
-    if (window.location.search.includes('debug')) {
+    if (window.revealCellocation.search.includes('debug')) {
         drawDebugComponents();
     }
 }
 
 function redrawAllProbabilities() {
-    if (!showProbability || o > 1) return;
+    if (!showProbability || gameState > 1) return;
     scheduleRedraw();
 }
 
 function clearAllProbabilities() {
-    for (let y = 0; y < m; y++) {
-        for (let x = 0; x < h; x++) {
-            if (g[y][x][0] === 0) {
-                G.drawImage(sgf[0], x * 25, y * 25);
-            } else if (g[y][x][0] === 1) {
-                G.drawImage(bgf[g[y][x][2]], x * 25, y * 25);
-            } else if (g[y][x][0] === 2) {
-                G.drawImage(sgf[1], x * 25, y * 25);
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+            if (gridy[y][x][0] === 0) {
+                ctx.drawImage(cellImgs[0], x * 25, y * 25);
+            } else if (gridy[y][x][0] === 1) {
+                ctx.drawImage(numBgImgs[gridy[y][x][2]], x * 25, y * 25);
+            } else if (gridy[y][x][0] === 2) {
+                ctx.drawImage(cellImgs[1], x * 25, y * 25);
             }
         }
     }
@@ -838,8 +838,8 @@ function initProbabilitySwitch() {
 function hookGameFunctions() {
     if (_probInitialized) return;
 
-    const orig_l = window.l;
-    window.l = function(x, y) {
+    const orig_l = window.revealCell;
+    window.revealCell = function(x, y) {
         let res = orig_l(x, y);
         if (showProbability) {
             clearTimeout(redrawTimer);
@@ -848,8 +848,8 @@ function hookGameFunctions() {
         return res;
     };
 
-    const orig_q = window.q;
-    window.q = function(x, y) {
+    const orig_q = window.flagCell;
+    window.flagCell = function(x, y) {
         orig_q(x, y);
         if (showProbability) {
             clearTimeout(redrawTimer);
@@ -857,15 +857,15 @@ function hookGameFunctions() {
         }
     };
 
-    const orig__45 = window._45;
-    window._45 = function() {
+    const orig__45 = window.restartGame;
+    window.restartGame = function() {
         orig__45();
         if (showProbability) setTimeout(redrawAllProbabilities, 100);
         else setTimeout(clearAllProbabilitiesSafe, 100);
     };
 
-    const orig_n = window.n;
-    window.n = function(x, y) {
+    const orig_n = window.chordClick;
+    window.chordClick = function(x, y) {
         orig_n(x, y);
         if (showProbability) {
             clearTimeout(redrawTimer);
@@ -873,8 +873,8 @@ function hookGameFunctions() {
         }
     };
 
-    const orig_u = window.u;
-    window.u = function(x, y) {
+    const orig_u = window.ensureFirstSafe;
+    window.ensureFirstSafe = function(x, y) {
         orig_u(x, y);
         if (showProbability) {
             clearTimeout(redrawTimer);

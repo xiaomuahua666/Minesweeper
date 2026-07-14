@@ -83,28 +83,28 @@ color:#444;
 网页扫雷游戏
 </div>
 <div style="margin-top:0.8rem;">
-<a href=javascript: id=c1 onclick="_123(1)">基础</a>
+<a href=javascript: id=c1 onclick="setDifficulty(1)">基础</a>
 &nbsp;
-<a href=javascript: id=c2 onclick="_123(2)">中级</a>
+<a href=javascript: id=c2 onclick="setDifficulty(2)">中级</a>
 &nbsp;
-<a href=javascript: id=c3 onclick="_123(3)">专家</a>
+<a href=javascript: id=c3 onclick="setDifficulty(3)">专家</a>
 &nbsp;
-<a href=javascript: id=c4 onclick="_123(4)">满屏</a>
+<a href=javascript: id=c4 onclick="setDifficulty(4)">满屏</a>
 &nbsp;
-<a href=javascript: id=c5 onclick="_123(5)">自定义</a>
+<a href=javascript: id=c5 onclick="setDifficulty(5)">自定义</a>
 </div>
 <div id=custom style="display:none;margin-top:0.8rem">
 横<input id=hm type=number value=40>
 竖<input id=vm type=number value=24>
 雷<input id=mm type=number value=199>
-<input type=button onclick="udf()" value="确定" >
+<input type=button onclick="applyCustom()" value="确定" >
 </div>
 <table style="margin:1rem auto;border-radius:6px;background:#cccccc">
 <tr><td style="padding:9px;">
 <table id=p42 class=pad style="height:34px">
 <tr>
 <td width=35%><canvas id="rm" height=23 width=39></canvas></td>
-<td style="text-align:center;" onmouseup="_45()"><img id="face"></td>
+<td style="text-align:center;" onmouseup="restartGame()"><img id="face"></td>
 <td width=35% style="text-align:right"><canvas id="es" height=23 width=39></canvas></td>
 </table>
 <canvas id="paf" class="pad" style="margin-top:6px;" width=0 height=0></canvas>
@@ -123,7 +123,7 @@ color:#444;
 第一次点击不会是雷。格子里的数字表示它周围有几个雷。游戏目标是找出所有雷。找错则输。点击表情重新开始。<b>无法判断的“死局”请留到最后，打开“显示雷概率”或许可以帮助推进游戏进程</b>，概率仅供参考，不保证准确。
 <br><br>
 <b>电脑：</b>鼠标右键点击未明方块，以小旗标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字（左右键均可）翻开周围的安全区域。鼠标左键点击无标记方块则直接打开。
-<a id=setm href="javascript:" onclick="mouse2()">设置</a>
+<a id=setm href="javascript:" onclick="toggleMouseSettings()">设置</a>
 <div id="_mouse" style="text-align:left;border:solid 1px;display:none;padding:0.5rem;">
 鼠标起效时间点
 <br>
@@ -146,7 +146,7 @@ color:#444;
 </div>
 <br><br>
 <b>手机或平板：</b>在触屏上点击方块即标记为雷，再点去除标记。标记的雷数和数字匹配时，点击数字翻开周围的安全区域。长按方块直接打开（可设置为点击直接打开；或点击三次打开）。
-<a id=sett href="javascript:" onclick="touch2()">设置</a>
+<a id=sett href="javascript:" onclick="toggleTouchSettings()">设置</a>
 <div id="_touch" style="text-align:left;border:solid 1px;display:none;padding:0.5rem;">
 <i>触击效果</i>
 <br>
@@ -200,14 +200,14 @@ color:#444;
 
 <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 <script>
-shou="收起";
-shez="设置";
-w1="首字母不符合要求";
-app="/bbb";
-mouse2=fold("setm","_mouse");
-touch2=fold("sett","_touch");
-af0=0;
-ny0=0;
+TEXT_COLLAPSE="收起";
+TEXT_SETTINGS="设置";
+MSG_INVALID_NICK="首字母不符合要求";
+apiPath="/bbb";
+toggleMouseSettings=createToggle("setm","_mouse");
+toggleTouchSettings=createToggle("sett","_touch");
+DEFAULT_AUTOFLAG=0;
+DEFAULT_NIGHT=0;
 
 document.getElementById('copyright-year').textContent = new Date().getFullYear();
 
@@ -246,7 +246,7 @@ document.getElementById('night').addEventListener('change', function() {
   syncNightMode(this.checked);
 });
 
-start();
+initGame();
 </script>
 </body>
 </html>

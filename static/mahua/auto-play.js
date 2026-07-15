@@ -807,6 +807,8 @@ function initAiControls() {
             scroll2.addEventListener('scroll', renderAiThinkLog);
             scroll2._aiThinkBound = true;
         }
+    } else {
+        hideAiThinkPanel();
     }
 // 𝐌𝐚𝐡𝐮𝐚
 
@@ -814,86 +816,187 @@ function initAiControls() {
 // ̑̈M̑̈̑̈ȃ̈̑̈h̑̈̑̈ȗ̈̑̈ȃ̈
         autoPlaySpeed = val;
     });
-// 𝖒𝖆𝖍𝖚𝖆
-
-    initAiThinkPanelDrag();
 
     var closeBtn = document.getElementById('aiThinkClose');
     if (closeBtn && !closeBtn._bound) {
-// 𝐦𝐚𝐡𝐮𝐚
         closeBtn._bound = true;
         closeBtn.addEventListener('click', function(e) {
-            e.stopPropagation(); 
+            e.stopPropagation();
             var cb = document.getElementById('showAiThink');
             if (cb) {
                 cb.checked = false;
                 cb.dispatchEvent(new Event('change'));
-// 𝐌𝐚𝐡𝐮𝐚
             }
         });
-// 𝒎𝒂𝒉𝒖𝒂
     }
+
+    initAiThinkPanelResize();
+    initAiThinkPanelDrag();
+    initAiThinkPanelResizeWatcher();
+}
+
+function initAiThinkPanelResize() {
+    var handle = document.getElementById('aiThinkResize');
+    var panel = document.getElementById('aiThinkPanel');
+    if (!handle || !panel || panel._resizeBound) return;
+    panel._resizeBound = true;
+
+    applyAiThinkPanelSize();
+
+    var resizing = false;
+    var startX = 0, startY = 0, startW = 0, startH = 0;
+
+    function onDown(e) {
+        resizing = true;
+        startX = e.clientX; startY = e.clientY;
+        startW = panel.offsetWidth;
+        startH = panel.offsetHeight;
+        e.preventDefault();
+        e.stopPropagation();
+        try { handle.setPointerCapture(e.pointerId); } catch(_) {}
+    }
+    function onMove(e) {
+        if (!resizing) return;
+        var w = startW + (e.clientX - startX);
+        var h = startH + (e.clientY - startY);
+        w = Math.max(200, Math.min(window.innerWidth - 20, w));
+        h = Math.max(150, Math.min(window.innerHeight - 20, h));
+        panel.style.width = w + 'px';
+        panel.style.height = h + 'px';
+        e.preventDefault();
+    }
+    function onUp(e) {
+        if (!resizing) return;
+        resizing = false;
+        try { handle.releasePointerCapture(e.pointerId); } catch(_) {}
+        var isMobile = window.innerWidth <= 768;
+        var sizeKey = isMobile ? 'aiThinkSizeM' : 'aiThinkSize';
+        localStorage.setItem(sizeKey, panel.offsetWidth + ',' + panel.offsetHeight);
+        if (typeof renderAiThinkLog === 'function') renderAiThinkLog();
+    }
+
+    handle.addEventListener('pointerdown', onDown);
+    handle.addEventListener('pointermove', onMove);
+    handle.addEventListener('pointerup', onUp);
+    handle.addEventListener('pointercancel', onUp);
 }
 
 function initAiThinkPanelDrag() {
-// Ⓜⓐⓗⓤⓐ
     var header = document.getElementById('aiThinkHeader');
     var panel = document.getElementById('aiThinkPanel');
     if (!header || !panel || panel._dragBound) return;
     panel._dragBound = true;
 
-    var savedPos = localStorage.getItem('aiThinkPos');
+    applyAiThinkPanelPos();
+
+    var dragging = false;
+    var offsetX = 0, offsetY = 0;
+
+    function onDown(e) {
+        if (e.target.id === 'aiThinkClose') return;
+        var rect = panel.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        panel.style.right = 'auto';
+        panel.style.left = rect.left + 'px';
+        panel.style.top = rect.top + 'px';
+        dragging = true;
+        e.preventDefault();
+        try { header.setPointerCapture(e.pointerId); } catch(_) {}
+    }
+    function onMove(e) {
+        if (!dragging) return;
+        var px = e.clientX - offsetX;
+        var py = e.clientY - offsetY;
+        var maxX = window.innerWidth - 40;
+        var maxY = window.innerHeight - 30;
+        px = Math.max(-panel.offsetWidth + 40, Math.min(maxX, px));
+        py = Math.max(0, Math.min(maxY, py));
+        panel.style.left = px + 'px';
+        panel.style.top = py + 'px';
+        e.preventDefault();
+    }
+    function onUp(e) {
+        if (!dragging) return;
+        dragging = false;
+        try { header.releasePointerCapture(e.pointerId); } catch(_) {}
+        var isMobile = window.innerWidth <= 768;
+        var posKey = isMobile ? 'aiThinkPosM' : 'aiThinkPos';
+        localStorage.setItem(posKey, parseFloat(panel.style.left) + ',' + parseFloat(panel.style.top));
+    }
+
+    header.addEventListener('pointerdown', onDown);
+    header.addEventListener('pointermove', onMove);
+    header.addEventListener('pointerup', onUp);
+    header.addEventListener('pointercancel', onUp);
+}
+
+function applyAiThinkPanelSize() {
+    var panel = document.getElementById('aiThinkPanel');
+    if (!panel) return;
+    var isMobile = window.innerWidth <= 768;
+    var sizeKey = isMobile ? 'aiThinkSizeM' : 'aiThinkSize';
+    var savedSize = localStorage.getItem(sizeKey);
+    if (savedSize) {
+        var parts = savedSize.split(',');
+        if (parts.length === 2) {
+            var sw = parseInt(parts[0]);
+            var sh = parseInt(parts[1]);
+            if (!isNaN(sw) && !isNaN(sh) && sw >= 200 && sh >= 150) {
+                panel.style.width = sw + 'px';
+                panel.style.height = sh + 'px';
+                return;
+            }
+        }
+    }
+    panel.style.width = '';
+    panel.style.height = '';
+}
+
+function applyAiThinkPanelPos() {
+    var panel = document.getElementById('aiThinkPanel');
+    if (!panel) return;
+    var isMobile = window.innerWidth <= 768;
+    var posKey = isMobile ? 'aiThinkPosM' : 'aiThinkPos';
+    var savedPos = localStorage.getItem(posKey);
     if (savedPos) {
-// 🅼🅰🅷🆄🅰
         var parts = savedPos.split(',');
         if (parts.length === 2) {
             var sx = parseInt(parts[0]);
             var sy = parseInt(parts[1]);
             if (!isNaN(sx) && !isNaN(sy)) {
+                var vw = window.innerWidth;
+                var vh = window.innerHeight;
+                var pw = panel.offsetWidth || 300;
+                var ph = panel.offsetHeight || 420;
+                if (sx > vw - 40) sx = vw - 40;
+                if (sx < -pw + 40) sx = -pw + 40;
+                if (sy > vh - 30) sy = vh - 30;
+                if (sy < 0) sy = 0;
                 panel.style.right = 'auto';
                 panel.style.left = sx + 'px';
                 panel.style.top = sy + 'px';
-// ⓜⓐⓗⓤⓐ
+                return;
             }
         }
     }
+    panel.style.left = '';
+    panel.style.right = '';
+    panel.style.top = '';
+}
 
-    var dragging = false;
-    var offsetX = 0, offsetY = 0;
-
-    header.addEventListener('mousedown', function(e) {
-// ͎M͎͎a͎͎h͎͎u͎͎a͎
-        if (e.button !== 0) return; 
-        dragging = true;
-        var rect = panel.getBoundingClientRect();
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
-        
-        panel.style.right = 'auto';
-        panel.style.left = rect.left + 'px';
-        panel.style.top = rect.top + 'px';
-        e.preventDefault();
-    });
-// ʍąհմą
-
-    document.addEventListener('mousemove', function(e) {
-        if (!dragging) return;
-        var x = e.clientX - offsetX;
-        var y = e.clientY - offsetY;
-        
-        var maxX = window.innerWidth - 60;
-        var maxY = window.innerHeight - 40;
-        x = Math.max(-panel.offsetWidth + 60, Math.min(maxX, x));
-        y = Math.max(0, Math.min(maxY, y));
-        panel.style.left = x + 'px';
-        panel.style.top = y + 'px';
-    });
-
-    document.addEventListener('mouseup', function() {
-// 𝐌𝐚𝐡𝐮𝐚
-        if (!dragging) return;
-        dragging = false;
-        
-        localStorage.setItem('aiThinkPos', parseFloat(panel.style.left) + ',' + parseFloat(panel.style.top));
-    });
+var _aiThinkLastMobile = null;
+function initAiThinkPanelResizeWatcher() {
+    function check() {
+        var isMobile = window.innerWidth <= 768;
+        if (_aiThinkLastMobile === null) { _aiThinkLastMobile = isMobile; return; }
+        if (_aiThinkLastMobile !== isMobile) {
+            _aiThinkLastMobile = isMobile;
+            applyAiThinkPanelSize();
+            applyAiThinkPanelPos();
+            if (typeof renderAiThinkLog === 'function') renderAiThinkLog();
+        }
+    }
+    window.addEventListener('resize', check);
+    check();
 }

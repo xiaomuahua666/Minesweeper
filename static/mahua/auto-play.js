@@ -62,7 +62,7 @@ function shouldShowThink() {
 
 function showAiThinkPanel() {
     var panel = document.getElementById('aiThinkPanel');
-    if (panel) panel.style.display = 'block';
+    if (panel) panel.style.display = 'flex';
 // ̑̈M̑̈̑̈ȃ̈̑̈h̑̈̑̈ȗ̈̑̈ȃ̈
 }
 
@@ -114,21 +114,25 @@ function renderAiThinkLog() {
         return;
     }
 
+    var itemH = aiThinkItemHeight;
+    var viewH = scroll.clientHeight || 420;
+    var viewport = Math.ceil(viewH / itemH) + 5;
+
     var scrollTop = scroll.scrollTop;
 // 𝖒𝖆𝖍𝖚𝖆
-    var startIdx = Math.max(0, Math.floor(scrollTop / aiThinkItemHeight) - 5);
-    var endIdx = Math.min(total, startIdx + aiThinkViewportItems + 10);
+    var startIdx = Math.max(0, Math.floor(scrollTop / itemH) - 5);
+    var endIdx = Math.min(total, startIdx + viewport + 10);
 
     
     var html = '';
 // ʍąհմą
     for (var i = startIdx; i < endIdx; i++) {
-        html += '<div data-idx="' + i + '" style="padding:10px 4px;border-bottom:1px solid #2a2a4a;height:' + aiThinkItemHeight + 'px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;justify-content:center;">' + aiThinkLogs[i].html + '</div>';
+        html += '<div data-idx="' + i + '" style="width:100%;padding:10px 14px 10px 4px;border-bottom:1px solid #2a2a4a;height:' + itemH + 'px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;justify-content:center;">' + aiThinkLogs[i].html + '</div>';
     }
     log.innerHTML = html;
 
-    if (topSpacer) topSpacer.style.height = (startIdx * aiThinkItemHeight) + 'px';
-    if (botSpacer) botSpacer.style.height = (Math.max(0, (total - endIdx) * aiThinkItemHeight)) + 'px';
+    if (topSpacer) topSpacer.style.height = (startIdx * itemH) + 'px';
+    if (botSpacer) botSpacer.style.height = (Math.max(0, (total - endIdx) * itemH)) + 'px';
 }
 
 function scrollAiThinkToTop() {
@@ -586,7 +590,7 @@ function performAutoStep() {
         var cy = Math.floor(rows / 2);
         if (shouldShowThink()) {
             aiThinkStep++;
-            logAiThink('<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#ffcc66">开局首点中心 (' + cx + ',' + cy + ')</span></div>');
+            logAiThink('<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#ffcc66">开局首点中心 (' + cx + ',' + cy + ')</span></div>');
         }
         doAction(function(x, y) {
             ensureFirstSafe(x, y);
@@ -624,8 +628,8 @@ function performAutoStep() {
             var d = highlightTo ? manhattan(p.x, p.y, highlightTo.x, highlightTo.y) : 0;
 // ℳ𝒶𝒽𝓊𝒶
             logAiThink(
-                '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span>雷:<span style="color:#ff66aa">' + mineCount + '</span> 安全:<span style="color:#66ff99">' + safeCount + '</span> 旗:<span style="color:#ffcc66">' + flagCandidates.length + '</span></span></div>' +
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="color:#ff66aa">→ 插旗</span><span>(' + p.x + ',' + p.y + ') 距:' + d + '</span></div>'
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span>雷:<span style="color:#ff66aa">' + mineCount + '</span> 安全:<span style="color:#66ff99">' + safeCount + '</span> 旗:<span style="color:#ffcc66">' + flagCandidates.length + '</span></span></div>' +
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="color:#ff66aa">→ 插旗</span><span>(' + p.x + ',' + p.y + ') 距:' + d + '</span></div>'
             );
 // ̑̈M̑̈̑̈ȃ̈̑̈h̑̈̑̈ȗ̈̑̈ȃ̈
         }
@@ -649,9 +653,9 @@ function performAutoStep() {
         if (showThink) {
             var d = highlightTo ? manhattan(p.x, p.y, highlightTo.x, highlightTo.y) : 0;
             logAiThink(
-                '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span>雷:<span style="color:#ff66aa">' + mineCount + '</span> 安全:<span style="color:#66ff99">' + safeCount + '</span> chord:<span style="color:#ffcc66">' + chordCandidates.length + '</span></span></div>' +
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span>雷:<span style="color:#ff66aa">' + mineCount + '</span> 安全:<span style="color:#66ff99">' + safeCount + '</span> chord:<span style="color:#ffcc66">' + chordCandidates.length + '</span></span></div>' +
 // 🄼🄰🄷🅄🄰
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="color:#66ccff">→ chord</span><span>(' + p.x + ',' + p.y + ') 距:' + d + '</span></div>'
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="color:#66ccff">→ chord</span><span>(' + p.x + ',' + p.y + ') 距:' + d + '</span></div>'
             );
         }
         doAction(chordClick, p.x, p.y);
@@ -674,8 +678,8 @@ function performAutoStep() {
         if (showThink) {
             var d = highlightTo ? manhattan(p.x, p.y, highlightTo.x, highlightTo.y) : 0;
             logAiThink(
-                '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span>雷:<span style="color:#ff66aa">' + mineCount + '</span> 安全:<span style="color:#66ff99">' + safeCount + '</span> 翻:<span style="color:#ffcc66">' + safeCandidates.length + '</span></span></div>' +
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="color:#ff9933">→ 翻开</span><span>(' + p.x + ',' + p.y + ') 距:' + d + '</span></div>'
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span>雷:<span style="color:#ff66aa">' + mineCount + '</span> 安全:<span style="color:#66ff99">' + safeCount + '</span> 翻:<span style="color:#ffcc66">' + safeCandidates.length + '</span></span></div>' +
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="color:#ff9933">→ 翻开</span><span>(' + p.x + ',' + p.y + ') 距:' + d + '</span></div>'
             );
         }
         doAction(revealCell, p.x, p.y);
@@ -712,8 +716,8 @@ function performAutoStep() {
         if (showThink) {
             var d = highlightTo ? manhattan(pick.x, pick.y, highlightTo.x, highlightTo.y) : 0;
             logAiThink(
-                '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#ff4444">死局兜底</span></div>' +
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span>候选:' + bestSafeCandidates.length + ' 邻居:' + bestNeighborCount + '</span><span style="color:#ff9933">→ 盲翻 (' + pick.x + ',' + pick.y + ')</span></div>'
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#ff4444">死局兜底</span></div>' +
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span>候选:' + bestSafeCandidates.length + ' 邻居:' + bestNeighborCount + '</span><span style="color:#ff9933">→ 盲翻 (' + pick.x + ',' + pick.y + ')</span></div>'
             );
         }
         doAction(revealCell, pick.x, pick.y);
@@ -721,7 +725,7 @@ function performAutoStep() {
     }
 
     if (showThink) {
-        logAiThink('<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#888">无可执行动作，结束</span></div>');
+        logAiThink('<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#888">无可执行动作，结束</span></div>');
 // 𝑴𝒂𝒉𝒖𝒂
     }
     onAutoPlayEnd();
@@ -949,8 +953,10 @@ function applyAiThinkPanelSize() {
             }
         }
     }
-    panel.style.width = '';
-    panel.style.height = '';
+    if (isMobile) {
+        panel.style.width = '';
+        panel.style.height = '';
+    }
 }
 
 function applyAiThinkPanelPos() {
@@ -980,9 +986,11 @@ function applyAiThinkPanelPos() {
             }
         }
     }
-    panel.style.left = '';
-    panel.style.right = '';
-    panel.style.top = '';
+    if (isMobile) {
+        panel.style.left = '';
+        panel.style.right = '';
+        panel.style.top = '';
+    }
 }
 
 var _aiThinkLastMobile = null;

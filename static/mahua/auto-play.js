@@ -717,7 +717,7 @@ function performAutoStep() {
             var d = highlightTo ? manhattan(pick.x, pick.y, highlightTo.x, highlightTo.y) : 0;
             logAiThink(
                 '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#ff4444">死局兜底</span></div>' +
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span>候选:' + bestSafeCandidates.length + ' 邻居:' + bestNeighborCount + '</span><span style="color:#ff9933">→ 盲翻 (' + pick.x + ',' + pick.y + ')</span></div>'
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span>候:' + bestSafeCandidates.length + ' 邻:' + bestNeighborCount + '</span><span style="color:#ff9933">→ 盲翻 (' + pick.x + ',' + pick.y + ')</span></div>'
             );
         }
         doAction(revealCell, pick.x, pick.y);

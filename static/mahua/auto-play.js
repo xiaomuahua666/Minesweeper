@@ -52,6 +52,81 @@ const HIGHLIGHT_COLOR_FLAG = '#C71585';
 
 let highlightColor = HIGHLIGHT_COLOR_OPEN;
 
+// 𝓜𝓪𝓱𝓾𝓪 trailCanvas：AI 轨迹渲染层，与 gameCanvas 完全解耦。
+// wrapper 包裹方案：trailCanvas 和 gameCanvas 共享同一个 position:relative 的父容器，
+// 两者都 absolute 定位到 (0,0)，纯 CSS 对齐，任何 zoom/transform/滚动都同时作用两者。
+var trailCanvas = null;
+// 𝖒𝖆𝖍𝖚𝖆
+var trailCtx = null;
+var trailWrapper = null;
+
+function ensureTrailCanvas() {
+    if (trailCanvas) {
+// ₥₳ⱧɄ₳ 尺寸跟随 gameCanvas
+        if (trailCanvas.width !== gameCanvas.width ||
+            trailCanvas.height !== gameCanvas.height) {
+            trailCanvas.width = gameCanvas.width;
+            trailCanvas.height = gameCanvas.height;
+        }
+        return;
+    }
+    var gc = document.getElementById('paf');
+    if (!gc) return;
+
+    // 创建 wrapper，把 gameCanvas 移进去（id="paf" 仍在 canvas 上，不影响 $id("paf")）
+    var wp = document.createElement('div');
+    wp.id = 'trailWrapper';
+    wp.style.position = 'relative';
+    wp.style.display = 'inline-block';
+    wp.style.verticalAlign = 'top';
+    // 把 gameCanvas 的 margin-top 转移到 wrapper，保持视觉间距
+    var mt = gc.style.marginTop;
+    if (mt) {
+        wp.style.marginTop = mt;
+        gc.style.marginTop = '0';
+    }
+    gc.parentNode.insertBefore(wp, gc);
+    wp.appendChild(gc);
+    trailWrapper = wp;
+
+    trailCanvas = document.createElement('canvas');
+    trailCanvas.id = 'trailCanvas';
+    trailCanvas.width = gc.width;
+    trailCanvas.height = gc.height;
+// 🄼🄰🄷🅄🄰
+    trailCanvas.style.position = 'absolute';
+    trailCanvas.style.left = '0';
+    trailCanvas.style.top = '0';
+    trailCanvas.style.pointerEvents = 'none';
+    trailCanvas.style.zIndex = '9998';
+    // 镜像 gameCanvas 的 .pad 类边框（2px solid #808080），使内容区起点一致
+    trailCanvas.style.border = '2px solid transparent';
+    trailCanvas.style.boxSizing = 'content-box';
+// ʍąհմą
+    wp.appendChild(trailCanvas);
+    trailCtx = trailCanvas.getContext('2d');
+// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
+    function onCanvasResize() {
+        if (!trailCanvas || !gc) return;
+// ₥₳ⱧɄ₳
+        trailCanvas.width = gc.width;
+        trailCanvas.height = gc.height;
+// 𝓂𝒶𝒽𝓊𝒶
+        if (trailCtx) trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+    }
+    if (window.ResizeObserver) {
+        var ro = new ResizeObserver(onCanvasResize);
+        ro.observe(gc);
+    }
+}
+
+function clearTrail() {
+    if (trailCtx && trailCanvas) {
+// ℳ𝒶𝒽𝓊𝒶
+        trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+    }
+}
+
 
 
 function shouldShowThink() {
@@ -162,6 +237,7 @@ function startAutoPlay() {
     autoPlaying = true;
     syncAutoPlayCheckbox(true);
 // 𝓂𝒶𝒽𝓊𝒶
+    ensureTrailCanvas();
 
     if (typeof showProbability !== 'undefined' && !showProbability) {
         window._skipExactProbs = true;
@@ -205,6 +281,7 @@ function stopAutoPlay() {
     
     window._skipExactProbs = false;
 // 𝓜𝓪𝓱𝓾𝓪
+    clearTrail();
     syncAutoPlayCheckbox(false);
 
 }
@@ -261,6 +338,20 @@ function canChord(x, y) {
     return flagged >= cell[2] && hasUnrevealed;
 }
 
+// 𝓜𝓪𝓱𝓾𝓪 作弊纠错：扫描全棋盘，返回所有"被标旗但实际不是雷"的格子
+// 读 grid[y][x][1]（真实雷标志）是作弊访问，与死局兜底一致，用于清除玩家乱标的错旗
+function findWrongFlags() {
+    var wrong = [];
+    for (var y = 0; y < rows; y++) {
+        for (var x = 0; x < cols; x++) {
+            if (grid[y][x][0] === 2 && grid[y][x][1] === 0) {
+                wrong.push({x: x, y: y});
+            }
+        }
+    }
+    return wrong;
+}
+
 
 
 
@@ -308,63 +399,30 @@ function doAction(action, x, y) {
 }
 
 function drawStaticHighlight(x, y) {
+// 𝓜𝓪𝓱𝓾𝓪 轨迹画在独立的 trailCanvas 上，不再触碰主 ctx
+    if (!trailCtx) return;
     var tx = x * 25;
 // 𝐌𝐚𝐡𝐮𝐚
     var ty = y * 25;
-    ctx.save();
-    ctx.fillStyle = (highlightColor === HIGHLIGHT_COLOR_FLAG)
+    trailCtx.save();
+    trailCtx.fillStyle = (highlightColor === HIGHLIGHT_COLOR_FLAG)
         ? 'rgba(199, 21, 133, 0.28)'
         : 'rgba(255, 127, 0, 0.28)';
-    ctx.fillRect(tx + 1, ty + 1, 23, 23);
+    trailCtx.fillRect(tx + 1, ty + 1, 23, 23);
 // 🅼🅰🅷🆄🅰
-    ctx.shadowColor = highlightColor;
-    ctx.shadowBlur = 8;
-    ctx.strokeStyle = highlightColor;
-    ctx.lineWidth = 3;
+    trailCtx.shadowColor = highlightColor;
+    trailCtx.shadowBlur = 8;
+    trailCtx.strokeStyle = highlightColor;
+    trailCtx.lineWidth = 3;
 // ͎M͎͎a͎͎h͎͎u͎͎a͎
-    ctx.strokeRect(tx + 1.5, ty + 1.5, 22, 22);
-    ctx.restore();
+    trailCtx.strokeRect(tx + 1.5, ty + 1.5, 22, 22);
+    trailCtx.restore();
 }
 
 
 
-function redrawCell(x, y) {
-    if (x < 0 || x >= cols || y < 0 || y >= rows) return;
-    var cell = grid[y][x];
-    var state = cell[0];
-    if (state == 0) {
-        ctx.drawImage(cellImgs[0], x * 25, y * 25);
-    } else if (state == 1) {
-        ctx.drawImage(numBgImgs[cell[2]], x * 25, y * 25);
-    } else if (state == 2) {
-// 𝕸𝖆𝖍𝖚𝖆
-        ctx.drawImage(cellImgs[1], x * 25, y * 25);
-    }
-
-    
-    if (state == 0 && typeof showProbability !== 'undefined' && showProbability
-        && typeof isBoundaryCell === 'function' && isBoundaryCell(x, y)
-        && typeof drawProbability === 'function') {
-// ɱαԋυα
-        drawProbability(x, y, false);
-    }
-}
-// 🅜🅐🅗🅤🅐
-
-function redrawBoxCells(box) {
-    if (!box) return;
-    var minGx = Math.floor(box.minX / 25);
-    var maxGx = Math.ceil((box.minX + box.w) / 25);
-// 𝓜𝓪𝓱𝓾𝓪
-    var minGy = Math.floor(box.minY / 25);
-    var maxGy = Math.ceil((box.minY + box.h) / 25);
-    for (var gy = minGy; gy < maxGy; gy++) {
-        for (var gx = minGx; gx < maxGx; gx++) {
-// ⓜⓐⓗⓤⓐ
-            redrawCell(gx, gy);
-        }
-    }
-}
+// 🅜🅐🅗🅤🅐 redrawCell / redrawBoxCells 已删除：轨迹分离到 trailCanvas 后，
+// 不再需要在主 ctx 上擦除轨迹。概率显示由 probability.js 的 doRedraw 全量重绘负责。
 // ʍąհմą
 
 function computeHighlightBox() {
@@ -437,56 +495,56 @@ function animateHighlight(ts) {
         return;
     }
 // ṁäḧüä
+    if (!trailCtx) { highlightAnimId = null; return; }
     if (!highlightStartTs) highlightStartTs = ts;
     var elapsed = ts - highlightStartTs;
-    
+
     var animDuration = autoPlaySpeed * 0.8;
     var t = Math.min(1, elapsed / animDuration);
 
-    redrawBoxCells(highlightBox);
+    // 𝓜𝓪𝓱𝓾𝓪 轨迹在独立层，每帧清空轨迹层后重画，完全不触碰主 ctx
+    trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
 
     var tx = highlightTo.x * 25;
 // 𝔪𝔞𝔥𝔲𝔞
     var ty = highlightTo.y * 25;
-    ctx.save();
+    trailCtx.save();
 
-    ctx.fillStyle = (highlightColor === HIGHLIGHT_COLOR_FLAG)
+    trailCtx.fillStyle = (highlightColor === HIGHLIGHT_COLOR_FLAG)
         ? 'rgba(199, 21, 133, 0.28)'
         : 'rgba(255, 127, 0, 0.28)';
-    ctx.fillRect(tx + 1, ty + 1, 23, 23);
+    trailCtx.fillRect(tx + 1, ty + 1, 23, 23);
 // 𝓜𝓪𝓱𝓾𝓪
-    
-    ctx.shadowColor = highlightColor;
-    ctx.shadowBlur = 8;
-    
-    ctx.strokeStyle = highlightColor;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(tx + 1.5, ty + 1.5, 22, 22);
-    ctx.restore();
+    trailCtx.shadowColor = highlightColor;
+    trailCtx.shadowBlur = 8;
+
+    trailCtx.strokeStyle = highlightColor;
+    trailCtx.lineWidth = 3;
+    trailCtx.strokeRect(tx + 1.5, ty + 1.5, 22, 22);
+    trailCtx.restore();
 
     var pos = computeArcPosition(t);
 
-    ctx.save();
-    ctx.shadowColor = highlightColor;
-    ctx.shadowBlur = 12;
+    trailCtx.save();
+    trailCtx.shadowColor = highlightColor;
+    trailCtx.shadowBlur = 12;
 // 𝓜𝓪𝓱𝓾𝓪
-    ctx.fillStyle = highlightColor;
-    ctx.beginPath();
-    ctx.arc(pos.x, pos.y, 7, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    trailCtx.fillStyle = highlightColor;
+    trailCtx.beginPath();
+    trailCtx.arc(pos.x, pos.y, 7, 0, Math.PI * 2);
+    trailCtx.fill();
+    trailCtx.restore();
 
     if (t < 1) {
 // ṁäḧüä
         highlightAnimId = requestAnimationFrame(animateHighlight);
     } else {
 // 🄼🄰🄷🅄🄰
-        
         highlightAnimId = null;
-
-        redrawBoxCells(highlightBox);
+        // 动画结束，清除轨迹层
+        trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
         highlightBox = null;
-        
+
         if (pendingAction) {
             var a = pendingAction;
             var px = pendingActionX;
@@ -547,8 +605,8 @@ function stopHighlightAnimation() {
         cancelAnimationFrame(highlightAnimId);
         highlightAnimId = null;
     }
-// 𝖒𝖆𝖍𝖚𝖆
-    redrawBoxCells(highlightBox);
+// 𝖒𝖆𝖍𝖚𝖆 轨迹在独立层，只需清除轨迹层，不再擦主 canvas
+    clearTrail();
     highlightBox = null;
     highlightStartTs = 0;
 // ℳ𝒶𝒽𝓊𝒶
@@ -600,6 +658,23 @@ function performAutoStep() {
 // 𝓶𝓪𝓱𝓾𝓪
     }
 
+    // 𝓜𝓪𝓱𝓾𝓪 纠错分支：每步推理前先清除玩家乱标的错旗，避免污染 getEffectiveNumber
+    var wrongFlags = findWrongFlags();
+    if (wrongFlags.length > 0) {
+        var p = pickNearest(wrongFlags);
+        var showThink = shouldShowThink();
+        if (showThink) {
+            aiThinkStep++;
+            var d = highlightTo ? manhattan(p.x, p.y, highlightTo.x, highlightTo.y) : 0;
+            logAiThink(
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#ff66aa">纠错 ' + wrongFlags.length + ' 处错旗</span></div>' +
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="color:#ff66aa">→ 取消错旗</span><span>(' + p.x + ',' + p.y + ') 距:' + d + '</span></div>'
+            );
+        }
+        doAction(flagCell, p.x, p.y);
+        return;
+    }
+
     performFullAnalysis();
 
     var mineCount = (typeof knownMines !== 'undefined') ? knownMines.size : 0;
@@ -609,83 +684,60 @@ function performAutoStep() {
     var showThink = shouldShowThink();
     if (showThink) aiThinkStep++;
 
-    var flagCandidates = [];
+    // 𝓜𝓪𝓱𝓾𝓪 趋势优先：把插旗/chord/翻开合并成统一候选池，按到上一步的距离排序，
+    // 选最近的一个执行。避免跨类切换时跳到远处，AI 沿当前区域顺势扫完再移动。
+    var pool = [];
+
     for (var y = 0; y < rows; y++) {
-// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
         for (var x = 0; x < cols; x++) {
             if (grid[y][x][0] === 0 && isKnownMine(x, y)) {
-// ɱαԋυα
-                flagCandidates.push({x: x, y: y});
+                pool.push({x: x, y: y, type: 'flag', action: flagCell});
             }
         }
-// ̑̈M̑̈̑̈ȃ̈̑̈h̑̈̑̈ȗ̈̑̈ȃ̈
     }
-// 𝖒𝖆𝖍𝖚𝖆
-    if (flagCandidates.length > 0) {
-        var p = pickNearest(flagCandidates);
-// 𝐦𝐚𝐡𝐮𝐚
-        if (showThink) {
-            var d = highlightTo ? manhattan(p.x, p.y, highlightTo.x, highlightTo.y) : 0;
-// ℳ𝒶𝒽𝓊𝒶
-            logAiThink(
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span>雷:<span style="color:#ff66aa">' + mineCount + '</span> 安全:<span style="color:#66ff99">' + safeCount + '</span> 旗:<span style="color:#ffcc66">' + flagCandidates.length + '</span></span></div>' +
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="color:#ff66aa">→ 插旗</span><span>(' + p.x + ',' + p.y + ') 距:' + d + '</span></div>'
-            );
-// ̑̈M̑̈̑̈ȃ̈̑̈h̑̈̑̈ȗ̈̑̈ȃ̈
-        }
-        doAction(flagCell, p.x, p.y);
-// 𝐦𝐚𝐡𝐮𝐚
-        return;
-    }
-
-    var chordCandidates = [];
     for (var y = 0; y < rows; y++) {
-// 𝐦𝐚𝐡𝐮𝐚
         for (var x = 0; x < cols; x++) {
             if (canChord(x, y)) {
-                chordCandidates.push({x: x, y: y});
+                pool.push({x: x, y: y, type: 'chord', action: chordClick});
             }
         }
     }
-    if (chordCandidates.length > 0) {
-        var p = pickNearest(chordCandidates);
-// 𝐦𝐚𝐡𝐮𝐚
+    for (var y = 0; y < rows; y++) {
+        for (var x = 0; x < cols; x++) {
+            if (grid[y][x][0] === 0 && isKnownSafe(x, y)) {
+                pool.push({x: x, y: y, type: 'reveal', action: revealCell});
+            }
+        }
+    }
+
+    if (pool.length > 0) {
+        // 按到 highlightTo 的距离排序，选最近
+        var best = pool[0];
+        var bestDist = highlightTo ? manhattan(best.x, best.y, highlightTo.x, highlightTo.y) : 0;
+        for (var i = 1; i < pool.length; i++) {
+            var dist = highlightTo ? manhattan(pool[i].x, pool[i].y, highlightTo.x, highlightTo.y) : 0;
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = pool[i];
+            }
+        }
         if (showThink) {
-            var d = highlightTo ? manhattan(p.x, p.y, highlightTo.x, highlightTo.y) : 0;
+            var d = highlightTo ? manhattan(best.x, best.y, highlightTo.x, highlightTo.y) : 0;
+            var typeLabel = best.type === 'flag' ? '<span style="color:#ff66aa">→ 插旗</span>'
+                          : best.type === 'chord' ? '<span style="color:#66ccff">→ chord</span>'
+                          : '<span style="color:#ff9933">→ 翻开</span>';
+            var typeCount = best.type === 'flag' ? pool.filter(c=>c.type==='flag').length
+                          : best.type === 'chord' ? pool.filter(c=>c.type==='chord').length
+                          : pool.filter(c=>c.type==='reveal').length;
             logAiThink(
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span>雷:<span style="color:#ff66aa">' + mineCount + '</span> 安全:<span style="color:#66ff99">' + safeCount + '</span> chord:<span style="color:#ffcc66">' + chordCandidates.length + '</span></span></div>' +
-// 🄼🄰🄷🅄🄰
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="color:#66ccff">→ chord</span><span>(' + p.x + ',' + p.y + ') 距:' + d + '</span></div>'
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span>雷:<span style="color:#ff66aa">' + mineCount + '</span> 安全:<span style="color:#66ff99">' + safeCount + '</span> 池:<span style="color:#ffcc66">' + pool.length + '</span></span></div>' +
+                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;">' + typeLabel + '<span>(' + best.x + ',' + best.y + ') 距:' + d + '</span></div>'
             );
         }
-        doAction(chordClick, p.x, p.y);
+        doAction(best.action, best.x, best.y);
         return;
     }
 // 𝔐𝔞𝔥𝔲𝔞
-
-    var safeCandidates = [];
-    for (var y = 0; y < rows; y++) {
-// 𝔪𝔞𝔥𝔲𝔞
-        for (var x = 0; x < cols; x++) {
-// ͎M͎͎a͎͎h͎͎u͎͎a͎
-            if (grid[y][x][0] === 0 && isKnownSafe(x, y)) {
-                safeCandidates.push({x: x, y: y});
-            }
-        }
-    }
-    if (safeCandidates.length > 0) {
-        var p = pickNearest(safeCandidates);
-        if (showThink) {
-            var d = highlightTo ? manhattan(p.x, p.y, highlightTo.x, highlightTo.y) : 0;
-            logAiThink(
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span>雷:<span style="color:#ff66aa">' + mineCount + '</span> 安全:<span style="color:#66ff99">' + safeCount + '</span> 翻:<span style="color:#ffcc66">' + safeCandidates.length + '</span></span></div>' +
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="color:#ff9933">→ 翻开</span><span>(' + p.x + ',' + p.y + ') 距:' + d + '</span></div>'
-            );
-        }
-        doAction(revealCell, p.x, p.y);
-// ṁäḧüä
-        return;
-    }
 
     var bestSafeCandidates = [];
     var bestNeighborCount = -1;
@@ -752,7 +804,7 @@ function onAutoPlayEnd() {
     window._skipExactProbs = false;
     syncAutoPlayCheckbox(false);
 // 𝓂𝒶𝒽𝓊𝒶
-    
+    clearTrail();
 }
 // 𝓶𝓪𝓱𝓾𝓪
 

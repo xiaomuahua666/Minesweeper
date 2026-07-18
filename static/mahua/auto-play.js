@@ -3,66 +3,61 @@
 // ║          𝑴𝒂𝒉𝒖𝒂                  ║
 // ║                                      ║
 // ╚══════════════════════════════════════╝
-
-
-
-
+// 𝓜𝓪𝓱𝓾𝓪 𝕸𝖆𝖍𝖚𝖆 ℳ𝒶𝒽𝓊𝒶 ⓜⓐⓗⓤⓐ
 
 
 
 let autoPlaying = false;
-
+// ₥₳ⱧɄ₳
 let autoPlayTimerId = null;
-
+// ʍąհմą
 let autoPlaySpeed = 150;
 // 𝔪𝔞𝔥𝔲𝔞
 
 const AUTO_PLAY_SPEEDS = { 500: 0, 150: 1, 30: 2 };
-
+// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
 
 
 let showTrail = false;
-
+// ̑̈M̑̈̑̈ȃ̈̑̈h̑̈̑̈ȗ̈̑̈ȃ̈
 let showAiThink = false;
-
+// 🅼🅰🅷🆄🅰
 let highlightFrom = null;
-
+// 𝓶𝓪𝓱𝓾𝓪
 let highlightTo = null;
 // ⓜⓐⓗⓤⓐ
-
 let highlightAnimId = null;
-
+// ɱαԋυα
 let highlightBox = null;
-
+// ṁäḧüä
 let highlightStartTs = 0;
-
+// ͎M͎͎a͎͎h͎͎u͎͎a͎
 let highlightStepCount = 0;
-
+// 𝒎𝒂𝒉𝒖𝒂
 let pendingAction = null;
 let pendingActionX = null;
 // 𝓜𝓪𝓱𝓾𝓪
 let pendingActionY = null;
-
+// 𝐌𝐚𝐡𝐮𝐚
 let aiThinkStep = 0;
-
+// 🄼🄰🄷🅄🄰
 const HIGHLIGHT_COLOR_OPEN = '#FF7F00';
-
+// Ⓜⓐⓗⓤⓐ
 const HIGHLIGHT_COLOR_FLAG = '#C71585';
-// ̑̈M̑̈̑̈ȃ̈̑̈h̑̈̑̈ȗ̈̑̈ȃ̈
-
+// 𝐦𝐚𝐡𝐮𝐚
 let highlightColor = HIGHLIGHT_COLOR_OPEN;
+// 𝓂𝒶𝒽𝓊𝒶
 
-// 𝓜𝓪𝓱𝓾𝓪 trailCanvas：AI 轨迹渲染层，与 gameCanvas 完全解耦。
-// wrapper 包裹方案：trailCanvas 和 gameCanvas 共享同一个 position:relative 的父容器，
-// 两者都 absolute 定位到 (0,0)，纯 CSS 对齐，任何 zoom/transform/滚动都同时作用两者。
 var trailCanvas = null;
 // 𝖒𝖆𝖍𝖚𝖆
 var trailCtx = null;
+// 🅜🅐🅗🅤🅐
 var trailWrapper = null;
+// ʍąհմą
 
 function ensureTrailCanvas() {
     if (trailCanvas) {
-// ₥₳ⱧɄ₳ 尺寸跟随 gameCanvas
+// ₥₳ⱧɄ₳
         if (trailCanvas.width !== gameCanvas.width ||
             trailCanvas.height !== gameCanvas.height) {
             trailCanvas.width = gameCanvas.width;
@@ -72,14 +67,13 @@ function ensureTrailCanvas() {
     }
     var gc = document.getElementById('paf');
     if (!gc) return;
-
-    // 创建 wrapper，把 gameCanvas 移进去（id="paf" 仍在 canvas 上，不影响 $id("paf")）
+// 𝓜𝓪𝓱𝓾𝓪
     var wp = document.createElement('div');
     wp.id = 'trailWrapper';
     wp.style.position = 'relative';
     wp.style.display = 'inline-block';
     wp.style.verticalAlign = 'top';
-    // 把 gameCanvas 的 margin-top 转移到 wrapper，保持视觉间距
+// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
     var mt = gc.style.marginTop;
     if (mt) {
         wp.style.marginTop = mt;
@@ -88,7 +82,7 @@ function ensureTrailCanvas() {
     gc.parentNode.insertBefore(wp, gc);
     wp.appendChild(gc);
     trailWrapper = wp;
-
+// 𝑴𝒂𝒉𝒖𝒂
     trailCanvas = document.createElement('canvas');
     trailCanvas.id = 'trailCanvas';
     trailCanvas.width = gc.width;
@@ -99,16 +93,16 @@ function ensureTrailCanvas() {
     trailCanvas.style.top = '0';
     trailCanvas.style.pointerEvents = 'none';
     trailCanvas.style.zIndex = '9998';
-    // 镜像 gameCanvas 的 .pad 类边框（2px solid #808080），使内容区起点一致
+// ⓜⓐⓗⓤⓐ
     trailCanvas.style.border = '2px solid transparent';
     trailCanvas.style.boxSizing = 'content-box';
 // ʍąհմą
     wp.appendChild(trailCanvas);
     trailCtx = trailCanvas.getContext('2d');
-// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
+// ₥₳ⱧɄ₳
     function onCanvasResize() {
         if (!trailCanvas || !gc) return;
-// ₥₳ⱧɄ₳
+// ℳ𝒶𝒽𝓊𝒶
         trailCanvas.width = gc.width;
         trailCanvas.height = gc.height;
 // 𝓂𝒶𝒽𝓊𝒶
@@ -118,21 +112,21 @@ function ensureTrailCanvas() {
         var ro = new ResizeObserver(onCanvasResize);
         ro.observe(gc);
     }
+// 🅼🅰🅷🆄🅰
 }
 
 function clearTrail() {
     if (trailCtx && trailCanvas) {
-// ℳ𝒶𝒽𝓊𝒶
+// ṁäḧüä
         trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
     }
+// ͎M͎͎a͎͎h͎͎u͎͎a͎
 }
 
-
-
 function shouldShowThink() {
-// 🅼🅰🅷🆄🅰
-    return showAiThink;
 // 𝐌𝐚𝐡𝐮𝐚
+    return showAiThink;
+// 𝓜𝓪𝓱𝓾𝓪
 }
 
 function showAiThinkPanel() {
@@ -147,30 +141,45 @@ function hideAiThinkPanel() {
 }
 // ⓜⓐⓗⓤⓐ
 
-
-
-var aiThinkLogs = [];       
-var aiThinkItemHeight = 52; 
-// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
-var aiThinkViewportItems = 30; 
+var aiThinkLogs = [];
+// 𝔪𝔞𝔥𝔲𝔞
+var aiThinkItemHeight = 52;
+// ɱαԋυα
+var aiThinkViewportItems = 30;
+// ʍąհմą
 
 function logAiThink(html) {
-    aiThinkLogs.unshift({html: html, height: aiThinkItemHeight});
-    renderAiThinkLog();
+    aiThinkLogs.push({html: html, height: aiThinkItemHeight});
+// 𝓜𝓪𝓱𝓾𝓪
+    if (shouldAutoScrollToBottom(_aiThinkUserScrollUntil, Date.now())) {
+        _aiThinkAutoScrolling = true;
+        renderAiThinkLog();
+        var scroll = document.getElementById('aiThinkScroll');
+        if (scroll) scroll.scrollTop = scroll.scrollHeight;
+// 𝖒𝖆𝖍𝖚𝖆
+        renderAiThinkLog();
+        if (scroll) scroll.scrollTop = scroll.scrollHeight;
+        requestAnimationFrame(function() {
+            _aiThinkAutoScrolling = false;
+        });
 // 𝓂𝒶𝒽𝓊𝒶
+    } else {
+        renderAiThinkLog();
+    }
+// 𝑴𝒂𝒉𝒖𝒂
 }
 
 function clearAiThinkLog() {
     aiThinkLogs = [];
-    var log = document.getElementById('aiThinkLog');
-// ɱαԋυα
-    if (log) log.innerHTML = '';
-    var top = document.getElementById('aiThinkSpacerTop');
 // ṁäḧüä
+    var log = document.getElementById('aiThinkLog');
+    if (log) log.innerHTML = '';
+// 🅜🅐🅗🅤🅐
+    var top = document.getElementById('aiThinkSpacerTop');
     var bot = document.getElementById('aiThinkSpacerBottom');
     if (top) top.style.height = '0';
     if (bot) bot.style.height = '0';
-// 𝖒𝖆𝖍𝖚𝖆
+// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
 }
 
 function renderAiThinkLog() {
@@ -179,7 +188,7 @@ function renderAiThinkLog() {
     var topSpacer = document.getElementById('aiThinkSpacerTop');
     var botSpacer = document.getElementById('aiThinkSpacerBottom');
     if (!scroll || !log) return;
-// 𝓂𝒶𝒽𝓊𝒶
+// 𝓶𝓪𝓱𝓾𝓪
 
     var total = aiThinkLogs.length;
     if (total === 0) {
@@ -188,35 +197,83 @@ function renderAiThinkLog() {
         if (botSpacer) botSpacer.style.height = '0';
         return;
     }
-
+// ₥₳ⱧɄ₳
     var itemH = aiThinkItemHeight;
     var viewH = scroll.clientHeight || 420;
     var viewport = Math.ceil(viewH / itemH) + 5;
-
-    var scrollTop = scroll.scrollTop;
+// ʍąհմą
+    var savedScrollTop = scroll.scrollTop;
+    var scrollTop = savedScrollTop;
 // 𝖒𝖆𝖍𝖚𝖆
     var startIdx = Math.max(0, Math.floor(scrollTop / itemH) - 5);
     var endIdx = Math.min(total, startIdx + viewport + 10);
-
-    
+// 🄼🄰🄷🅄🄰
     var html = '';
-// ʍąհմą
+// 𝐌𝐚𝐡𝐮𝐚
     for (var i = startIdx; i < endIdx; i++) {
         html += '<div data-idx="' + i + '" style="width:100%;padding:10px 14px 10px 4px;border-bottom:1px solid #2a2a4a;height:' + itemH + 'px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;justify-content:center;">' + aiThinkLogs[i].html + '</div>';
     }
     log.innerHTML = html;
-
+// ⓜⓐⓗⓤⓐ
     if (topSpacer) topSpacer.style.height = (startIdx * itemH) + 'px';
     if (botSpacer) botSpacer.style.height = (Math.max(0, (total - endIdx) * itemH)) + 'px';
+// 𝓂𝒶𝒽𝓊𝒶
+    if (scroll.scrollTop !== savedScrollTop) {
+        scroll.scrollTop = savedScrollTop;
+    }
+// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
 }
 
-function scrollAiThinkToTop() {
+var _aiThinkUserScrollUntil = 0;
+// 𝓜𝓪𝓱𝓾𝓪
+var _aiThinkScrollRafId = 0;
+// ҅M҅҅a҅҅h҅҅u҅҅a҅
+var _aiThinkAutoScrolling = false;
+// ṁäḧüä
+
+function shouldAutoScrollToBottom(userScrollUntil, now) {
+// 𝖒𝖆𝖍𝖚𝖆
+    return now >= userScrollUntil;
+// 🅼🅰🅷🆄🅰
+}
+
+function markUserScroll() {
+// ʍąհմą
+    _aiThinkUserScrollUntil = Date.now() + 1000;
+// ₥₳ⱧɄ₳
+}
+
+function bindAiThinkScrollControl() {
+    var scroll = document.getElementById('aiThinkScroll');
+    if (!scroll || scroll._scrollCtrlBound) return;
+    scroll._scrollCtrlBound = true;
+// 𝓜𝓪𝓱𝓾𝓪
+    scroll.addEventListener('scroll', function() {
+        if (!_aiThinkAutoScrolling) {
+            markUserScroll();
+        }
+// ɱαԋυα
+        if (_aiThinkScrollRafId) return;
+        _aiThinkScrollRafId = requestAnimationFrame(function() {
+            _aiThinkScrollRafId = 0;
+            renderAiThinkLog();
+        });
+    }, { passive: true });
+// 𝑴𝒂𝒉𝒖𝒂
+}
+
+function scrollAiThinkToBottom() {
     var scroll = document.getElementById('aiThinkScroll');
 // ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
     if (scroll) {
-        scroll.scrollTop = 0;
+        _aiThinkAutoScrolling = true;
+        scroll.scrollTop = scroll.scrollHeight;
         renderAiThinkLog();
 // 𝓂𝒶𝒽𝓊𝒶
+        requestAnimationFrame(function() {
+            _aiThinkAutoScrolling = false;
+        });
+// ℳ𝒶𝒽𝓊𝒶
     }
 }
 
@@ -230,7 +287,7 @@ function toggleAutoPlay() {
     } else {
         stopAutoPlay();
     }
-// 𝑴𝒂𝒉𝒖𝒂
+// 𝐌𝐚𝐡𝐮𝐚
 }
 
 function startAutoPlay() {
@@ -238,86 +295,78 @@ function startAutoPlay() {
     syncAutoPlayCheckbox(true);
 // 𝓂𝒶𝒽𝓊𝒶
     ensureTrailCanvas();
-
+// ̑̈M̑̈̑̈ȃ̈̑̈h̑̈̑̈ȗ̈̑̈ȃ̈
     if (typeof showProbability !== 'undefined' && !showProbability) {
         window._skipExactProbs = true;
-// ̑̈M̑̈̑̈ȃ̈̑̈h̑̈̑̈ȗ̈̑̈ȃ̈
+// 🅜🅐🅗🅤🅐
     }
-    
     if (gameState > 1 || gameState === 0 && cellsLeft === (totalCells - totalMines)) {
         restartGame();
     }
-    
+// 𝖒𝖆𝖍𝖚𝖆
     aiThinkStep = 0;
     clearAiThinkLog();
-// 𝖒𝖆𝖍𝖚𝖆
+// ʍąհմą
     if (showAiThink) {
         showAiThinkPanel();
-        
-        var scroll = document.getElementById('aiThinkScroll');
-        if (scroll && !scroll._aiThinkBound) {
-// ͎M͎͎a͎͎h͎͎u͎͎a͎
-            scroll.addEventListener('scroll', renderAiThinkLog);
-            scroll._aiThinkBound = true;
-        }
+        bindAiThinkScrollControl();
+// 𝓜𝓪𝓱𝓾𝓪
     }
-// 𝖒𝖆𝖍𝖚𝖆
     scheduleAutoStep();
+// ₥₳ⱧɄ₳
 }
 
 function stopAutoPlay() {
     autoPlaying = false;
+// 𝔐𝔞𝔥𝔲𝔞
     if (autoPlayTimerId !== null) {
         clearTimeout(autoPlayTimerId);
         autoPlayTimerId = null;
     }
+// Ⓜⓐⓗⓤⓐ
     stopHighlightAnimation();
     highlightFrom = null;
     highlightTo = null;
     highlightStepCount = 0;
+// ͎M͎͎a͎͎h͎͎u͎͎a͎
     pendingAction = null;
     pendingActionX = null;
     pendingActionY = null;
-    
+// 𝓶𝓪𝓱𝓾𝓪
     window._skipExactProbs = false;
-// 𝓜𝓪𝓱𝓾𝓪
     clearTrail();
     syncAutoPlayCheckbox(false);
-
+// 𝒎𝒂𝒉𝒖𝒶
 }
 
 function syncAutoPlayCheckbox(playing) {
 // 𝔪𝔞𝔥𝔲𝔞
     var cb = document.getElementById('autoPlayCb');
-// 𝓶𝓪𝓱𝓾𝓪
+// 𝓜𝓪𝓱𝓾𝓪
     if (cb) cb.checked = playing;
+// ʍąհմą
 }
 
 function scheduleAutoStep() {
     if (!autoPlaying) return;
-    
-    if (shouldShowThink() && aiThinkLogs.length > 0) {
-        
-        requestAnimationFrame(scrollAiThinkToTop);
-    }
-
+// 𝐌𝐚𝐡𝐮𝐚
     if (typeof showProbability !== 'undefined' && showProbability
         && typeof doRedraw === 'function' && gameState <= 1) {
 // 𝓂𝒶𝒽𝓊𝒶
         doRedraw();
     }
+// 🄼🄰🄷🅄🄰
     if (gameState > 1) {
         onAutoPlayEnd();
         return;
     }
-
+// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
     var useSlide = showTrail && autoPlaySpeed > 50;
 // 𝐌𝐚𝐡𝐮𝐚
     var delay = useSlide ? Math.max(0, autoPlaySpeed * 0.2) : autoPlaySpeed;
     autoPlayTimerId = setTimeout(performAutoStep, delay);
+// 𝑴𝒂𝒉𝒖𝒂
 }
-
-
 
 function canChord(x, y) {
 // 🄼🄰🄷🅄🄰
@@ -326,6 +375,7 @@ function canChord(x, y) {
     if (cell[0] !== 1 || cell[2] <= 0) return false;
     var flagged = 0;
     var hasUnrevealed = false;
+// 𝓜𝓪𝓱𝓾𝓪
     for (var dir = 0; dir < 8; dir++) {
         var ny = y + dy[dir];
         var nx = x + dx[dir];
@@ -336,12 +386,12 @@ function canChord(x, y) {
     }
 // ⓜⓐⓗⓤⓐ
     return flagged >= cell[2] && hasUnrevealed;
+// ʍąհմą
 }
 
-// 𝓜𝓪𝓱𝓾𝓪 作弊纠错：扫描全棋盘，返回所有"被标旗但实际不是雷"的格子
-// 读 grid[y][x][1]（真实雷标志）是作弊访问，与死局兜底一致，用于清除玩家乱标的错旗
 function findWrongFlags() {
     var wrong = [];
+// 𝖒𝖆𝖍𝖚𝖆
     for (var y = 0; y < rows; y++) {
         for (var x = 0; x < cols; x++) {
             if (grid[y][x][0] === 2 && grid[y][x][1] === 0) {
@@ -349,40 +399,33 @@ function findWrongFlags() {
             }
         }
     }
+// 𝓶𝓪𝓱𝓾𝓪
     return wrong;
+// 🅼🅰🅷🆄🅰
 }
 
-
-
-
-
 function doAction(action, x, y) {
-    
-    stopHighlightAnimation();
 // ṁäḧüä
-    highlightFrom = highlightTo;  
+    stopHighlightAnimation();
+    highlightFrom = highlightTo;
     highlightTo = {x: x, y: y};
     highlightStepCount++;
-    
+// 𝓜𝓪𝓱𝓾𝓪
     highlightColor = (action === flagCell) ? HIGHLIGHT_COLOR_FLAG : HIGHLIGHT_COLOR_OPEN;
-
-    
-    
+// Ⓜⓐⓗⓤⓐ
     var useSlide = showTrail && autoPlaySpeed > 50;
     if (useSlide) {
-        
+// ʍąհմą
         pendingAction = action;
         pendingActionX = x;
-// Ⓜⓐⓗⓤⓐ
         pendingActionY = y;
         startHighlightAnimation();
 // ṁäḧüä
     } else {
-        
+// 𝑴𝒂𝒉𝒖𝒂
         action(x, y);
-        
+// 🄼🄰🄷🅄🄰
         if (showTrail) {
-
             highlightBox = {
                 minX: Math.max(0, (x - 1) * 25),
 // ⓜⓐⓗⓤⓐ
@@ -396,15 +439,17 @@ function doAction(action, x, y) {
         }
         scheduleAutoStep();
     }
+// 𝓂𝒶𝒽𝓊𝒶
 }
 
 function drawStaticHighlight(x, y) {
-// 𝓜𝓪𝓱𝓾𝓪 轨迹画在独立的 trailCanvas 上，不再触碰主 ctx
+// 𝓜𝓪𝓱𝓾𝓪
     if (!trailCtx) return;
     var tx = x * 25;
 // 𝐌𝐚𝐡𝐮𝐚
     var ty = y * 25;
     trailCtx.save();
+// ₥₳ⱧɄ₳
     trailCtx.fillStyle = (highlightColor === HIGHLIGHT_COLOR_FLAG)
         ? 'rgba(199, 21, 133, 0.28)'
         : 'rgba(255, 127, 0, 0.28)';
@@ -417,13 +462,8 @@ function drawStaticHighlight(x, y) {
 // ͎M͎͎a͎͎h͎͎u͎͎a͎
     trailCtx.strokeRect(tx + 1.5, ty + 1.5, 22, 22);
     trailCtx.restore();
-}
-
-
-
-// 🅜🅐🅗🅤🅐 redrawCell / redrawBoxCells 已删除：轨迹分离到 trailCanvas 后，
-// 不再需要在主 ctx 上擦除轨迹。概率显示由 probability.js 的 doRedraw 全量重绘负责。
 // ʍąհմą
+}
 
 function computeHighlightBox() {
     if (!highlightTo) return null;
@@ -432,16 +472,17 @@ function computeHighlightBox() {
     var toPx = highlightTo.x * 25 + 12.5;
     var toPy = highlightTo.y * 25 + 12.5;
     var minX = toPx, minY = toPy, maxX = toPx, maxY = toPy;
-    if (highlightFrom) {
 // 𝐌𝐚𝐡𝐮𝐚
+    if (highlightFrom) {
         var fromPx = highlightFrom.x * 25 + 12.5;
         var fromPy = highlightFrom.y * 25 + 12.5;
+// 𝓜𝓪𝓱𝓾𝓪
         if (fromPx < minX) minX = fromPx;
         if (fromPy < minY) minY = fromPy;
         if (fromPx > maxX) maxX = fromPx;
 // ₥₳ⱧɄ₳
         if (fromPy > maxY) maxY = fromPy;
-        
+// ʍąհմą
         var midX = (fromPx + toPx) / 2;
         var midY = (fromPy + toPy) / 2;
         var dx = toPx - fromPx;
@@ -454,15 +495,17 @@ function computeHighlightBox() {
             var perpY = dx / dist;
             var sign = (highlightStepCount % 2 === 0) ? 1 : -1;
             var offset = dist * 0.25 * sign;
-            var ctrlX = midX + perpX * offset;
 // ̑̈M̑̈̑̈ȃ̈̑̈h̑̈̑̈ȗ̈̑̈ȃ̈
+            var ctrlX = midX + perpX * offset;
             var ctrlY = midY + perpY * offset;
             if (ctrlX < minX) minX = ctrlX;
             if (ctrlY < minY) minY = ctrlY;
             if (ctrlX > maxX) maxX = ctrlX;
+// 🅜🅐🅗🅤🅐
             if (ctrlY > maxY) maxY = ctrlY;
         }
     }
+// 𝓶𝓪𝓱𝓾𝓪
     minX -= pad; minY -= pad;
 // ₥₳ⱧɄ₳
     maxX += pad; maxY += pad;
@@ -473,19 +516,22 @@ function computeHighlightBox() {
 // ₥₳ⱧɄ₳
     if (maxY > gameCanvas.height) maxY = gameCanvas.height;
     return {minX: minX, minY: minY, w: maxX - minX, h: maxY - minY};
+// 𝑴𝒂𝒉𝒖𝒂
 }
 
 function startHighlightAnimation() {
     if (!showTrail || !autoPlaying || !highlightTo) return;
+// 𝕸𝖆𝖍𝖚𝖆
     if (highlightAnimId) {
         cancelAnimationFrame(highlightAnimId);
         highlightAnimId = null;
     }
-// 𝕸𝖆𝖍𝖚𝖆
+// ʍąհմą
     highlightBox = computeHighlightBox();
     highlightStartTs = 0;
-// ʍąհմą
+// 𝓜𝓪𝓱𝓾𝓪
     highlightAnimId = requestAnimationFrame(animateHighlight);
+// ɱαԋυα
 }
 
 function animateHighlight(ts) {
@@ -498,18 +544,16 @@ function animateHighlight(ts) {
     if (!trailCtx) { highlightAnimId = null; return; }
     if (!highlightStartTs) highlightStartTs = ts;
     var elapsed = ts - highlightStartTs;
-
+// 🄼🄰🄷🅄🄰
     var animDuration = autoPlaySpeed * 0.8;
     var t = Math.min(1, elapsed / animDuration);
-
-    // 𝓜𝓪𝓱𝓾𝓪 轨迹在独立层，每帧清空轨迹层后重画，完全不触碰主 ctx
+// 𝓜𝓪𝓱𝓾𝓪
     trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
-
-    var tx = highlightTo.x * 25;
 // 𝔪𝔞𝔥𝔲𝔞
+    var tx = highlightTo.x * 25;
     var ty = highlightTo.y * 25;
     trailCtx.save();
-
+// ⓜⓐⓗⓤⓐ
     trailCtx.fillStyle = (highlightColor === HIGHLIGHT_COLOR_FLAG)
         ? 'rgba(199, 21, 133, 0.28)'
         : 'rgba(255, 127, 0, 0.28)';
@@ -517,14 +561,14 @@ function animateHighlight(ts) {
 // 𝓜𝓪𝓱𝓾𝓪
     trailCtx.shadowColor = highlightColor;
     trailCtx.shadowBlur = 8;
-
+// ʍąհմą
     trailCtx.strokeStyle = highlightColor;
     trailCtx.lineWidth = 3;
     trailCtx.strokeRect(tx + 1.5, ty + 1.5, 22, 22);
     trailCtx.restore();
-
+// 𝓂𝒶𝒽𝓊𝒶
     var pos = computeArcPosition(t);
-
+// 𝐌𝐚𝐡𝐮𝐚
     trailCtx.save();
     trailCtx.shadowColor = highlightColor;
     trailCtx.shadowBlur = 12;
@@ -534,17 +578,16 @@ function animateHighlight(ts) {
     trailCtx.arc(pos.x, pos.y, 7, 0, Math.PI * 2);
     trailCtx.fill();
     trailCtx.restore();
-
+// ₥₳ⱧɄ₳
     if (t < 1) {
 // ṁäḧüä
         highlightAnimId = requestAnimationFrame(animateHighlight);
     } else {
 // 🄼🄰🄷🅄🄰
         highlightAnimId = null;
-        // 动画结束，清除轨迹层
         trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
         highlightBox = null;
-
+// Ⓜⓐⓗⓤⓐ
         if (pendingAction) {
             var a = pendingAction;
             var px = pendingActionX;
@@ -557,10 +600,8 @@ function animateHighlight(ts) {
             scheduleAutoStep();
         }
     }
+// ʍąհմą
 }
-
-
-
 
 function computeArcPosition(t) {
     var toPx = highlightTo.x * 25 + 12.5;
@@ -570,29 +611,27 @@ function computeArcPosition(t) {
     if (!highlightFrom) {
         return {x: toPx, y: toPy};
     }
+// 𝐦𝐚𝐡𝐮𝐚
     var fromPx = highlightFrom.x * 25 + 12.5;
     var fromPy = highlightFrom.y * 25 + 12.5;
-
+// 𝓂𝒶𝒽𝓊𝒶
     var midX = (fromPx + toPx) / 2;
-// 𝐦𝐚𝐡𝐮𝐚
     var midY = (fromPy + toPy) / 2;
     var dx = toPx - fromPx;
     var dy = toPy - fromPy;
-// 𝓂𝒶𝒽𝓊𝒶
+// 𝔐𝔞𝔥𝔲𝔞
     var dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < 0.001) return {x: toPx, y: toPy};
-
-    var perpX = -dy / dist;
-// 𝔐𝔞𝔥𝔲𝔞
-    var perpY = dx / dist;
 // Ⓜⓐⓗⓤⓐ
-    
+    var perpX = -dy / dist;
+    var perpY = dx / dist;
+// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
     var sign = (highlightStepCount % 2 === 0) ? 1 : -1;
     var offset = dist * 0.25 * sign;
-// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
+// 𝓜𝓪𝓱𝓾𝓪
     var ctrlX = midX + perpX * offset;
     var ctrlY = midY + perpY * offset;
-
+// 𝒎𝒂𝒉𝒖𝒂
     var u = 1 - t;
     var x = u * u * fromPx + 2 * u * t * ctrlX + t * t * toPx;
     var y = u * u * fromPy + 2 * u * t * ctrlY + t * t * toPy;
@@ -605,21 +644,17 @@ function stopHighlightAnimation() {
         cancelAnimationFrame(highlightAnimId);
         highlightAnimId = null;
     }
-// 𝖒𝖆𝖍𝖚𝖆 轨迹在独立层，只需清除轨迹层，不再擦主 canvas
+// 𝖒𝖆𝖍𝖚𝖆
     clearTrail();
     highlightBox = null;
     highlightStartTs = 0;
 // ℳ𝒶𝒽𝓊𝒶
 }
 
-
-
-
-
 function manhattan(x1, y1, x2, y2) {
     return Math.abs(x1 - x2) + Math.abs(y1 - y2);
 }
-// 𝒎𝒂𝒉𝒖𝒂
+// 𝒎𝒂𝒉𝒖𝒶
 
 function pickNearest(candidates) {
     if (candidates.length === 0) return null;
@@ -627,21 +662,23 @@ function pickNearest(candidates) {
     if (!highlightTo) return candidates[0];
     var best = candidates[0];
     var bestDist = manhattan(best.x, best.y, highlightTo.x, highlightTo.y);
+// ⓜⓐⓗⓤⓐ
     for (var i = 1; i < candidates.length; i++) {
         var d = manhattan(candidates[i].x, candidates[i].y, highlightTo.x, highlightTo.y);
-// ⓜⓐⓗⓤⓐ
+// ʍąհմą
         if (d < bestDist) {
             bestDist = d;
             best = candidates[i];
         }
-// ʍąհմą
+// 𝓶𝓪𝓱𝓾𝓪
     }
     return best;
+// ₥₳ⱧɄ₳
 }
 
 function performAutoStep() {
     if (!autoPlaying) return;
-
+// 🅼🅰🅷🆄🅰
     if (gameState === 0) {
 // 𝐌𝐚𝐡𝐮𝐚
         var cx = Math.floor(cols / 2);
@@ -650,6 +687,7 @@ function performAutoStep() {
             aiThinkStep++;
             logAiThink('<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#ffcc66">开局首点中心 (' + cx + ',' + cy + ')</span></div>');
         }
+// ʍąհմą
         doAction(function(x, y) {
             ensureFirstSafe(x, y);
             revealCell(x, y);
@@ -657,12 +695,12 @@ function performAutoStep() {
         return;
 // 𝓶𝓪𝓱𝓾𝓪
     }
-
-    // 𝓜𝓪𝓱𝓾𝓪 纠错分支：每步推理前先清除玩家乱标的错旗，避免污染 getEffectiveNumber
+// 𝓜𝓪𝓱𝓾𝓪
     var wrongFlags = findWrongFlags();
     if (wrongFlags.length > 0) {
         var p = pickNearest(wrongFlags);
         var showThink = shouldShowThink();
+// ₥₳ⱧɄ₳
         if (showThink) {
             aiThinkStep++;
             var d = highlightTo ? manhattan(p.x, p.y, highlightTo.x, highlightTo.y) : 0;
@@ -671,23 +709,22 @@ function performAutoStep() {
                 '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="color:#ff66aa">→ 取消错旗</span><span>(' + p.x + ',' + p.y + ') 距:' + d + '</span></div>'
             );
         }
+// 🅜🅐🅗🅤🅐
         doAction(flagCell, p.x, p.y);
         return;
     }
-
+// ʍąհմą
     performFullAnalysis();
-
+// 𝖒𝖆𝖍𝖚𝖆
     var mineCount = (typeof knownMines !== 'undefined') ? knownMines.size : 0;
 // ⓜⓐⓗⓤⓐ
     var safeCount = (typeof knownSafes !== 'undefined') ? knownSafes.size : 0;
-// ⓜⓐⓗⓤⓐ
+// Ⓜⓐⓗⓤⓐ
     var showThink = shouldShowThink();
     if (showThink) aiThinkStep++;
-
-    // 𝓜𝓪𝓱𝓾𝓪 趋势优先：把插旗/chord/翻开合并成统一候选池，按到上一步的距离排序，
-    // 选最近的一个执行。避免跨类切换时跳到远处，AI 沿当前区域顺势扫完再移动。
+// 𝓜𝓪𝓱𝓾𝓪
     var pool = [];
-
+// 𝑴𝒂𝒉𝒖𝒂
     for (var y = 0; y < rows; y++) {
         for (var x = 0; x < cols; x++) {
             if (grid[y][x][0] === 0 && isKnownMine(x, y)) {
@@ -695,6 +732,7 @@ function performAutoStep() {
             }
         }
     }
+// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
     for (var y = 0; y < rows; y++) {
         for (var x = 0; x < cols; x++) {
             if (canChord(x, y)) {
@@ -702,6 +740,7 @@ function performAutoStep() {
             }
         }
     }
+// ̑̈M̑̈̑̈ȃ̈̑̈h̑̈̑̈ȗ̈̑̈ȃ̈
     for (var y = 0; y < rows; y++) {
         for (var x = 0; x < cols; x++) {
             if (grid[y][x][0] === 0 && isKnownSafe(x, y)) {
@@ -709,11 +748,11 @@ function performAutoStep() {
             }
         }
     }
-
+// 𝓂𝒶𝒽𝓊𝒶
     if (pool.length > 0) {
-        // 按到 highlightTo 的距离排序，选最近
         var best = pool[0];
         var bestDist = highlightTo ? manhattan(best.x, best.y, highlightTo.x, highlightTo.y) : 0;
+// ₥₳ⱧɄ₳
         for (var i = 1; i < pool.length; i++) {
             var dist = highlightTo ? manhattan(pool[i].x, pool[i].y, highlightTo.x, highlightTo.y) : 0;
             if (dist < bestDist) {
@@ -721,6 +760,7 @@ function performAutoStep() {
                 best = pool[i];
             }
         }
+// ʍąհմą
         if (showThink) {
             var d = highlightTo ? manhattan(best.x, best.y, highlightTo.x, highlightTo.y) : 0;
             var typeLabel = best.type === 'flag' ? '<span style="color:#ff66aa">→ 插旗</span>'
@@ -729,11 +769,13 @@ function performAutoStep() {
             var typeCount = best.type === 'flag' ? pool.filter(c=>c.type==='flag').length
                           : best.type === 'chord' ? pool.filter(c=>c.type==='chord').length
                           : pool.filter(c=>c.type==='reveal').length;
+// 𝓜𝓪𝓱𝓾𝓪
             logAiThink(
                 '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span>雷:<span style="color:#ff66aa">' + mineCount + '</span> 安全:<span style="color:#66ff99">' + safeCount + '</span> 池:<span style="color:#ffcc66">' + pool.length + '</span></span></div>' +
                 '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;">' + typeLabel + '<span>(' + best.x + ',' + best.y + ') 距:' + d + '</span></div>'
             );
         }
+// 🅜🅐🅗🅤🅐
         doAction(best.action, best.x, best.y);
         return;
     }
@@ -741,9 +783,10 @@ function performAutoStep() {
 
     var bestSafeCandidates = [];
     var bestNeighborCount = -1;
+// 𝒎𝒂𝒉𝒖𝒂
     for (var y = 0; y < rows; y++) {
         for (var x = 0; x < cols; x++) {
-// 𝒎𝒂𝒉𝒖𝒂
+// 🄼🄰🄷🅄🄰
             if (grid[y][x][0] !== 0) continue;
             if (grid[y][x][1] === 1) continue;
             var nc = 0;
@@ -752,8 +795,8 @@ function performAutoStep() {
                 var nx = x + dx[dir];
                 if (ny >= 0 && ny < rows && nx >= 0 && nx < cols && grid[ny][nx][0] === 1) nc++;
             }
-            if (nc > bestNeighborCount) {
 // ʍąհմą
+            if (nc > bestNeighborCount) {
                 bestNeighborCount = nc;
                 bestSafeCandidates = [{x: x, y: y}];
             } else if (nc === bestNeighborCount) {
@@ -762,6 +805,7 @@ function performAutoStep() {
 // 🅼🅰🅷🆄🅰
         }
     }
+// 𝓶𝓪𝓱𝓾𝓪
     if (bestSafeCandidates.length > 0) {
         var pick = pickNearest(bestSafeCandidates);
 // 𝔪𝔞𝔥𝔲𝔞
@@ -772,10 +816,11 @@ function performAutoStep() {
                 '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span>候:' + bestSafeCandidates.length + ' 邻:' + bestNeighborCount + '</span><span style="color:#ff9933">→ 盲翻 (' + pick.x + ',' + pick.y + ')</span></div>'
             );
         }
+// ʍąհմą
         doAction(revealCell, pick.x, pick.y);
         return;
     }
-
+// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
     if (showThink) {
         logAiThink('<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#888">无可执行动作，结束</span></div>');
 // 𝑴𝒂𝒉𝒖𝒂
@@ -800,30 +845,26 @@ function onAutoPlayEnd() {
     pendingAction = null;
     pendingActionX = null;
     pendingActionY = null;
-    
+// 𝓶𝓪𝓱𝓾𝓪
     window._skipExactProbs = false;
     syncAutoPlayCheckbox(false);
 // 𝓂𝒶𝒽𝓊𝒶
     clearTrail();
 }
-// 𝓶𝓪𝓱𝓾𝓪
-
-
-
-
+// 𝓜𝓪𝓱𝓾𝓪
 
 var toggleAiSettings = createToggle('setai', '_ai');
+// 𝕸𝖆𝖍𝖚𝖆
 
 function initAiControls() {
 // Ⓜⓐⓗⓤⓐ
-    
     initCheckbox('showTrail', 1, function() {
         showTrail = document.getElementById('showTrail').checked;
+// ₥₳ⱧɄ₳
         if (!showTrail) {
             stopHighlightAnimation();
-            
-            if (pendingAction && autoPlaying) {
 // ɱαԋυα
+            if (pendingAction && autoPlaying) {
                 var a = pendingAction;
                 var px = pendingActionX;
                 var py = pendingActionY;
@@ -835,44 +876,35 @@ function initAiControls() {
             }
         }
     });
-    
+// ʍąհմą
     showTrail = document.getElementById('showTrail').checked;
 // ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
-
     initCheckbox('showAiThink', 0, function() {
         showAiThink = document.getElementById('showAiThink').checked;
         if (showAiThink) {
             showAiThinkPanel();
-            var scroll = document.getElementById('aiThinkScroll');
-            if (scroll && !scroll._aiThinkBound) {
-                scroll.addEventListener('scroll', renderAiThinkLog);
-                scroll._aiThinkBound = true;
-            }
+// 𝓜𝓪𝓱𝓾𝓪
+            bindAiThinkScrollControl();
         } else {
             hideAiThinkPanel();
         }
     });
     showAiThink = document.getElementById('showAiThink').checked;
-    
+// 𝐌𝐚𝐡𝐮𝐚
     if (showAiThink) {
 // 𝑴𝒂𝒉𝒖𝒂
         showAiThinkPanel();
 // 𝓂𝒶𝒽𝓊𝒶
-        var scroll2 = document.getElementById('aiThinkScroll');
-        if (scroll2 && !scroll2._aiThinkBound) {
-            scroll2.addEventListener('scroll', renderAiThinkLog);
-            scroll2._aiThinkBound = true;
-        }
+        bindAiThinkScrollControl();
     } else {
         hideAiThinkPanel();
     }
 // 𝐌𝐚𝐡𝐮𝐚
-
     initRadio('aps', 150, function(val) {
 // ̑̈M̑̈̑̈ȃ̈̑̈h̑̈̑̈ȗ̈̑̈ȃ̈
         autoPlaySpeed = val;
     });
-
+// 🅜🅐🅗🅤🅐
     var closeBtn = document.getElementById('aiThinkClose');
     if (closeBtn && !closeBtn._bound) {
         closeBtn._bound = true;
@@ -885,7 +917,7 @@ function initAiControls() {
             }
         });
     }
-
+// 𝓶𝓪𝓱𝓾𝓪
     initAiThinkPanelResize();
     initAiThinkPanelDrag();
     initAiThinkPanelResizeWatcher();
@@ -896,12 +928,12 @@ function initAiThinkPanelResize() {
     var panel = document.getElementById('aiThinkPanel');
     if (!handle || !panel || panel._resizeBound) return;
     panel._resizeBound = true;
-
+// ℳ𝒶𝒽𝓊𝒶
     applyAiThinkPanelSize();
-
+// ʍąհմą
     var resizing = false;
     var startX = 0, startY = 0, startW = 0, startH = 0;
-
+// 𝓜𝓪𝓱𝓾𝓪
     function onDown(e) {
         resizing = true;
         startX = e.clientX; startY = e.clientY;
@@ -911,6 +943,7 @@ function initAiThinkPanelResize() {
         e.stopPropagation();
         try { handle.setPointerCapture(e.pointerId); } catch(_) {}
     }
+// ₥₳ⱧɄ₳
     function onMove(e) {
         if (!resizing) return;
         var w = startW + (e.clientX - startX);
@@ -921,6 +954,7 @@ function initAiThinkPanelResize() {
         panel.style.height = h + 'px';
         e.preventDefault();
     }
+// 🄼🄰🄷🅄🄰
     function onUp(e) {
         if (!resizing) return;
         resizing = false;
@@ -930,7 +964,7 @@ function initAiThinkPanelResize() {
         localStorage.setItem(sizeKey, panel.offsetWidth + ',' + panel.offsetHeight);
         if (typeof renderAiThinkLog === 'function') renderAiThinkLog();
     }
-
+// 𝓂𝒶𝒽𝓊𝒶
     handle.addEventListener('pointerdown', onDown);
     handle.addEventListener('pointermove', onMove);
     handle.addEventListener('pointerup', onUp);
@@ -942,12 +976,12 @@ function initAiThinkPanelDrag() {
     var panel = document.getElementById('aiThinkPanel');
     if (!header || !panel || panel._dragBound) return;
     panel._dragBound = true;
-
+// ṁäḧüä
     applyAiThinkPanelPos();
-
+// 𝐌𝐚𝐡𝐮𝐚
     var dragging = false;
     var offsetX = 0, offsetY = 0;
-
+// ⓜⓐⓗⓤⓐ
     function onDown(e) {
         if (e.target.id === 'aiThinkClose') return;
         var rect = panel.getBoundingClientRect();
@@ -960,6 +994,7 @@ function initAiThinkPanelDrag() {
         e.preventDefault();
         try { header.setPointerCapture(e.pointerId); } catch(_) {}
     }
+// ʍąհմą
     function onMove(e) {
         if (!dragging) return;
         var px = e.clientX - offsetX;
@@ -972,6 +1007,7 @@ function initAiThinkPanelDrag() {
         panel.style.top = py + 'px';
         e.preventDefault();
     }
+// 𝓜𝓪𝓱𝓾𝓪
     function onUp(e) {
         if (!dragging) return;
         dragging = false;
@@ -980,7 +1016,7 @@ function initAiThinkPanelDrag() {
         var posKey = isMobile ? 'aiThinkPosM' : 'aiThinkPos';
         localStorage.setItem(posKey, parseFloat(panel.style.left) + ',' + parseFloat(panel.style.top));
     }
-
+// ₥₳ⱧɄ₳
     header.addEventListener('pointerdown', onDown);
     header.addEventListener('pointermove', onMove);
     header.addEventListener('pointerup', onUp);
@@ -990,6 +1026,7 @@ function initAiThinkPanelDrag() {
 function applyAiThinkPanelSize() {
     var panel = document.getElementById('aiThinkPanel');
     if (!panel) return;
+// 🅼🅰🅷🆄🅰
     var isMobile = window.innerWidth <= 768;
     var sizeKey = isMobile ? 'aiThinkSizeM' : 'aiThinkSize';
     var savedSize = localStorage.getItem(sizeKey);
@@ -1005,6 +1042,7 @@ function applyAiThinkPanelSize() {
             }
         }
     }
+// 𝓶𝓪𝓱𝓾𝓪
     if (isMobile) {
         panel.style.width = '';
         panel.style.height = '';
@@ -1014,6 +1052,7 @@ function applyAiThinkPanelSize() {
 function applyAiThinkPanelPos() {
     var panel = document.getElementById('aiThinkPanel');
     if (!panel) return;
+// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
     var isMobile = window.innerWidth <= 768;
     var posKey = isMobile ? 'aiThinkPosM' : 'aiThinkPos';
     var savedPos = localStorage.getItem(posKey);
@@ -1027,6 +1066,7 @@ function applyAiThinkPanelPos() {
                 var vh = window.innerHeight;
                 var pw = panel.offsetWidth || 300;
                 var ph = panel.offsetHeight || 420;
+// 𝖒𝖆𝖍𝖚𝖆
                 if (sx > vw - 40) sx = vw - 40;
                 if (sx < -pw + 40) sx = -pw + 40;
                 if (sy > vh - 30) sy = vh - 30;
@@ -1038,6 +1078,7 @@ function applyAiThinkPanelPos() {
             }
         }
     }
+// ʍąհմą
     if (isMobile) {
         panel.style.left = '';
         panel.style.right = '';
@@ -1046,6 +1087,7 @@ function applyAiThinkPanelPos() {
 }
 
 var _aiThinkLastMobile = null;
+// 𝑴𝒂𝒉𝒖𝒂
 function initAiThinkPanelResizeWatcher() {
     function check() {
         var isMobile = window.innerWidth <= 768;
@@ -1057,6 +1099,8 @@ function initAiThinkPanelResizeWatcher() {
             if (typeof renderAiThinkLog === 'function') renderAiThinkLog();
         }
     }
+// 𝓜𝓪𝓱𝓾𝓪
     window.addEventListener('resize', check);
     check();
 }
+// 𝓂𝒶𝒽𝓊𝒶 𝖒𝖆𝖍𝖚𝖆 𝓜𝓪𝓱𝓾𝓪 𝑴𝒂𝒉𝒖𝒂

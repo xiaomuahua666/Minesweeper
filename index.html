@@ -76,7 +76,7 @@ color:#444;
 <script src="static/mahua/gfs1.js"></script>
 <script src="static/mahua/new.6.27.js"></script>
 <script src="static/mahua/probability.js" defer></script>
-<script src="static/mahua/auto-play.js?v=28"></script>
+<script src="static/mahua/auto-play.js?v=42"></script>
 <base target=_top>
 </head>  
 <body >
@@ -116,7 +116,7 @@ color:#444;
 <div id="aiThinkPanel" class="ai-think-panel" style="display:none;position:fixed;top:80px;right:16px;width:300px;height:420px;background:#1a1a2e;color:#e0e0e0;border:1px solid #4a4a6a;border-radius:8px;padding:12px 0 12px 12px;font-family:Consolas,'Courier New',monospace;font-size:12px;line-height:1.6;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.3);box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;align-items:stretch;">
 <div id="aiThinkHeader" style="color:#8888cc;font-weight:bold;border-bottom:1px solid #4a4a6a;padding:0 12px 4px 0;margin-bottom:8px;flex-shrink:0;cursor:move;user-select:none;touch-action:none;"><span>AI 思考过程 ⠿</span></div>
 <div id="aiThinkClose" style="position:absolute;right:6px;top:6px;cursor:pointer;color:#888;padding:2px 6px;font-size:14px;line-height:1;z-index:10000;user-select:none;">✕</div>
-<div id="aiThinkScroll" style="position:relative;flex:1 1 auto;width:100%;min-width:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
+<div id="aiThinkScroll" style="position:relative;flex:1 1 auto;width:100%;min-width:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#4a4a6a transparent;">
 <div id="aiThinkSpacerTop" style="height:0;"></div>
 <div id="aiThinkLog"></div>
 <div id="aiThinkSpacerBottom" style="height:0;"></div>
@@ -124,6 +124,15 @@ color:#444;
 <div id="aiThinkResize" style="position:absolute;right:0;bottom:0;width:20px;height:20px;cursor:nwse-resize;color:#4a4a6a;font-size:16px;line-height:20px;text-align:center;user-select:none;touch-action:none;">◢</div>
 </div>
 <style>
+/* 𝓜𝓪𝓱𝓾𝓪 推理日志滚动条样式（WebKit） */
+#aiThinkScroll::-webkit-scrollbar { width: 8px; }
+#aiThinkScroll::-webkit-scrollbar-track { background: transparent; }
+#aiThinkScroll::-webkit-scrollbar-thumb { background: #4a4a6a; border-radius: 4px; }
+#aiThinkScroll::-webkit-scrollbar-thumb:hover { background: #6a6a8a; }
+/* 𝓜𝓪𝓱𝓾𝓪 桌面版：滚动容器底部留 24px，避免下箭头被 resize 三角遮挡 */
+@media (min-width: 769px) {
+  #aiThinkScroll { margin-bottom: 24px; }
+}
 @media (max-width: 768px) {
   .ai-think-panel { width: 90vw; height: 50vh; left: 5vw; right: auto; top: 60px; font-size: 11px; padding: 8px; }
   #aiThinkResize { width: 24px !important; height: 24px !important; font-size: 16px !important; line-height: 24px !important; }

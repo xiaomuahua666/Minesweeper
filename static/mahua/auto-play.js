@@ -149,22 +149,30 @@ var aiThinkViewportItems = 30;
 // ʍąհմą
 
 function logAiThink(html) {
-    aiThinkLogs.push({html: html, height: aiThinkItemHeight});
+    aiThinkLogs.unshift({html: html, height: aiThinkItemHeight});
 // 𝓜𝓪𝓱𝓾𝓪
-    if (shouldAutoScrollToBottom(_aiThinkUserScrollUntil, Date.now())) {
+    var scroll = document.getElementById('aiThinkScroll');
+    if (aiThinkFollowTop) {
         _aiThinkAutoScrolling = true;
         renderAiThinkLog();
-        var scroll = document.getElementById('aiThinkScroll');
-        if (scroll) scroll.scrollTop = scroll.scrollHeight;
+        if (scroll) scroll.scrollTop = 0;
 // 𝖒𝖆𝖍𝖚𝖆
         renderAiThinkLog();
-        if (scroll) scroll.scrollTop = scroll.scrollHeight;
+        if (scroll) scroll.scrollTop = 0;
         requestAnimationFrame(function() {
             _aiThinkAutoScrolling = false;
         });
 // 𝓂𝒶𝒽𝓊𝒶
     } else {
+        var savedTop = scroll ? scroll.scrollTop : 0;
+        _aiThinkAutoScrolling = true;
         renderAiThinkLog();
+        if (scroll) {
+            scroll.scrollTop = savedTop + aiThinkItemHeight;
+        }
+        requestAnimationFrame(function() {
+            _aiThinkAutoScrolling = false;
+        });
     }
 // 𝑴𝒂𝒉𝒖𝒂
 }
@@ -224,33 +232,30 @@ function renderAiThinkLog() {
 // ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
 }
 
-var _aiThinkUserScrollUntil = 0;
-// 𝓜𝓪𝓱𝓾𝓪
 var _aiThinkScrollRafId = 0;
 // ҅M҅҅a҅҅h҅҅u҅҅a҅
 var _aiThinkAutoScrolling = false;
 // ṁäḧüä
+var aiThinkFollowTop = true;
+// 𝓜𝓪𝓱𝓾𝓪
 
-function shouldAutoScrollToBottom(userScrollUntil, now) {
+function updateAiThinkTopBtn() {
+    var btn = document.getElementById('aiThinkTopBtn');
+    if (!btn) return;
+    btn.style.display = aiThinkFollowTop ? 'none' : 'flex';
 // 𝖒𝖆𝖍𝖚𝖆
-    return now >= userScrollUntil;
-// 🅼🅰🅷🆄🅰
-}
-
-function markUserScroll() {
-// ʍąհմą
-    _aiThinkUserScrollUntil = Date.now() + 1000;
-// ₥₳ⱧɄ₳
 }
 
 function bindAiThinkScrollControl() {
     var scroll = document.getElementById('aiThinkScroll');
     if (!scroll || scroll._scrollCtrlBound) return;
     scroll._scrollCtrlBound = true;
-// 𝓜𝓪𝓱𝓾𝓪
+// 𝓜𝓪𝓱𝓾𝓪 原生滚动，scroll 事件 rAF 节流渲染虚拟列表
     scroll.addEventListener('scroll', function() {
-        if (!_aiThinkAutoScrolling) {
-            markUserScroll();
+        if (scroll.scrollTop > 0 && aiThinkFollowTop) {
+            aiThinkFollowTop = false;
+            _aiThinkAutoScrolling = false;
+            updateAiThinkTopBtn();
         }
 // ɱαԋυα
         if (_aiThinkScrollRafId) return;
@@ -918,6 +923,25 @@ function initAiControls() {
         });
     }
 // 𝓶𝓪𝓱𝓾𝓪
+    var topBtn = document.getElementById('aiThinkTopBtn');
+    if (topBtn && !topBtn._bound) {
+        topBtn._bound = true;
+        topBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            aiThinkFollowTop = true;
+            updateAiThinkTopBtn();
+            var scroll = document.getElementById('aiThinkScroll');
+            if (scroll) {
+                _aiThinkAutoScrolling = true;
+                scroll.scrollTop = 0;
+                renderAiThinkLog();
+                scroll.scrollTop = 0;
+                requestAnimationFrame(function() {
+                    _aiThinkAutoScrolling = false;
+                });
+            }
+        });
+    }
     initAiThinkPanelResize();
     initAiThinkPanelDrag();
     initAiThinkPanelResizeWatcher();
@@ -946,10 +970,11 @@ function initAiThinkPanelResize() {
 // ₥₳ⱧɄ₳
     function onMove(e) {
         if (!resizing) return;
+        var rect = panel.getBoundingClientRect();
         var w = startW + (e.clientX - startX);
         var h = startH + (e.clientY - startY);
-        w = Math.max(200, Math.min(window.innerWidth - 20, w));
-        h = Math.max(150, Math.min(window.innerHeight - 20, h));
+        w = Math.max(200, Math.min(window.innerWidth - rect.left - 4, w));
+        h = Math.max(150, Math.min(window.innerHeight - rect.top - 4, h));
         panel.style.width = w + 'px';
         panel.style.height = h + 'px';
         e.preventDefault();
@@ -972,9 +997,8 @@ function initAiThinkPanelResize() {
 }
 
 function initAiThinkPanelDrag() {
-    var header = document.getElementById('aiThinkHeader');
     var panel = document.getElementById('aiThinkPanel');
-    if (!header || !panel || panel._dragBound) return;
+    if (!panel || panel._dragBound) return;
     panel._dragBound = true;
 // ṁäḧüä
     applyAiThinkPanelPos();
@@ -983,7 +1007,10 @@ function initAiThinkPanelDrag() {
     var offsetX = 0, offsetY = 0;
 // ⓜⓐⓗⓤⓐ
     function onDown(e) {
-        if (e.target.id === 'aiThinkClose') return;
+        var target = e.target;
+        if (target.id === 'aiThinkClose' || target.id === 'aiThinkTopBtn') return;
+        if (target.id === 'aiThinkResize') return;
+        if (target.id === 'aiThinkScroll' || target.closest('#aiThinkScroll')) return;
         var rect = panel.getBoundingClientRect();
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
@@ -992,17 +1019,21 @@ function initAiThinkPanelDrag() {
         panel.style.top = rect.top + 'px';
         dragging = true;
         e.preventDefault();
-        try { header.setPointerCapture(e.pointerId); } catch(_) {}
+        try { panel.setPointerCapture(e.pointerId); } catch(_) {}
     }
 // ʍąհմą
     function onMove(e) {
         if (!dragging) return;
         var px = e.clientX - offsetX;
         var py = e.clientY - offsetY;
-        var maxX = window.innerWidth - 40;
-        var maxY = window.innerHeight - 30;
-        px = Math.max(-panel.offsetWidth + 40, Math.min(maxX, px));
-        py = Math.max(0, Math.min(maxY, py));
+        var pw = panel.offsetWidth;
+        var ph = panel.offsetHeight;
+        var minX = -pw + 80;
+        var maxX = window.innerWidth - 80;
+        var minY = 0;
+        var maxY = window.innerHeight - 40;
+        px = Math.max(minX, Math.min(maxX, px));
+        py = Math.max(minY, Math.min(maxY, py));
         panel.style.left = px + 'px';
         panel.style.top = py + 'px';
         e.preventDefault();
@@ -1011,16 +1042,16 @@ function initAiThinkPanelDrag() {
     function onUp(e) {
         if (!dragging) return;
         dragging = false;
-        try { header.releasePointerCapture(e.pointerId); } catch(_) {}
+        try { panel.releasePointerCapture(e.pointerId); } catch(_) {}
         var isMobile = window.innerWidth <= 768;
         var posKey = isMobile ? 'aiThinkPosM' : 'aiThinkPos';
         localStorage.setItem(posKey, parseFloat(panel.style.left) + ',' + parseFloat(panel.style.top));
     }
 // ₥₳ⱧɄ₳
-    header.addEventListener('pointerdown', onDown);
-    header.addEventListener('pointermove', onMove);
-    header.addEventListener('pointerup', onUp);
-    header.addEventListener('pointercancel', onUp);
+    panel.addEventListener('pointerdown', onDown);
+    panel.addEventListener('pointermove', onMove);
+    panel.addEventListener('pointerup', onUp);
+    panel.addEventListener('pointercancel', onUp);
 }
 
 function applyAiThinkPanelSize() {

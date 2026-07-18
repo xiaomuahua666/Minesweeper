@@ -76,7 +76,7 @@ color:#444;
 <script src="static/mahua/gfs1.js"></script>
 <script src="static/mahua/new.6.27.js"></script>
 <script src="static/mahua/probability.js" defer></script>
-<script src="static/mahua/auto-play.js?v=42"></script>
+<script src="static/mahua/auto-play.js?v=55"></script>
 <base target=_top>
 </head>  
 <body >
@@ -113,10 +113,11 @@ color:#444;
 </table>
 
 <!-- AI 思考面板（可拖动、可调整大小，位置和尺寸自动记忆） -->
-<div id="aiThinkPanel" class="ai-think-panel" style="display:none;position:fixed;top:80px;right:16px;width:300px;height:420px;background:#1a1a2e;color:#e0e0e0;border:1px solid #4a4a6a;border-radius:8px;padding:12px 0 12px 12px;font-family:Consolas,'Courier New',monospace;font-size:12px;line-height:1.6;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.3);box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;align-items:stretch;">
+<div id="aiThinkPanel" class="ai-think-panel" style="display:none;position:fixed;top:80px;right:16px;width:300px;height:420px;background:#1a1a2e;color:#e0e0e0;border:1px solid #4a4a6a;border-radius:8px;padding:12px 0 12px 12px;font-family:Consolas,'Courier New',monospace;font-size:12px;line-height:1.6;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.3);box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;align-items:stretch;cursor:move;touch-action:none;">
 <div id="aiThinkHeader" style="color:#8888cc;font-weight:bold;border-bottom:1px solid #4a4a6a;padding:0 12px 4px 0;margin-bottom:8px;flex-shrink:0;cursor:move;user-select:none;touch-action:none;"><span>AI 思考过程 ⠿</span></div>
 <div id="aiThinkClose" style="position:absolute;right:6px;top:6px;cursor:pointer;color:#888;padding:2px 6px;font-size:14px;line-height:1;z-index:10000;user-select:none;">✕</div>
-<div id="aiThinkScroll" style="position:relative;flex:1 1 auto;width:100%;min-width:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#4a4a6a transparent;">
+<div id="aiThinkTopBtn" title="返回顶部并跟随" style="position:absolute;left:6px;top:6px;display:none;align-items:center;justify-content:center;width:18px;height:18px;border:1px solid #4a4a6a;border-radius:50%;color:#66ff99;background:#2a2a4a;cursor:pointer;font-size:11px;line-height:1;user-select:none;touch-action:none;z-index:10000;">↑</div>
+<div id="aiThinkScroll" style="position:relative;flex:1 1 auto;width:100%;min-width:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#4a4a6a transparent;cursor:default;touch-action:auto;">
 <div id="aiThinkSpacerTop" style="height:0;"></div>
 <div id="aiThinkLog"></div>
 <div id="aiThinkSpacerBottom" style="height:0;"></div>

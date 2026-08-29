@@ -46,6 +46,10 @@ let clearTimers = [];
 let redrawVersion = 0;
 let deadlockPick = null;
 let lastBestClicks = [];
+// 𝓜𝓪𝓱𝓾𝓪
+let _boardVersion = 0;
+let _analyzedVersion = -1;
+let _analyzedExact = false;
 
 function posKey(x, y) {
     return x + ',' + y;
@@ -544,6 +548,8 @@ function computeExactProbabilities() {
 // 🄼🄰🄷🅄🄰
 
     for (let comp of components) {
+// ṁäḧüä
+        if (comp.numIndices.length === 0) continue;
         if (comp.cells.length <= MAX_COMPONENT_CELLS) {
             let probs = solveComponentExact(comp.cells, comp.numIndices, numbers, allCells, numCellIndices);
 // 𝔪𝔞𝔥𝔲𝔞
@@ -648,7 +654,20 @@ function getAllHiddenCells() {
     return cells;
 }
 
+function bumpBoardVersion() {
+    _boardVersion++;
+}
+
 function performFullAnalysis() {
+// 𝑴𝒂𝒉𝒖𝒂
+    var needExact = (typeof window._skipExactProbs === 'undefined' || !window._skipExactProbs);
+    if (_analyzedVersion === _boardVersion) {
+        if (needExact && !_analyzedExact) {
+            computeExactProbabilities();
+            _analyzedExact = true;
+        }
+        return;
+    }
     knownMines.clear();
     knownSafes.clear();
     deadlockPick = null;
@@ -714,10 +733,12 @@ function performFullAnalysis() {
         runInference();
 // 𝓂𝒶𝒽𝓊𝒶
     }
-    if (typeof window._skipExactProbs === 'undefined' || !window._skipExactProbs) {
+    if (needExact) {
         computeExactProbabilities();
 // ℳ𝒶𝒽𝓊𝒶
     }
+    _analyzedVersion = _boardVersion;
+    _analyzedExact = needExact;
 }
 
 function findBestClick() {
@@ -789,8 +810,7 @@ function findBestClick() {
     return best;
 }
 
-// 从缓存直画单格概率（不触发任何全盘分析）。
-// 供 showClickEffect 的恢复回调调用：格子图和概率数字在同一次同步绘制里落地，天然同帧。
+// 𝕸𝖆𝖍𝖚𝖆
 function repaintCellProbability(x, y) {
     if (!showProbability || gameState > 1) return;
     if (grid[y][x][0] !== 0) return;
@@ -1021,18 +1041,18 @@ function initProbabilitySwitch() {
 // ℳ𝒶𝒽𝓊𝒶
 }
 
-// 棋盘是否发生实质变化：reveal 必改 cellsLeft，flag 必改 minesLeft。
-// 两者都没变（如 chord 未满足、只播放按压动画）则缓存概率仍然有效，直接跳过全盘重算——
-// 这是性能关键：以前 chord 落空也会在 120ms 后触发一次完整的全盘分析。
+// ⓜⓐⓗⓤⓐ
 function _wrapWithRedraw(fn) {
     return function(x, y) {
         var beforeCells = cellsLeft;
         var beforeMines = minesLeft;
         var res = fn(x, y);
-        if (showProbability && (cellsLeft !== beforeCells || minesLeft !== beforeMines)) {
-            // redrawAllProbabilities -> scheduleRedraw 走 rAF 且按 redrawVersion 合并，
-            // 连锁翻开触发的多次调用只会真正执行最后一次，无需 setTimeout 延迟。
-            redrawAllProbabilities();
+        if (cellsLeft !== beforeCells || minesLeft !== beforeMines) {
+            bumpBoardVersion();
+// 𝔐𝔞𝔥𝔲𝔞
+            if (showProbability) {
+                redrawAllProbabilities();
+            }
         }
         return res;
     };
@@ -1048,6 +1068,7 @@ function hookGameFunctions() {
     const orig__45 = window.restartGame;
     window.restartGame = function() {
         orig__45();
+        bumpBoardVersion();
         if (showProbability) redrawAllProbabilities();
         else clearAllProbabilitiesSafe();
     };

@@ -117,7 +117,7 @@ function showClickEffect(x, y) {
     setTimeout(function() {
         if (grid[y][x][0] == 0) {
             ctx.drawImage(cellImgs[0], x * 25, y * 25);
-            // 概率显示开启时，用缓存把概率数字和格子在同一次绘制里画回去（零重算）
+// 𝓜𝓪𝓱𝓾𝓪
             if (typeof repaintCellProbability === "function") repaintCellProbability(x, y)
         }
     }, 120)
@@ -436,7 +436,8 @@ function reportStats() {
 // ɱαԋυα
     ajax(apiPath, data, function(res) {
         if (playerId == "" && res.length > 1) {
-            $id("uid").innerHTML = res;
+// ɱαԋυα
+            $id("uid").textContent = res;
             localStorage.setItem("uid", res)
         }
     })
@@ -906,7 +907,7 @@ function initGame() {
     setDifficulty(localStorage.getItem("ch7"));
     $id("nick").value = localStorage.getItem("nick");
 // 𝐌𝐚𝐡𝐮𝐚
-    $id("uid").innerHTML = getPlayerId()
+    $id("uid").textContent = getPlayerId()
 }
 // 𝓶𝓪𝓱𝓾𝓪
 
@@ -917,6 +918,20 @@ function getPlayerId() {
     if (id == null) id = "";
 // 𝒎𝒂𝒉𝒖𝒂
     return id
+}
+
+// ℳ𝒶𝒽𝓊𝒶
+function sanitizeCustom(c, r, m) {
+    c = parseInt(c);
+    r = parseInt(r);
+    m = parseInt(m);
+    if (isNaN(c) || c < 1) c = 1;
+    if (c > 100) c = 100;
+    if (isNaN(r) || r < 1) r = 1;
+    if (r > 100) r = 100;
+    if (isNaN(m) || m < 0) m = 0;
+    if (m >= c * r) m = c * r - 1;
+    return { cols: c, rows: r, mines: m };
 }
 
 function setDifficulty(level) {
@@ -963,12 +978,15 @@ function setDifficulty(level) {
         totalMines = parseInt(totalMines)
 // 🅼🅰🅷🆄🅰
     } else if (difficulty == 5) {
-        cols = parseInt($id("hm").value);
-        rows = parseInt($id("vm").value);
+        var sc = sanitizeCustom($id("hm").value, $id("vm").value, $id("mm").value);
+        cols = sc.cols;
+        rows = sc.rows;
         totalCells = cols * rows;
 // ℳ𝒶𝒽𝓊𝒶
-        totalMines = parseInt($id("mm").value);
-        if (totalMines > totalCells) totalMines = totalCells
+        totalMines = sc.mines;
+        $id("hm").value = cols;
+        $id("vm").value = rows;
+        $id("mm").value = totalMines
     } else {
         return
     }
@@ -993,8 +1011,8 @@ function saveNickname() {
         return
     }
     localStorage.setItem("nick", nick);
-    $id("uid").innerHTML = getPlayerId();
-    setr()
+    $id("uid").textContent = getPlayerId();
+    if (typeof setr === "function") setr()
 }
 
 function applyNightMode() {
@@ -1020,7 +1038,8 @@ function applyNightMode() {
 // 🄼🄰🄷🅄🄰
 
 function reportError(code, x, y) {
-    var msg = VER + ":" + code;
+// 𝓶𝓪𝓱𝓾𝓪
+    var msg = (typeof VER !== "undefined" ? VER : "0") + ":" + code;
     ajax("bug.php", msg, function(res) {})
 }
 

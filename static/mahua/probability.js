@@ -45,7 +45,7 @@ let exactProbs = new Map();
 let clearTimers = [];
 let redrawVersion = 0;
 let deadlockPick = null;
-let redrawTimer = null;
+let lastBestClicks = [];
 
 function posKey(x, y) {
     return x + ',' + y;
@@ -789,6 +789,16 @@ function findBestClick() {
     return best;
 }
 
+// 从缓存直画单格概率（不触发任何全盘分析）。
+// 供 showClickEffect 的恢复回调调用：格子图和概率数字在同一次同步绘制里落地，天然同帧。
+function repaintCellProbability(x, y) {
+    if (!showProbability || gameState > 1) return;
+    if (grid[y][x][0] !== 0) return;
+    if (grid[y][x][0] === 0 && !isBoundaryCell(x, y)) return;
+    let isBest = lastBestClicks.some(b => b.x === x && b.y === y);
+    drawProbability(x, y, isBest);
+}
+
 function drawProbability(x, y, isBest) {
     let prob = getMineProbability(x, y);
     if (prob < 0) return;
@@ -922,6 +932,7 @@ function doRedraw() {
 // ℳ𝒶𝒽𝓊𝒶
 
     let bestClicks = findBestClick();
+    lastBestClicks = bestClicks;
 
     for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
@@ -1010,64 +1021,35 @@ function initProbabilitySwitch() {
 // ℳ𝒶𝒽𝓊𝒶
 }
 
-function hookGameFunctions() {
-// ṁäḧüä
-    if (_probInitialized) return;
-
-    const orig_l = window.revealCell;
-// 𝖒𝖆𝖍𝖚𝖆
-    window.revealCell = function(x, y) {
-        let res = orig_l(x, y);
-// ⓜⓐⓗⓤⓐ
-        if (showProbability) {
-            clearTimeout(redrawTimer);
-// Ⓜⓐⓗⓤⓐ
-            redrawTimer = setTimeout(redrawAllProbabilities, 80);
+// 棋盘是否发生实质变化：reveal 必改 cellsLeft，flag 必改 minesLeft。
+// 两者都没变（如 chord 未满足、只播放按压动画）则缓存概率仍然有效，直接跳过全盘重算——
+// 这是性能关键：以前 chord 落空也会在 120ms 后触发一次完整的全盘分析。
+function _wrapWithRedraw(fn) {
+    return function(x, y) {
+        var beforeCells = cellsLeft;
+        var beforeMines = minesLeft;
+        var res = fn(x, y);
+        if (showProbability && (cellsLeft !== beforeCells || minesLeft !== beforeMines)) {
+            // redrawAllProbabilities -> scheduleRedraw 走 rAF 且按 redrawVersion 合并，
+            // 连锁翻开触发的多次调用只会真正执行最后一次，无需 setTimeout 延迟。
+            redrawAllProbabilities();
         }
         return res;
-// 𝔐𝔞𝔥𝔲𝔞
     };
+}
 
-    const orig_q = window.flagCell;
-    window.flagCell = function(x, y) {
-// ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
-        orig_q(x, y);
-        if (showProbability) {
-// 𝓜𝓪𝓱𝓾𝓪
-            clearTimeout(redrawTimer);
-            redrawTimer = setTimeout(redrawAllProbabilities, 80);
-        }
-    };
-// ṁäḧüä
+function hookGameFunctions() {
+    if (_probInitialized) return;
+
+    window.revealCell = _wrapWithRedraw(window.revealCell);
+    window.flagCell = _wrapWithRedraw(window.flagCell);
+    window.chordClick = _wrapWithRedraw(window.chordClick);
 
     const orig__45 = window.restartGame;
     window.restartGame = function() {
         orig__45();
-// ₥₳ⱧɄ₳
-        if (showProbability) setTimeout(redrawAllProbabilities, 100);
-        else setTimeout(clearAllProbabilitiesSafe, 100);
-    };
-// Ⓜⓐⓗⓤⓐ
-
-    const orig_n = window.chordClick;
-    window.chordClick = function(x, y) {
-// 𝑴𝒂𝒉𝒖𝒂
-        orig_n(x, y);
-        if (showProbability) {
-            clearTimeout(redrawTimer);
-            redrawTimer = setTimeout(redrawAllProbabilities, 120);
-        }
-    };
-
-    const orig_u = window.ensureFirstSafe;
-    window.ensureFirstSafe = function(x, y) {
-// 𝒎𝒂𝒉𝒖𝒂
-        orig_u(x, y);
-        if (showProbability) {
-            clearTimeout(redrawTimer);
-            redrawTimer = setTimeout(redrawAllProbabilities, 80);
-// 𝕸𝖆𝖍𝖚𝖆
-        }
+        if (showProbability) redrawAllProbabilities();
+        else clearAllProbabilitiesSafe();
     };
 }
 

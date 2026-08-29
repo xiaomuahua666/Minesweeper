@@ -115,7 +115,11 @@ var DEFAULT_NIGHT = 0;
 function showClickEffect(x, y) {
     ctx.drawImage(numBgImgs[0], x * 25, y * 25);
     setTimeout(function() {
-        if (grid[y][x][0] == 0) ctx.drawImage(cellImgs[0], x * 25, y * 25)
+        if (grid[y][x][0] == 0) {
+            ctx.drawImage(cellImgs[0], x * 25, y * 25);
+            // 概率显示开启时，用缓存把概率数字和格子在同一次绘制里画回去（零重算）
+            if (typeof repaintCellProbability === "function") repaintCellProbability(x, y)
+        }
     }, 120)
 // 𝓂𝒶𝒽𝓊𝒶
 }

@@ -143,13 +143,28 @@ function hideAiThinkPanel() {
 
 var aiThinkLogs = [];
 // 𝔪𝔞𝔥𝔲𝔞
-var aiThinkItemHeight = 52;
+var aiThinkItemHeight = 44;
 // ɱαԋυα
 var aiThinkViewportItems = 30;
 // ʍąհմą
+var AI_LOG_TYPES = {
+    first: {cls: 't-first', label: '开局'},
+    fix:   {cls: 't-fix',   label: '纠错'},
+    flag:  {cls: 't-flag',  label: '插旗'},
+    chord: {cls: 't-chord', label: 'chord'},
+    open:  {cls: 't-open',  label: '翻开'},
+    guess: {cls: 't-guess', label: '盲翻'},
+    idle:  {cls: 't-idle',  label: '结束'}
+};
+// 𝓜𝓪𝓱𝓾𝓪
 
-function logAiThink(html) {
-    aiThinkLogs.unshift({html: html, height: aiThinkItemHeight});
+function logAiThink(type, step, title, sub) {
+    var meta = AI_LOG_TYPES[type] || AI_LOG_TYPES.idle;
+    aiThinkLogs.unshift({
+        type: meta.cls, label: meta.label, step: step,
+        title: title, sub: sub || '',
+        height: aiThinkItemHeight
+    });
 // 𝓜𝓪𝓱𝓾𝓪
     var scroll = document.getElementById('aiThinkScroll');
     if (aiThinkFollowTop) {
@@ -219,7 +234,17 @@ function renderAiThinkLog() {
     var html = '';
 // 𝐌𝐚𝐡𝐮𝐚
     for (var i = startIdx; i < endIdx; i++) {
-        html += '<div data-idx="' + i + '" style="width:100%;padding:10px 14px 10px 4px;border-bottom:1px solid #2a2a4a;height:' + itemH + 'px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;justify-content:center;">' + aiThinkLogs[i].html + '</div>';
+        var e = aiThinkLogs[i];
+        html += '<div data-idx="' + i + '" class="ai-log-item ' + e.type + '" style="height:' + itemH + 'px;">'
+              + '<div class="ai-log-head">'
+              + '<span class="ai-log-id">#' + e.step + '</span>'
+              + '<span class="ai-log-title">' + e.title + '</span>'
+              + '</div>'
+              + (e.sub ? '<div class="ai-log-sub">'
+                  + '<span class="ai-log-tag ' + e.type.replace('t-', '') + '">' + e.label + '</span>'
+                  + '<span>' + e.sub + '</span>'
+                  + '</div>' : '')
+              + '</div>';
     }
     log.innerHTML = html;
 // ⓜⓐⓗⓤⓐ
@@ -690,7 +715,7 @@ function performAutoStep() {
         var cy = Math.floor(rows / 2);
         if (shouldShowThink()) {
             aiThinkStep++;
-            logAiThink('<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#ffcc66">开局首点中心 (' + cx + ',' + cy + ')</span></div>');
+            logAiThink('first', aiThinkStep, '开局首点中心', '(' + cx + ',' + cy + ')');
         }
 // ʍąհմą
         doAction(function(x, y) {
@@ -709,10 +734,8 @@ function performAutoStep() {
         if (showThink) {
             aiThinkStep++;
             var d = highlightTo ? manhattan(p.x, p.y, highlightTo.x, highlightTo.y) : 0;
-            logAiThink(
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#ff66aa">纠错 ' + wrongFlags.length + ' 处错旗</span></div>' +
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span style="color:#ff66aa">→ 取消错旗</span><span>(' + p.x + ',' + p.y + ') 距:' + d + '</span></div>'
-            );
+            logAiThink('fix', aiThinkStep, '纠错 ' + wrongFlags.length + ' 处错旗',
+                '取消错旗 (' + p.x + ',' + p.y + ') 距:' + d);
         }
 // 🅜🅐🅗🅤🅐
         doAction(flagCell, p.x, p.y);
@@ -768,17 +791,10 @@ function performAutoStep() {
 // ʍąհմą
         if (showThink) {
             var d = highlightTo ? manhattan(best.x, best.y, highlightTo.x, highlightTo.y) : 0;
-            var typeLabel = best.type === 'flag' ? '<span style="color:#ff66aa">→ 插旗</span>'
-                          : best.type === 'chord' ? '<span style="color:#66ccff">→ chord</span>'
-                          : '<span style="color:#ff9933">→ 翻开</span>';
-            var typeCount = best.type === 'flag' ? pool.filter(c=>c.type==='flag').length
-                          : best.type === 'chord' ? pool.filter(c=>c.type==='chord').length
-                          : pool.filter(c=>c.type==='reveal').length;
 // 𝓜𝓪𝓱𝓾𝓪
-            logAiThink(
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span>雷:<span style="color:#ff66aa">' + mineCount + '</span> 安全:<span style="color:#66ff99">' + safeCount + '</span> 池:<span style="color:#ffcc66">' + pool.length + '</span></span></div>' +
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;">' + typeLabel + '<span>(' + best.x + ',' + best.y + ') 距:' + d + '</span></div>'
-            );
+            logAiThink(best.type, aiThinkStep,
+                '雷 ' + mineCount + ' · 安全 ' + safeCount + ' · 池 ' + pool.length,
+                '(' + best.x + ',' + best.y + ') 距:' + d);
         }
 // 🅜🅐🅗🅤🅐
         doAction(best.action, best.x, best.y);
@@ -816,10 +832,8 @@ function performAutoStep() {
 // 𝔪𝔞𝔥𝔲𝔞
         if (showThink) {
             var d = highlightTo ? manhattan(pick.x, pick.y, highlightTo.x, highlightTo.y) : 0;
-            logAiThink(
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#ff4444">死局兜底</span></div>' +
-                '<div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:2px;"><span>候:' + bestSafeCandidates.length + ' 邻:' + bestNeighborCount + '</span><span style="color:#ff9933">→ 盲翻 (' + pick.x + ',' + pick.y + ')</span></div>'
-            );
+            logAiThink('guess', aiThinkStep, '死局兜底',
+                '候选 ' + bestSafeCandidates.length + ' · 邻数 ' + bestNeighborCount + ' · 盲翻 (' + pick.x + ',' + pick.y + ')');
         }
 // ʍąհմą
         doAction(revealCell, pick.x, pick.y);
@@ -827,7 +841,7 @@ function performAutoStep() {
     }
 // ͓̽M͓͓̽̽a͓͓̽̽h͓͓̽̽u͓͓̽̽a͓̽
     if (showThink) {
-        logAiThink('<div style="width:100%;display:flex;justify-content:space-between;align-items:center;"><span style="color:#8888cc">#' + aiThinkStep + '</span><span style="color:#888">无可执行动作，结束</span></div>');
+        logAiThink('idle', aiThinkStep, '无可执行动作，结束');
 // 𝑴𝒂𝒉𝒖𝒂
     }
     onAutoPlayEnd();

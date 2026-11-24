@@ -143,7 +143,7 @@ function hideAiThinkPanel() {
 
 var aiThinkLogs = [];
 // 𝔪𝔞𝔥𝔲𝔞
-var aiThinkItemHeight = 44;
+var aiThinkItemHeight = 52;
 // ɱαԋυα
 var aiThinkViewportItems = 30;
 // ʍąհմą
@@ -152,7 +152,8 @@ var AI_LOG_TYPES = {
     fix:   {cls: 't-fix',   label: '纠错'},
     flag:  {cls: 't-flag',  label: '插旗'},
     chord: {cls: 't-chord', label: 'chord'},
-    open:  {cls: 't-open',  label: '翻开'},
+    open:   {cls: 't-open',  label: '翻开'},
+    reveal: {cls: 't-open',  label: '翻开'},
     guess: {cls: 't-guess', label: '盲翻'},
     idle:  {cls: 't-idle',  label: '结束'}
 };

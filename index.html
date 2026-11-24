@@ -113,63 +113,68 @@ color:#444;
 </table>
 
 <!-- AI 思考面板（可拖动、可调整大小，位置和尺寸自动记忆） -->
-<div id="aiThinkPanel" class="ai-think-panel" style="display:none;position:fixed;top:80px;right:16px;width:300px;height:420px;background:#202124;color:#fff;border:1px solid #666;border-radius:8px;padding:12px 0 12px 12px;font-family:Consolas,'Courier New',monospace;font-size:12px;line-height:1.6;z-index:9999;box-shadow:0 4px 14px rgba(0,0,0,0.53);box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;align-items:stretch;cursor:move;touch-action:none;">
-<div id="aiThinkHeader" style="color:#e8eaed;font-weight:bold;border-bottom:1px solid #5f6368;padding:0 12px 4px 0;margin-bottom:8px;flex-shrink:0;cursor:move;user-select:none;touch-action:none;"><span>AI 思考过程 ⠿</span></div>
-<div id="aiThinkClose" style="position:absolute;right:6px;top:6px;cursor:pointer;width:24px;height:24px;border-radius:50%;background:#444;color:#fff;font-size:16px;line-height:24px;text-align:center;z-index:10000;user-select:none;">✕</div>
-<div id="aiThinkTopBtn" title="返回顶部并跟随" style="position:absolute;left:6px;top:6px;display:none;align-items:center;justify-content:center;width:18px;height:18px;border:1px solid #1677ff;border-radius:50%;color:#fff;background:#1677ff;cursor:pointer;font-size:11px;line-height:1;user-select:none;touch-action:none;z-index:10000;">↑</div>
-<div id="aiThinkScroll" style="position:relative;flex:1 1 auto;width:100%;min-width:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#5f6368 transparent;cursor:default;touch-action:auto;">
+<div id="aiThinkPanel" class="ai-think-panel" style="display:none;position:fixed;top:80px;right:16px;width:320px;height:440px;background:#202124;color:#e8eaed;border:1px solid rgba(255,255,255,.07);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.35),0 12px 32px rgba(0,0,0,.45);box-sizing:border-box;overflow:hidden;flex-direction:column;z-index:9999;font:12px/1.6 Consolas,'Courier New',monospace;text-align:left;touch-action:none;">
+<div id="aiThinkHeader" style="flex-shrink:0;display:flex;align-items:center;height:28px;margin:0;padding:0 8px 0 12px;text-align:left;cursor:move;user-select:none;touch-action:none;-webkit-text-size-adjust:100%;text-size-adjust:100%;">
+<span style="flex:1;min-width:0;font-size:11px;color:#8b9096;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">AI 思考过程</span>
+<div id="aiThinkTopBtn" title="返回顶部并跟随" style="display:none;align-items:center;justify-content:center;width:20px;height:20px;margin:0;border-radius:5px;background:transparent;color:#9aa0a6;cursor:pointer;font-size:11px;line-height:1;user-select:none;flex-shrink:0;">↑</div>
+<div id="aiThinkClose" title="关闭" style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;margin:0;border-radius:5px;background:transparent;color:#7c8288;cursor:pointer;font-size:11px;line-height:1;user-select:none;flex-shrink:0;">✕</div>
+</div>
+<div id="aiThinkScroll" style="position:relative;flex:1 1 auto;min-height:0;width:100%;box-sizing:border-box;margin:0;overflow-y:auto;overflow-x:hidden;padding:6px 12px 10px 12px;background:#202124;text-align:left;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-gutter:stable;scrollbar-color:#4a4d50 transparent;touch-action:auto;">
 <div id="aiThinkSpacerTop" style="height:0;"></div>
 <div id="aiThinkLog"></div>
 <div id="aiThinkSpacerBottom" style="height:0;"></div>
 </div>
-<div id="aiThinkResize" style="position:absolute;right:0;bottom:0;width:20px;height:20px;cursor:nwse-resize;color:#9aa0a6;font-size:16px;line-height:20px;text-align:center;user-select:none;touch-action:none;">◢</div>
+<span id="aiThinkResize" title="调整大小" style="position:absolute;right:2px;bottom:2px;display:flex;align-items:center;justify-content:center;width:12px;height:12px;color:rgba(255,255,255,.18);cursor:nwse-resize;user-select:none;touch-action:none;"><svg width="9" height="9" viewBox="0 0 11 11" fill="none" aria-hidden="true"><path d="M10 4.5L4.5 10M10 8.5L8.5 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span>
 </div>
 <style>
 /* 𝓜𝓪𝓱𝓾𝓪 推理日志滚动条样式（WebKit） */
-#aiThinkScroll::-webkit-scrollbar { width: 8px; }
+#aiThinkScroll::-webkit-scrollbar { width: 6px; }
 #aiThinkScroll::-webkit-scrollbar-track { background: transparent; }
-#aiThinkScroll::-webkit-scrollbar-thumb { background: #5f6368; border-radius: 4px; }
-#aiThinkScroll::-webkit-scrollbar-thumb:hover { background: #9aa0a6; }
+#aiThinkScroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); border-radius: 3px; }
+#aiThinkScroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.28); }
+#aiThinkTopBtn:hover, #aiThinkClose:hover { background: rgba(255,255,255,.13) !important; }
+#aiThinkClose:hover { color: #f28b82 !important; }
+#aiThinkResize:hover { color: #9aa0a6 !important; }
+#aiThinkResize svg { pointer-events: none; }
 /* 𝓜𝓪𝓱𝓾𝓪 日志卡片 */
 .ai-log-item {
   width: 100%; box-sizing: border-box;
-  padding: 7px 10px 7px 12px;
+  margin: 0;
+  padding: 7px 12px 7px 12px;
   border-bottom: 1px solid #3c4043;
   border-left: 3px solid #5f6368;
   display: flex; flex-direction: column; justify-content: center;
   overflow: hidden;
 }
-.ai-log-item.t-open  { border-left-color: #1677ff; }
-.ai-log-item.t-flag  { border-left-color: #f28b82; }
-.ai-log-item.t-chord { border-left-color: #8ab4f8; }
-.ai-log-item.t-guess { border-left-color: #fdd663; }
-.ai-log-item.t-fix   { border-left-color: #f28b82; }
-.ai-log-item.t-first { border-left-color: #81c995; }
+.ai-log-item.t-open  { border-left-color: #FF7F00; }
+.ai-log-item.t-flag  { border-left-color: #C71585; }
+.ai-log-item.t-chord { border-left-color: #FF7F00; }
+.ai-log-item.t-guess { border-left-color: #FF7F00; }
+.ai-log-item.t-fix   { border-left-color: #C71585; }
+.ai-log-item.t-first { border-left-color: #FF7F00; }
 .ai-log-item.t-idle  { border-left-color: #5f6368; }
 .ai-log-head {
   display: flex; justify-content: space-between; align-items: baseline;
-  gap: 8px; font-size: 11px; color: #fff;
+  gap: 8px; margin: 0; font-size: 11px; color: #fff; text-align: left;
 }
 .ai-log-id { color: #9aa0a6; font-variant-numeric: tabular-nums; flex-shrink: 0; }
 .ai-log-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ai-log-sub {
-  margin-top: 3px; display: flex; justify-content: space-between;
-  gap: 8px; font-size: 10px; color: #9aa0a6;
+  margin: 3px 0 0; display: flex; justify-content: space-between;
+  gap: 8px; font-size: 10px; color: #9aa0a6; text-align: left;
 }
 .ai-log-sub span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ai-log-tag { color: #9aa0a6; }
-.ai-log-tag.open  { color: #1677ff; }
-.ai-log-tag.flag  { color: #f28b82; }
-.ai-log-tag.chord { color: #8ab4f8; }
+.ai-log-tag.first { color: #FF7F00; }
+.ai-log-tag.open  { color: #FF7F00; }
+.ai-log-tag.chord { color: #FF7F00; }
+.ai-log-tag.guess { color: #FF7F00; }
+.ai-log-tag.flag  { color: #C71585; }
+.ai-log-tag.fix   { color: #C71585; }
+.ai-log-tag.idle  { color: #9aa0a6; }
 .ai-log-empty { padding: 20px 10px; text-align: center; color: #9aa0a6; font-size: 11px; }
-/* 𝓜𝓪𝓱𝓾𝓪 桌面版：滚动容器底部留 24px，避免下箭头被 resize 三角遮挡 */
-@media (min-width: 769px) {
-  #aiThinkScroll { margin-bottom: 24px; }
-}
 @media (max-width: 768px) {
-  .ai-think-panel { width: 90vw; height: 50vh; left: 5vw; right: auto; top: 60px; font-size: 11px; padding: 8px; }
-  #aiThinkResize { width: 24px !important; height: 24px !important; font-size: 16px !important; line-height: 24px !important; }
-  #aiThinkHeader { padding: 4px 2px !important; margin-bottom: 4px !important; font-size: 12px; }
+  .ai-think-panel { width: 90vw; height: 50vh; left: 5vw; right: auto; top: 60px; font-size: 11px; }
 }
 </style>
 

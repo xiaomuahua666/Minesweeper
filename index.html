@@ -9,6 +9,10 @@
 <title>在线扫雷游戏</title>
 <style>
 body{margin:0px;background-color:#f7f7f0}
+body.night-anim{transition:background-color .3s ease,color .3s ease}
+body.night-anim a{transition:color .3s ease}
+body.night-anim .footer-loop-item{transition:color .3s ease}
+body.night-anim #probDisclaimer{transition:background-color .3s ease,color .3s ease,border-left-color .3s ease}
 div{margin:auto;text-align:center;}
 input{height:1.5rem;width:3.8rem;}
 #face{
@@ -174,7 +178,7 @@ color:#444;
 .ai-log-tag.idle  { color: #9aa0a6; }
 .ai-log-empty { padding: 20px 10px; text-align: center; color: #9aa0a6; font-size: 11px; }
 @media (max-width: 768px) {
-  .ai-think-panel { width: 90vw; height: 50vh; left: 5vw; right: auto; top: 60px; font-size: 11px; }
+  .ai-think-panel { width: 69vw; height: 38vh; left: 5vw; right: auto; top: 60px; font-size: 11px; }
 }
 </style>
 
@@ -342,6 +346,8 @@ document.getElementById('night').addEventListener('change', function() {
 });
 
 initGame();
+// 𝓜𝓪𝓱𝓾𝓪
+setTimeout(function() { document.body.classList.add('night-anim'); }, 0);
 </script>
 </body>
 </html>
